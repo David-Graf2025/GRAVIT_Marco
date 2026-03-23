@@ -126,6 +126,22 @@ class AppPreferencesService implements IAppPreferencesService {
   }
 
   @override
+  String get siteId => _repo.siteId;
+
+  @override
+  Future<void> setSiteId(String value) async {
+    await _repo.setSiteId(value);
+  }
+
+  @override
+  String get popType => _repo.popType;
+
+  @override
+  Future<void> setPopType(String value) async {
+    await _repo.setPopType(value);
+  }
+
+  @override
   String get importListRaw => _repo.importListRaw;
 
   @override
@@ -178,5 +194,44 @@ class AppPreferencesService implements IAppPreferencesService {
   @override
   Future<void> setUserEmail(String email) async {
     await _repo.setString(StorageKeys.userEmail, email.trim());
+  }
+
+  @override
+  String? getDynamicInputValue(String key) => _repo.getDynamicInputValue(key);
+
+  @override
+  Future<void> setDynamicInputValue(String key, String value) async {
+    await _repo.setDynamicInputValue(key, value);
+  }
+
+  @override
+  Future<void> removeDynamicInputValue(String key) async {
+    await _repo.removeDynamicInputValue(key);
+  }
+
+  @override
+  String? get activeCaptureSiteKey =>
+      _repo.getString(StorageKeys.activeCaptureSiteKey);
+
+  @override
+  Future<void> setActiveCaptureSiteKey(String? siteKey) async {
+    if (siteKey == null || siteKey.trim().isEmpty) {
+      await _repo.remove(StorageKeys.activeCaptureSiteKey);
+      return;
+    }
+    await _repo.setString(StorageKeys.activeCaptureSiteKey, siteKey.trim());
+  }
+
+  @override
+  bool get activeCapturePhotoPage =>
+      (_repo.getString(StorageKeys.activeCapturePhotoPage) ?? '') == '1';
+
+  @override
+  Future<void> setActiveCapturePhotoPage(bool active) async {
+    if (!active) {
+      await _repo.remove(StorageKeys.activeCapturePhotoPage);
+      return;
+    }
+    await _repo.setString(StorageKeys.activeCapturePhotoPage, '1');
   }
 }

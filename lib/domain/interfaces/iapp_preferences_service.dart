@@ -46,6 +46,12 @@ abstract class IAppPreferencesService {
   String get city;
   Future<void> setCity(String value);
 
+  String get siteId;
+  Future<void> setSiteId(String value);
+
+  String get popType;
+  Future<void> setPopType(String value);
+
   String get importListRaw;
   Future<void> setImportListRaw(String value);
   Future<void> clearImportedList();
@@ -63,4 +69,14 @@ abstract class IAppPreferencesService {
   
   String? get userEmail;
   Future<void> setUserEmail(String email);
+
+  String? getDynamicInputValue(String key);
+  Future<void> setDynamicInputValue(String key, String value);
+  Future<void> removeDynamicInputValue(String key);
+
+  String? get activeCaptureSiteKey;
+  Future<void> setActiveCaptureSiteKey(String? siteKey);
+
+  bool get activeCapturePhotoPage;
+  Future<void> setActiveCapturePhotoPage(bool active);
 }

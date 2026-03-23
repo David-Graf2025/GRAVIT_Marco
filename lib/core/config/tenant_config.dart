@@ -390,7 +390,10 @@ class TenantConfig {
         key: token,
         type: lower == 'date' ? 'date' : 'text',
         label: label,
-        required: true,
+        required: lower == 'city' ||
+            lower == 'siteid' ||
+            lower == 'popid' ||
+            lower == 'poptype',
       );
     }).toList();
   }

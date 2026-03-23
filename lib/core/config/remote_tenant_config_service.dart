@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import 'app_config.dart';
 import 'tenant_config.dart';
 import 'tenant_routing_config.dart';
 
@@ -15,7 +16,6 @@ class RemoteTenantConfigService {
   static final RemoteTenantConfigService instance =
       RemoteTenantConfigService._();
 
-  static const String _baseUrl = 'https://api.api-bilder-app.de';
   static const Duration _timeout = Duration(seconds: 8);
   static const Duration _cacheTtl = Duration(minutes: 5);
 
@@ -93,4 +93,6 @@ class RemoteTenantConfigService {
     _routingCache = null;
     _routingCachedAt = null;
   }
+
+  String get _baseUrl => AppConfig.apiBaseUrl;
 }

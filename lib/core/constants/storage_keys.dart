@@ -71,12 +71,24 @@ class StorageKeys {
   
   /// Site ID input
   static const String siteId = 'siteId';
+
+  /// POP / template type input used for template resolution.
+  static const String popType = 'popType';
   
   /// Raw imported list data (JSON)
   static const String importListRaw = 'importListRaw';
   
   /// Custom photo variable input
   static const String customVariable = 'customVariable';
+
+  /// Prefix for tenant-specific or dynamic form field values.
+  static const String dynamicInputFieldPrefix = 'dynamic_input_field_v1_';
+
+  /// Last active capture site key to restore the photo flow after camera/app recreation.
+  static const String activeCaptureSiteKey = 'active_capture_site_key_v1';
+
+  /// Whether the photo/capture page should be restored on next app launch/resume.
+  static const String activeCapturePhotoPage = 'active_capture_photo_page_v1';
 
   // ==========================================
   // Photo Variables & Order

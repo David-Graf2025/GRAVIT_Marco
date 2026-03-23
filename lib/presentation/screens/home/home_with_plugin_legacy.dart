@@ -10,6 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/config/app_config.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/services/device_identity_service.dart';
 import '../../../domain/interfaces/ionedrive_service.dart';
@@ -113,6 +114,8 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
 
   String? _selectedLocationKey;
   final Map<String, TextEditingController> _dynamicFieldControllers = {};
+  String? _lastTemplateSignature;
+  bool _restoringPersistedInput = false;
 
   String _normalizeFieldKey(String key) {
     return key.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
@@ -141,7 +144,10 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
     final existing = _dynamicFieldControllers[key];
     if (existing != null) return existing;
 
-    final created = TextEditingController();
+    final created = TextEditingController(
+      text: _appPreferencesService.getDynamicInputValue(key) ?? '',
+    );
+    created.addListener(() => _persistDynamicInputValue(key, created.text));
     _dynamicFieldControllers[key] = created;
     return created;
   }
@@ -233,6 +239,154 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
 
   String _normalizePatternToken(String token) {
     return token.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+  }
+
+  void _registerPersistedFieldListeners() {
+    _cityController.addListener(() => _handleBaseFieldChanged('city', _cityController.text));
+    _siteIdController.addListener(() => _handleBaseFieldChanged('siteId', _siteIdController.text));
+    _netElementController.addListener(() => _handleBaseFieldChanged('netElement', _netElementController.text));
+    _projectController.addListener(() => _handleBaseFieldChanged('project', _projectController.text));
+    _popTypeController.addListener(() => _handleBaseFieldChanged('popType', _popTypeController.text));
+  }
+
+  Future<void> _handleBaseFieldChanged(String key, String value) async {
+    if (_restoringPersistedInput) return;
+
+    final trimmed = value.trim();
+    switch (_normalizeFieldKey(key)) {
+      case 'city':
+        await _appPreferencesService.setCity(trimmed);
+        break;
+      case 'siteid':
+      case 'popid':
+        await _appPreferencesService.setSiteId(trimmed);
+        break;
+      case 'netelement':
+        await _appPreferencesService.setNetElement(trimmed);
+        break;
+      case 'project':
+        await _appPreferencesService.setProject(trimmed);
+        break;
+      case 'poptype':
+        await _appPreferencesService.setPopType(trimmed);
+        break;
+      default:
+        break;
+    }
+
+    _scheduleTemplateStateRefresh();
+  }
+
+  Future<void> _persistDynamicInputValue(String key, String value) async {
+    if (_restoringPersistedInput) return;
+
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      await _appPreferencesService.removeDynamicInputValue(key);
+    } else {
+      await _appPreferencesService.setDynamicInputValue(key, trimmed);
+    }
+
+    _scheduleTemplateStateRefresh();
+  }
+
+  Future<void> _restorePersistedInputValues() async {
+    _restoringPersistedInput = true;
+    try {
+      _cityController.text = _appPreferencesService.city;
+      _siteIdController.text = _appPreferencesService.siteId;
+      _netElementController.text = _appPreferencesService.netElement;
+      _projectController.text = _appPreferencesService.project;
+      _popTypeController.text = _appPreferencesService.popType;
+
+      for (final field in _activeInputFields) {
+        final controller = _controllerForInputKey(field.key);
+        final normalized = _normalizeFieldKey(field.key);
+        final persisted = switch (normalized) {
+          'city' => _appPreferencesService.city,
+          'siteid' || 'popid' => _appPreferencesService.siteId,
+          'netelement' => _appPreferencesService.netElement,
+          'project' => _appPreferencesService.project,
+          'poptype' => _appPreferencesService.popType,
+          _ => _appPreferencesService.getDynamicInputValue(field.key) ?? '',
+        };
+
+        if (controller.text != persisted) {
+          controller.text = persisted;
+        }
+      }
+    } finally {
+      _restoringPersistedInput = false;
+    }
+  }
+
+  String? _currentTemplateSignature() {
+    final config = _tenantConfig;
+    if (config == null) return null;
+
+    return '${_activeTemplate().templateId}|${_currentPopTypeValue()}|${_selectedLocationKey ?? ''}';
+  }
+
+  void _scheduleTemplateStateRefresh() {
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await _refreshTemplateDependentState();
+    });
+  }
+
+  Future<void> _refreshTemplateDependentState() async {
+    final signature = _currentTemplateSignature();
+    if (signature == null || signature == _lastTemplateSignature) {
+      if (mounted) setState(() {});
+      return;
+    }
+
+    _lastTemplateSignature = signature;
+    await _initVariablesOrder();
+
+    if (_showPhotoPage) {
+      final values = _currentFormValues();
+      final siteKey = buildSiteKey(
+        netElement: values['netElement'] ?? '',
+        project: values['project'] ?? '',
+        importedPairs: _importedPairs,
+        city: values['city'] ?? '',
+        siteId: values['siteId'] ?? '',
+        unknownLabel: _unknownLabel,
+        folderPattern: _tenantConfig != null
+            ? _effectiveFolderPatternForTemplate(_activeTemplate())
+            : null,
+        extraValues: values,
+      );
+      _selectedLocationKey = siteKey;
+      await _appPreferencesService.setActiveCaptureSiteKey(siteKey);
+      await _loadTakenPhotos();
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _restoreCaptureSessionIfAvailable() async {
+    final shouldRestorePhotoPage = _appPreferencesService.activeCapturePhotoPage;
+    final persistedSiteKey = _appPreferencesService.activeCaptureSiteKey?.trim();
+    if (!shouldRestorePhotoPage || persistedSiteKey == null || persistedSiteKey.isEmpty) {
+      return;
+    }
+
+    _selectedLocationKey = persistedSiteKey;
+    if (!mounted) return;
+    setState(() {
+      _showPhotoPage = true;
+    });
+    await _loadTakenPhotos();
+  }
+
+  Future<void> _persistCaptureSessionState() async {
+    await _appPreferencesService.setActiveCapturePhotoPage(_showPhotoPage);
+    await _appPreferencesService.setActiveCaptureSiteKey(_selectedLocationKey);
   }
 
   List<String> _extractPatternTokens(String pattern) {
@@ -393,6 +547,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
     _uploadQueueService = getIt<IUploadQueueService>();
     _appPreferencesService = getIt<IAppPreferencesService>();
     _tokenManagerService = getIt<ITokenManagerService>();
+    _registerPersistedFieldListeners();
 
     _loadLanguage();
     _loadSavedInput();
@@ -1026,7 +1181,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
       final fingerprintHash = await DeviceIdentityService.getFingerprintHash();
 
       final uri =
-          Uri.parse('https://api.api-bilder-app.de/v1/access/$deviceId').replace(
+          Uri.parse('${AppConfig.apiBaseUrl}/v1/access/$deviceId').replace(
         queryParameters: {
           'platform': 'android',
           'userEmail': normalized,
@@ -1127,7 +1282,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
       params['userEmail'] = normalizedEmail;
     }
 
-    final uri = Uri.parse('https://api.api-bilder-app.de/v1/config/$deviceId')
+    final uri = Uri.parse('${AppConfig.apiBaseUrl}/v1/config/$deviceId')
         .replace(queryParameters: params);
 
     final response = await http.get(
@@ -1224,7 +1379,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
       var debugConfigVersion = 'unknown';
       var debugConfigSource = '-';
 
-      if (!hasPreferredTenant && (savedTenantId == null || savedTenantId.isEmpty)) {
+      if (!hasPreferredTenant) {
         final deviceResult = await _tryLoadDeviceEffectiveTenantConfig(
           deviceId: deviceId,
           installationId: installationId,
@@ -1285,6 +1440,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
         _securityLockActive = false;
         _securityLockReason = '';
       });
+      await _restorePersistedInputValues();
     } catch (e) {
       if (soft && _tenantConfig != null) {
         return;
@@ -1301,6 +1457,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
         _securityLockReason = e.toString();
         _showPhotoPage = false;
       });
+      await _persistCaptureSessionState();
       return;
     } finally {
       _tenantConfigLoading = false;
@@ -1308,10 +1465,15 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
 
     await _loadUploadSettings();
     await _initVariablesOrder();
+    _lastTemplateSignature = _currentTemplateSignature();
+    await _restoreCaptureSessionIfAvailable();
     await _loadTakenPhotos();
 
-    // Retry asynchronously because token/profile data can arrive shortly after login flow completes.
-    _ensureUserEmailSynced(attempts: 6, delaySeconds: 2);
+    final persistedEmail = _appPreferencesService.userEmail?.trim() ?? '';
+    if (_isConnectedToOneDrive || persistedEmail.isNotEmpty) {
+      // Retry asynchronously because token/profile data can arrive shortly after login flow completes.
+      _ensureUserEmailSynced(attempts: 6, delaySeconds: 2);
+    }
   }
 
   Future<String?> _tryGetUserEmailFromAccessToken() async {
@@ -1517,16 +1679,22 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
     _netElementController.text = _appPreferencesService.netElement;
     _projectController.text = _appPreferencesService.project;
     _cityController.text = _appPreferencesService.city;
+    _siteIdController.text = _appPreferencesService.siteId;
+    _popTypeController.text = _appPreferencesService.popType;
   }
 
   Future<void> _savePersistedCoreInput({
     required String city,
+    required String siteId,
     required String netElement,
     required String project,
+    required String popType,
   }) async {
     await _appPreferencesService.setCity(city);
+    await _appPreferencesService.setSiteId(siteId);
     await _appPreferencesService.setNetElement(netElement);
     await _appPreferencesService.setProject(project);
+    await _appPreferencesService.setPopType(popType);
   }
 
   void _loadSavedInput() async {
@@ -1581,11 +1749,14 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
 
   Future<void> _clearImportedList() async {
     await _appPreferencesService.clearImportedList();
+    await _appPreferencesService.setActiveCaptureSiteKey(null);
+    await _appPreferencesService.setActiveCapturePhotoPage(false);
     if (!mounted) return;
     setState(() {
       _listInputController.clear();
       _importedPairs.clear();
       _selectedLocationKey = null;
+      _showPhotoPage = false;
     });
     showToast('🗑️ Liste gelöscht');
   }
@@ -1623,6 +1794,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
     final site = values['siteId'] ?? '';
     final net = values['netElement'] ?? '';
     final proj = values['project'] ?? '';
+    final popType = values['popType'] ?? '';
 
     final missingLabels = _missingRequiredFieldLabels();
     if (missingLabels.isNotEmpty) {
@@ -1646,8 +1818,10 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
 
     await _savePersistedCoreInput(
       city: city,
+      siteId: site,
       netElement: net,
       project: proj,
+      popType: popType,
     );
 
     // ✅ FIX: Setze selectedLocationKey für Foto-Status
@@ -1664,6 +1838,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
       extraValues: values,
     );
     _selectedLocationKey = siteKey;
+    await _appPreferencesService.setActiveCaptureSiteKey(siteKey);
 
     await _initVariablesOrder();
     await _loadTakenPhotos();
@@ -1672,6 +1847,8 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
     setState(() {
       _showPhotoPage = true;
     });
+    _lastTemplateSignature = _currentTemplateSignature();
+    await _persistCaptureSessionState();
   }
 
   // ======================================================================
@@ -1755,6 +1932,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
       await _saveTakenPhotos();
     }
 
+    await _persistCaptureSessionState();
     showToast("📸 Gespeichert in Galerie & in Upload-Warteschlange");
   }
 
@@ -2041,7 +2219,12 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
         leading: _showPhotoPage
             ? IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => setState(() => _showPhotoPage = false),
+          onPressed: () async {
+            if (mounted) {
+              setState(() => _showPhotoPage = false);
+            }
+            await _persistCaptureSessionState();
+          },
         )
             : null,
         title: const Text('GRAVIT'),
@@ -2164,6 +2347,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
             projectController: _projectController,
             onStartProcess: _startProcess,
             dynamicFields: _buildDynamicFormFields(),
+            onAnyFieldChanged: _scheduleTemplateStateRefresh,
           ),
 
           const SizedBox(height: 12),
@@ -2310,6 +2494,9 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
         _siteIdController.text = (pair['siteId'] ?? '').trim();
         _selectedLocationKey = key;
       });
+      _lastTemplateSignature = null;
+      _persistCaptureSessionState();
+      _scheduleTemplateStateRefresh();
     }
   }
 

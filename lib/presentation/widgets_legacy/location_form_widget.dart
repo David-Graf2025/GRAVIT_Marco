@@ -47,6 +47,7 @@ class LocationFormWidget extends StatefulWidget {
   final String? projectLabel;
   final String? projectHint;
   final List<LocationFormFieldConfig> dynamicFields;
+  final VoidCallback? onAnyFieldChanged;
 
   const LocationFormWidget({
     super.key,
@@ -72,6 +73,7 @@ class LocationFormWidget extends StatefulWidget {
     this.projectLabel,
     this.projectHint,
     this.dynamicFields = const [],
+    this.onAnyFieldChanged,
   });
 
   @override
@@ -194,6 +196,7 @@ class _LocationFormWidgetState extends State<LocationFormWidget> {
               setState(() {
                 _dynamicErrors[field.key] = null;
               });
+              widget.onAnyFieldChanged?.call();
             },
           )
         else
@@ -205,6 +208,7 @@ class _LocationFormWidgetState extends State<LocationFormWidget> {
             ),
             onChanged: (_) => setState(() {
               _dynamicErrors[field.key] = null;
+              widget.onAnyFieldChanged?.call();
             }),
           ),
       ],
@@ -250,11 +254,14 @@ class _LocationFormWidgetState extends State<LocationFormWidget> {
                 errorText: _cityError,
               ),
               onChanged: (_) => setState(
-                () => _cityError = _validateField(
-                  widget.cityController.text,
-                  validateCity,
-                  widget.requireCity,
-                ),
+                () {
+                  _cityError = _validateField(
+                    widget.cityController.text,
+                    validateCity,
+                    widget.requireCity,
+                  );
+                  widget.onAnyFieldChanged?.call();
+                },
               ),
             ),
             const SizedBox(height: 14),
@@ -277,11 +284,14 @@ class _LocationFormWidgetState extends State<LocationFormWidget> {
                 errorText: _siteIdError,
               ),
               onChanged: (_) => setState(
-                () => _siteIdError = _validateField(
-                  widget.siteIdController.text,
-                  validateSiteId,
-                  widget.requireSiteId,
-                ),
+                () {
+                  _siteIdError = _validateField(
+                    widget.siteIdController.text,
+                    validateSiteId,
+                    widget.requireSiteId,
+                  );
+                  widget.onAnyFieldChanged?.call();
+                },
               ),
             ),
             const SizedBox(height: 14),
@@ -309,9 +319,12 @@ class _LocationFormWidgetState extends State<LocationFormWidget> {
                           errorText: _netElementError,
                         ),
                         onChanged: (_) => setState(
-                          () => _netElementError = _validateOptionalNetElement(
-                            widget.netElementController.text,
-                          ),
+                          () {
+                            _netElementError = _validateOptionalNetElement(
+                              widget.netElementController.text,
+                            );
+                            widget.onAnyFieldChanged?.call();
+                          },
                         ),
                       ),
                     ],
@@ -338,9 +351,12 @@ class _LocationFormWidgetState extends State<LocationFormWidget> {
                           errorText: _projectError,
                         ),
                         onChanged: (_) => setState(
-                          () => _projectError = _validateOptionalProject(
-                            widget.projectController.text,
-                          ),
+                          () {
+                            _projectError = _validateOptionalProject(
+                              widget.projectController.text,
+                            );
+                            widget.onAnyFieldChanged?.call();
+                          },
                         ),
                       ),
                     ],
@@ -365,9 +381,12 @@ class _LocationFormWidgetState extends State<LocationFormWidget> {
                 errorText: _netElementError,
               ),
               onChanged: (_) => setState(
-                () => _netElementError = _validateOptionalNetElement(
-                  widget.netElementController.text,
-                ),
+                () {
+                  _netElementError = _validateOptionalNetElement(
+                    widget.netElementController.text,
+                  );
+                  widget.onAnyFieldChanged?.call();
+                },
               ),
             ),
           ]
@@ -388,9 +407,12 @@ class _LocationFormWidgetState extends State<LocationFormWidget> {
                 errorText: _projectError,
               ),
               onChanged: (_) => setState(
-                () => _projectError = _validateOptionalProject(
-                  widget.projectController.text,
-                ),
+                () {
+                  _projectError = _validateOptionalProject(
+                    widget.projectController.text,
+                  );
+                  widget.onAnyFieldChanged?.call();
+                },
               ),
             ),
           ],

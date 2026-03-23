@@ -7,13 +7,14 @@ import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/config/app_config.dart';
 import '../../../core/config/runtime_storage_target_resolver.dart';
 import '../../../core/constants/storage_keys.dart';
 import '../../../core/services/device_identity_service.dart';
 import '../../../domain/services/config_api_service.dart';
 import '../home/home_with_plugin.dart';
 
-const String _apiBase = 'https://api.api-bilder-app.de';
+String get _apiBase => AppConfig.apiBaseUrl;
 
 // OFFLINE-Fail-open: wie lange darf ein letztes allowed=true offline weiter gelten?
 // (Das ist NICHT die Business-Grace! Business-Grace kommt vom Server via graceActive/graceUntil)
@@ -206,22 +207,19 @@ class _AccessGateState extends State<AccessGate> with WidgetsBindingObserver {
       }
 
       if (serverTenantId.isNotEmpty) {
-        final selectedTenantId =
-            (prefs.getString(StorageKeys.activeTenantId) ?? '').trim();
-        final effectiveTenantId =
-            selectedTenantId.isNotEmpty ? selectedTenantId : serverTenantId;
-
-        if (selectedTenantId.isEmpty) {
-          await prefs.setString(StorageKeys.activeTenantId, serverTenantId);
-          await prefs.setString(StorageKeys.uploadModeTenantId, serverTenantId);
-        }
-
-        await RuntimeStorageTargetResolver.instance.setActiveTenantId(effectiveTenantId);
+        // For assigned devices, the backend tenant is authoritative.
+        await prefs.setString(StorageKeys.activeTenantId, serverTenantId);
+        await prefs.setString(StorageKeys.uploadModeTenantId, serverTenantId);
+        await RuntimeStorageTargetResolver.instance.setActiveTenantId(serverTenantId);
       }
 
       if (assignmentChanged || serverAssignmentChanged) {
         // After server-side assignment/tenant changes, force-refresh config cache.
-        await ConfigApiService().fetchConfig(forceRefresh: true);
+        final refreshedConfig = await ConfigApiService().fetchConfig(forceRefresh: true);
+        if (refreshedConfig == null && serverTenantId.isEmpty) {
+          await prefs.remove(StorageKeys.activeTenantId);
+          await prefs.remove(StorageKeys.uploadModeTenantId);
+        }
       }
 
       final allowed = data['allowed'] == true;

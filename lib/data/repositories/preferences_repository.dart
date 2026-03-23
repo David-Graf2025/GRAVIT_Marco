@@ -145,11 +145,28 @@ class PreferencesRepository {
   Future<bool> setSiteId(String value) => 
       _prefs.setString(StorageKeys.siteId, value);
 
+  String get popType =>
+      _prefs.getString(StorageKeys.popType) ?? '';
+
+  Future<bool> setPopType(String value) =>
+      _prefs.setString(StorageKeys.popType, value);
+
   String get customVariable => 
       _prefs.getString(StorageKeys.customVariable) ?? '';
   
   Future<bool> setCustomVariable(String value) => 
       _prefs.setString(StorageKeys.customVariable, value);
+
+  String _dynamicInputKey(String key) =>
+      '${StorageKeys.dynamicInputFieldPrefix}${key.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '')}';
+
+  String? getDynamicInputValue(String key) => _prefs.getString(_dynamicInputKey(key));
+
+  Future<bool> setDynamicInputValue(String key, String value) =>
+      _prefs.setString(_dynamicInputKey(key), value);
+
+  Future<bool> removeDynamicInputValue(String key) =>
+      _prefs.remove(_dynamicInputKey(key));
 
   // ==========================================
   // Import List

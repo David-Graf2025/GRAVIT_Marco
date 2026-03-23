@@ -17,6 +17,14 @@ class _QueuedUploadEntry {
   });
 }
 
+class _ResolvedUploadDestination {
+  final String targetType;
+
+  const _ResolvedUploadDestination({
+    required this.targetType,
+  });
+}
+
 /// Service for managing upload queue and batch uploads.
 /// 
 /// Handles queuing of failed uploads, batch processing,
@@ -380,6 +388,8 @@ class UploadQueueService implements IUploadQueueService {
       return;
     }
 
+    final destination = await _resolveUploadDestination();
+
     // helper for a single file upload, returns a future
     Future<void> uploadSingle(_QueuedUploadEntry entry) async {
       final file = File(entry.localPath);
@@ -390,6 +400,7 @@ class UploadQueueService implements IUploadQueueService {
       await _uploadQueuedEntry(
         entry: entry,
         siteKey: siteKey,
+        destination: destination,
       );
     }
 
@@ -420,15 +431,14 @@ class UploadQueueService implements IUploadQueueService {
   Future<void> _uploadQueuedEntry({
     required _QueuedUploadEntry entry,
     required String siteKey,
+    _ResolvedUploadDestination? destination,
   }) async {
     final file = File(entry.localPath);
     final filename = path.basename(file.path);
     final bytes = await file.readAsBytes();
     final relativePath = _buildRemotePath(siteKey, filename);
-    final uploadMode = _prefsRepo.uploadMode;
-
-    final target = await RuntimeStorageTargetResolver.instance.byId(uploadMode);
-    final targetType = target?.type ?? _legacyTypeForMode(uploadMode);
+    final resolvedDestination = destination ?? await _resolveUploadDestination();
+    final targetType = resolvedDestination.targetType;
 
     if (targetType == 'sharepoint') {
       await _sharepointService.uploadToSharePointWithFolders(
@@ -449,6 +459,19 @@ class UploadQueueService implements IUploadQueueService {
     }
 
     await markAsUploaded(entry.localPath);
+  }
+
+  Future<_ResolvedUploadDestination> _resolveUploadDestination() async {
+    final uploadMode = _prefsRepo.uploadMode;
+    if (uploadMode != _modeSharepoint &&
+        uploadMode != _modeRemote &&
+        uploadMode != _modeMobilfunk26) {
+      return const _ResolvedUploadDestination(targetType: 'onedrive_personal');
+    }
+    final target = await RuntimeStorageTargetResolver.instance.byId(uploadMode);
+    return _ResolvedUploadDestination(
+      targetType: target?.type ?? _legacyTypeForMode(uploadMode),
+    );
   }
 
   /// Upload all queued sites

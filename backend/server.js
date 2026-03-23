@@ -2710,6 +2710,30 @@ app.delete('/admin/api/tenants/:id', (req, res) => {
     return res.status(404).json({ error: 'Tenant config not found' });
   }
 
+  const linkedCompanies = Object.values(data.companies || {})
+    .filter((company) => toStr(company && company.tenantId) === id)
+    .map((company) => ({
+      id: company.id,
+      name: company.name,
+    }));
+
+  const linkedDevices = Object.values(data.devices || {})
+    .filter((device) => toStr(device && device.tenantId) === id)
+    .map((device) => ({
+      deviceId: device.deviceId,
+      companyId: device.companyId || null,
+      userEmail: device.userEmail || device.lastSeenEmail || null,
+    }));
+
+  if (linkedCompanies.length || linkedDevices.length) {
+    return res.status(409).json({
+      error: 'Tenant is still referenced',
+      tenantId: id,
+      linkedCompanies,
+      linkedDevices,
+    });
+  }
+
   delete data.tenantConfigs[id];
 
   if (data.defaultTenantId === id) {

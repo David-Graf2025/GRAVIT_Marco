@@ -188,4 +188,33 @@ void main() {
       expect(repo.getTakenPhotoVariables('site-2'), equals(['DGUV', 'Tresor']));
     });
   });
+
+  group('PreferencesRepository dynamic form persistence', () {
+    test('stores siteId, popType and dynamic inputs independently', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final repo = PreferencesRepository(prefs);
+
+      await repo.setSiteId('SITE-42');
+      await repo.setPopType('FCP 1496');
+      await repo.setDynamicInputValue('customDropdown', 'Option A');
+
+      expect(repo.siteId, equals('SITE-42'));
+      expect(repo.popType, equals('FCP 1496'));
+      expect(repo.getDynamicInputValue('customDropdown'), equals('Option A'));
+    });
+
+    test('normalizes dynamic input keys and removes values cleanly', () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final repo = PreferencesRepository(prefs);
+
+      await repo.setDynamicInputValue('POP Type', 'FCP 3696');
+      expect(repo.getDynamicInputValue('pop_type'), equals('FCP 3696'));
+
+      final removed = await repo.removeDynamicInputValue('popType');
+      expect(removed, isTrue);
+      expect(repo.getDynamicInputValue('POP Type'), isNull);
+    });
+  });
 }

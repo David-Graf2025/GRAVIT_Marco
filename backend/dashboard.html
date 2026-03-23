@@ -462,7 +462,7 @@
         <div class="form-row">
           <div class="form-group">
             <label>Standard Upload-Ziel ID</label>
-            <input type="text" id="t-default-target" placeholder="z.B. sharepoint" />
+            <select id="t-default-target"></select>
             <div class="muted small">Muss mit einer Upload-Ziel-ID aus dem Tab übereinstimmen</div>
           </div>
           <div class="form-group">
@@ -477,6 +477,7 @@
     <!-- UPLOAD LOGIC TAB -->
     <div id="mtab-upload-logic" class="modal-tab-content">
       <div class="section-header" style="margin-top:0"><h3>📋 Template-Konfiguration</h3></div>
+      <div class="muted small" style="margin-bottom:10px">Dieser Editor bearbeitet das Standard-Template. Mehrere Templates bleiben weiterhin über den JSON-Reiter möglich.</div>
       <div class="form-row">
         <div class="form-group">
           <label>Template Anzeige-Name</label>
@@ -945,6 +946,7 @@
         <button class="mini warn" onclick="window.__msg('${idJs}')">Message</button>
         <button class="mini warn" onclick="window.__grace('${idJs}')">Grace</button>
         <button class="mini" onclick="window.__assign('${idJs}','${escJsSingle(d.companyId||'')}','${escJsSingle(email)}')">Zuweisen</button>
+        <button class="mini" onclick="window.__unassign('${idJs}')">Unassign</button>
         <button class="mini danger" onclick="window.__purgeUser('${idJs}','${escJsSingle(email)}')">Löschen</button>
       </div></td></tr>`;
   }
@@ -983,8 +985,18 @@
   window.__copy=copyToClipboard;
   window.__allow=async(id)=>{ try{ await postJson(API_ALLOW,{deviceId:id}); toast(`Allow ✅`); await loadDevices(); }catch(e){ toast("Fehler ❌",false); } };
   window.__block=async(id)=>{ try{ await postJson(API_BLOCK,{deviceId:id}); toast(`Block ✅`); await loadDevices(); }catch(e){ toast("Fehler ❌",false); } };
-  window.__msg=async(id)=>{ const m=prompt("Message:","")||null; if(m===null)return; try{ await postJson(API_ALLOW,{deviceId:id,message:m}); toast("Message gesetzt ✅"); await loadDevices(); }catch(e){ toast("Fehler ❌",false); } };
+  window.__msg=async(id)=>{ const m=prompt("Message:",""); if(m===null)return; try{ await postJson(API_ALLOW,{deviceId:id,message:m}); toast("Message gesetzt ✅"); await loadDevices(); }catch(e){ toast("Fehler ❌",false); } };
   window.__grace=async(id)=>{ const h=prompt("Grace-Hours (z.B. 168 = 7 Tage):","168"); if(h===null)return; const gh=parseInt(h,10); if(!Number.isFinite(gh)||gh<0){toast("Ungültige Zahl ❌",false);return;} try{ await postJson(API_BLOCK,{deviceId:id,graceHours:gh}); toast(`Grace gesetzt ✅ (${gh}h)`); await loadDevices(); }catch(e){ toast("Fehler ❌",false); } };
+  window.__unassign=async(id)=>{
+    if(!confirm(`Device ${id} wirklich entzuweisen?`)) return;
+    try{
+      await postJson(`/admin/api/devices/${encodeURIComponent(id)}/unassign`,{actor:'admin'});
+      toast("Device entzogen ✅");
+      await loadDevices();
+    }catch(e){
+      toast(`Entzuweisung fehlgeschlagen ❌ (${e.message||'Fehler'})`,false);
+    }
+  };
   window.__aliasCleanupDryRun=async()=>{
     try{
       const result=await postJson(API_ALIAS_CLEANUP,{dryRun:true});
@@ -1221,7 +1233,6 @@
 
       document.getElementById('t-id').value=tenantId;
       document.getElementById('t-name').value=company.name||tenantId;
-      document.getElementById('t-default-target').value=uploadTargets[0]&&uploadTargets[0].id?uploadTargets[0].id:'mydrive';
       document.getElementById('t-template-id').value=templateId;
       document.getElementById('t-template-name').value=`${company.name||tenantId} Standard`;
       document.getElementById('t-folder').value=baseConfig.folderNamingTemplate||'{city} {siteId} {netElement} {project}';
@@ -1230,6 +1241,7 @@
       buildFieldsUI(fields,dropdownPhotoVariables);
       buildStepsUI(captureSteps);
       buildTargetsUI(uploadTargets);
+      syncDefaultTargetOptions(uploadTargets[0]&&uploadTargets[0].id?uploadTargets[0].id:'mydrive');
       syncJsonFromForm();
 
       toast('Onboarding aus Firmenprofil vorbereitet ✅');
@@ -1810,6 +1822,38 @@
     const container=document.getElementById('targets-container');
     container.innerHTML='';
     (targets||[]).forEach((target,index)=>container.appendChild(makeTargetRow(target,index)));
+    syncDefaultTargetOptions();
+  }
+
+  function syncDefaultTargetOptions(preferredId=''){
+    const select=document.getElementById('t-default-target');
+    if(!select) return;
+
+    const currentValue=String(preferredId||select.value||'').trim();
+    const targets=getTargetsFromUI().filter((target)=>String(target&&target.id||'').trim());
+
+    select.innerHTML='';
+
+    if(!targets.length){
+      const placeholder=document.createElement('option');
+      placeholder.value='mydrive';
+      placeholder.textContent='mydrive (Fallback)';
+      select.appendChild(placeholder);
+      select.value='mydrive';
+      return;
+    }
+
+    targets.forEach((target)=>{
+      const option=document.createElement('option');
+      option.value=target.id;
+      option.textContent=`${target.id}${target.label?` - ${target.label}`:''}`;
+      select.appendChild(option);
+    });
+
+    const nextValue=targets.some((target)=>target.id===currentValue)
+      ? currentValue
+      : targets[0].id;
+    select.value=nextValue;
   }
 
   function makeTargetRow(target,index){
@@ -1873,12 +1917,14 @@
   window.addTarget=function(){
     const container=document.getElementById('targets-container');
     container.appendChild(makeTargetRow({id:'',type:'sharepoint',label:'',subtitle:'',icon:'☁️'},container.children.length));
+    syncDefaultTargetOptions();
   };
 
   window.removeTarget=function(index){
     const targets=getTargetsFromUI();
     targets.splice(index,1);
     buildTargetsUI(targets);
+    syncDefaultTargetOptions();
   };
 
   function getTargetsFromUI(){
@@ -1975,7 +2021,6 @@
     const primaryTemplate=getPrimaryTemplate(tenant);
     document.getElementById('t-id').value=tenant.tenantId||'';
     document.getElementById('t-name').value=tenant.name||tenant.tenantName||'';
-    document.getElementById('t-default-target').value=tenant.defaultStorageTargetId||'';
     document.getElementById('t-template-id').value=tenant.defaultTemplateId||primaryTemplate.templateId||'';
     document.getElementById('t-template-name').value=primaryTemplate.name||'';
     document.getElementById('t-folder').value=primaryTemplate.folderPattern||tenant.folderPattern||'';
@@ -1993,6 +2038,7 @@
     );
     buildStepsUI(primaryTemplate.captureSteps||tenant.captureSteps||[]);
     buildTargetsUI(tenant.storageTargets||[]);
+    syncDefaultTargetOptions(tenant.defaultStorageTargetId||'');
     syncJsonFromForm();
   }
 
@@ -2009,9 +2055,10 @@
     ['onb-company-id','onb-company-name','onb-company-domain','onb-company-domains-extra'].forEach((id)=>{
       document.getElementById(id).value='';
     });
-    buildFieldsUI([],{});
+    buildFieldsUI([],{}); 
     buildStepsUI([]);
     buildTargetsUI([]);
+    syncDefaultTargetOptions('mydrive');
     setOnboardingAdvanced(false);
     syncOnboardingIdentityFields();
     switchModalTab('basics');
@@ -2117,7 +2164,7 @@
   window.deleteTenant=async function(id){
     if(!confirm(`Konfiguration "${id}" wirklich löschen?`)) return;
     try{ await deleteJson(`${API_TENANTS}/${id}`); toast("Gelöscht ✅"); await loadTenants(); }
-    catch(e){ toast("Fehler ❌",false); }
+    catch(e){ toast(`Fehler ❌${e&&e.message?` (${e.message})`:''}`,false); }
   };
   window.exportTenantJson=function(id){
     const t=allTenants.find(t=>t.tenantId===id); if(!t) return;
@@ -2237,11 +2284,16 @@
   });
   document.getElementById('onb-company-name').addEventListener('input',syncOnboardingIdentityFields);
   document.getElementById('onb-company-domain').addEventListener('input',syncOnboardingIdentityFields);
+  document.getElementById('targets-container').addEventListener('input',()=>syncDefaultTargetOptions());
+  document.getElementById('targets-container').addEventListener('change',()=>syncDefaultTargetOptions());
   ['t-name','t-default-target','t-template-id','t-template-name','t-folder','t-file'].forEach((id)=>{
     document.getElementById(id).addEventListener('input',()=>{
       const input=document.getElementById(id);
       input.dataset.autoSync='0';
     });
+  });
+  document.getElementById('t-default-target').addEventListener('change',()=>{
+    document.getElementById('t-default-target').dataset.autoSync='0';
   });
   document.getElementById('t-id').addEventListener('input',()=>{
     const tenantInput=document.getElementById('t-id');

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/config/app_config.dart';
 import '../../core/constants/storage_keys.dart';
 import '../../core/services/device_identity_service.dart';
 import '../../core/utils/logger.dart';
@@ -9,7 +10,6 @@ import '../interfaces/iconfig_api_service.dart';
 
 /// Service für Multi-Tenant Config von Backend
 class ConfigApiService implements IConfigApiService {
-  static const String _baseUrl = 'https://api.api-bilder-app.de';
   static const String _prefConfigCache = 'company_config_cache_v1';
   static const String _prefConfigVersion = 'company_config_version_v1';
   static const String _prefLastFetch = 'company_config_last_fetch_v1';
@@ -67,6 +67,8 @@ class ConfigApiService implements IConfigApiService {
     return Uri.parse('$_baseUrl/v1/config/$deviceId').replace(queryParameters: params);
   }
 
+  String get _baseUrl => AppConfig.apiBaseUrl;
+
   /// Config vom Backend holen
   @override
   Future<dynamic> fetchConfig({bool forceRefresh = false}) async {
@@ -117,6 +119,7 @@ class ConfigApiService implements IConfigApiService {
         return CompanyConfig.fromJson(json);
       } else if (response.statusCode == 404) {
         logger.w('Device noch nicht zugewiesen oder Company nicht gefunden');
+        await clearCache();
         return null;
       } else {
         logger.e('Config laden fehlgeschlagen: ${response.statusCode}');
