@@ -1,0 +1,3390 @@
+﻿{
+  "schemaVersion": 3,
+  "debugMode": true,
+  "companies": {
+    "telefonica-de": {
+      "id": "telefonica-de",
+      "name": "Telef├│nica Germany",
+      "domain": "telefonica.de",
+      "tenantId": "telefonica.de",
+      "isActive": true,
+      "config": {
+        "folderNamingTemplate": "{city} {siteId} {netElement} {project}",
+        "fields": [
+          {
+            "key": "city",
+            "type": "text",
+            "label": "Stadt",
+            "required": true
+          },
+          {
+            "key": "siteId",
+            "type": "text",
+            "label": "Standort-ID",
+            "required": true
+          },
+          {
+            "key": "netElement",
+            "type": "text",
+            "label": "Netzelementnummer",
+            "required": true
+          },
+          {
+            "key": "project",
+            "type": "text",
+            "label": "Projektnummer",
+            "required": true
+          }
+        ],
+        "photoVariables": [
+          "test",
+          "Erdung_1",
+          "Erdung_2",
+          "Rack_Gesamtansicht",
+          "Rack_Detailansicht",
+          "RRH_vor_Umbau",
+          "RRH_nach_Umbau",
+          "Kabelweg",
+          "Beschriftung_am_Ger├ñt_1",
+          "Beschriftung_am_Ger├ñt_2",
+          "Beschilderung_am_Mast",
+          "Gesamtansicht"
+        ],
+        "uploadTargets": [
+          {
+            "id": "target-1",
+            "name": "Eigenes OneDrive",
+            "type": "onedrive_personal",
+            "icon": "­ƒô▒",
+            "config": {}
+          },
+          {
+            "id": "target-2",
+            "name": "Mobilfunk 26",
+            "type": "shared_folder",
+            "icon": "­ƒôé",
+            "config": {
+              "driveId": "1d7bf7cb82b53d77",
+              "itemId": "1D7BF7CB82B53D77!s28512ac59890412cb993a5fe758db97b",
+              "subPath": ""
+            }
+          },
+          {
+            "id": "target-3",
+            "name": "Firmen-SharePoint",
+            "type": "sharepoint",
+            "icon": "­ƒÅó",
+            "config": {
+              "driveId": "b!vau6kwInn0OKZbalezAc9S0zVCMn7yxAnRarefPitqIO1m_cK6i_TLpSvSNGguTF",
+              "appFolder": "GRAVIT_UPLOADS"
+            }
+          }
+        ],
+        "fileNamingTemplate": "{netElement}_{project}_{photoVar}.jpg"
+      },
+      "createdAt": "2026-02-02T19:52:26.601Z",
+      "updatedAt": "2026-03-19T13:11:49.609Z"
+    },
+    "tempton": {
+      "id": "tempton",
+      "name": "Tempton",
+      "domain": "tempton.de",
+      "tenantId": "tempton",
+      "isActive": true,
+      "config": {
+        "folderNamingTemplate": "{popId} {popType}",
+        "fields": [
+          {
+            "key": "popId",
+            "type": "text",
+            "label": "POP ID",
+            "required": true,
+            "options": [],
+            "placeholder": "z. B. APE-001"
+          },
+          {
+            "key": "popType",
+            "type": "dropdown",
+            "label": "POP Typ",
+            "required": true,
+            "options": [
+              "FCP 1496",
+              "FCP 3696",
+              "FCP 400 v2",
+              "AP 3696",
+              "AP 1496",
+              "AP 1188",
+              "MP 400 v2",
+              "CP/AP 2600",
+              "CO v1",
+              "AP 2992"
+            ],
+            "placeholder": ""
+          }
+        ],
+        "photoVariables": [
+          "ups_config",
+          "pop_gesamt",
+          "pop_maengel",
+          "airco_config",
+          "eqf801_gesamt",
+          "eqf802_gesamt",
+          "sicherungen",
+          "apollo",
+          "test_cpe",
+          "mgmt_switch_verkabelung",
+          "spr_verkabelung",
+          "odf101_gesamt",
+          "odf145_146",
+          "pmf102_gesamt",
+          "ppf103_gesamt",
+          "ppf103_splitter_verkabelung",
+          "ppf103_ppx_verkabelung",
+          "AN_mgmt_patch",
+          "AN_odf_patch"
+        ],
+        "fileNamingTemplate": "{popId}_{popType}_{photoVar}.jpg",
+        "uploadTargets": [
+          {
+            "id": "target-1",
+            "name": "Eigenes OneDrive",
+            "type": "onedrive_personal",
+            "icon": "­ƒô▒",
+            "config": {}
+          }
+        ]
+      },
+      "createdAt": "2026-02-03T00:26:58.744Z",
+      "updatedAt": "2026-03-19T08:59:06.418Z"
+    },
+    "Testfirma1": {
+      "id": "Testfirma1",
+      "name": "Testfirma1",
+      "domain": "testfirma1.de",
+      "tenantId": "Testfirma1",
+      "isActive": true,
+      "config": {
+        "fields": [
+          {
+            "key": "rechnungsnummer",
+            "type": "text",
+            "label": "Rechnungsnummer",
+            "required": true
+          }
+        ],
+        "uploadTargets": [
+          {
+            "id": "mydrive",
+            "name": "Eigenes OneDrive",
+            "type": "onedrive_personal",
+            "icon": "­ƒô▒",
+            "config": {
+              "basePath": "/test"
+            }
+          }
+        ],
+        "folderNamingTemplate": "{Rechnungsnummer}",
+        "photoVariables": [
+          "vor_Umbau",
+          "Solarpanel1",
+          "Solarpanel_2"
+        ],
+        "fileNamingTemplate": "{rechnungsnummer}_{photoVar}.jpg"
+      },
+      "createdAt": "2026-03-18T15:45:58.670Z",
+      "updatedAt": "2026-03-19T08:04:15.599Z"
+    },
+    "Testfirma2": {
+      "id": "Testfirma2",
+      "name": "Testfirma2",
+      "domain": "testfirma2",
+      "tenantId": "Testfirma2",
+      "isActive": true,
+      "config": {
+        "fields": [
+          {
+            "key": "city",
+            "type": "text",
+            "label": "Stadt",
+            "required": true
+          },
+          {
+            "key": "Adresse",
+            "type": "text",
+            "label": "Adresse",
+            "required": false
+          },
+          {
+            "key": "Hausnummer",
+            "type": "text",
+            "label": "Hausnummer",
+            "required": false
+          }
+        ],
+        "uploadTargets": [
+          {
+            "id": "mydrive",
+            "type": "onedrive_personal",
+            "label": "Eigenes OneDrive",
+            "icon": "­ƒô▒",
+            "subtitle": "Persoenlicher Cloud-Speicher",
+            "configurable": {
+              "basePath": "/test"
+            }
+          }
+        ],
+        "folderNamingTemplate": "{city} {Adresse} {Hausnummer}",
+        "photoVariables": [
+          "Hausnummer1",
+          "Keller",
+          "Dachgeschoss"
+        ],
+        "fileNamingTemplate": "{netElement}_{project}_{photoVar}.jpg"
+      },
+      "createdAt": "2026-03-19T08:18:25.932Z",
+      "updatedAt": "2026-03-19T08:18:34.129Z"
+    }
+  },
+  "users": {
+    "david.graf@gnetzonline.de": {
+      "email": "david.graf@gnetzonline.de",
+      "name": "David",
+      "companyId": "Testfirma2",
+      "role": "user",
+      "isActive": true,
+      "createdAt": "2026-03-18T14:24:49.892Z",
+      "updatedAt": "2026-03-19T08:20:03.043Z"
+    },
+    "live.verify@tempton.de": {
+      "email": "live.verify@tempton.de",
+      "name": "",
+      "companyId": "tempton",
+      "role": "user",
+      "isActive": true,
+      "createdAt": "2026-03-19T08:57:54.989Z",
+      "updatedAt": "2026-03-19T08:57:54.989Z"
+    },
+    "davidgraf1999dg@gmail.com": {
+      "email": "davidgraf1999dg@gmail.com",
+      "name": "",
+      "companyId": "tempton",
+      "role": "user",
+      "isActive": true,
+      "createdAt": "2026-03-20T07:50:50.204Z",
+      "updatedAt": "2026-03-20T07:50:50.204Z"
+    }
+  },
+  "devices": {
+    "test-device": {
+      "deviceId": "test-device",
+      "allowed": true,
+      "message": "Bitte kontaktiere deinen Admin",
+      "graceUntil": null,
+      "createdAt": "2026-01-21T16:04:28.611Z",
+      "updatedAt": "2026-03-18T14:22:56.912Z",
+      "lastSeen": "2026-01-21T16:04:28.611Z",
+      "platform": "unknown",
+      "appVersion": 0,
+      "companyId": "telefonica-de",
+      "tenantId": "telefonica.de",
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "3c325f79-cbb8-4d3b-b4f1-b53c8e93aea3": {
+      "deviceId": "3c325f79-cbb8-4d3b-b4f1-b53c8e93aea3",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-01-21T16:04:01.470Z",
+      "updatedAt": "2026-03-18T14:22:56.912Z",
+      "lastSeen": "2026-01-22T17:22:18.416Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": "telefonica-de",
+      "tenantId": "telefonica.de",
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "b185d071-59f2-43bf-905c-ccde8f353778": {
+      "deviceId": "b185d071-59f2-43bf-905c-ccde8f353778",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-01-22T15:56:47.370Z",
+      "updatedAt": "2026-03-18T14:22:56.912Z",
+      "lastSeen": "2026-01-22T16:28:37.314Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": "telefonica-de",
+      "tenantId": "telefonica.de",
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "22c3f9e2-d0e5-4f88-938c-0e0bc0616dae": {
+      "deviceId": "22c3f9e2-d0e5-4f88-938c-0e0bc0616dae",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-01-22T20:23:09.091Z",
+      "updatedAt": "2026-03-18T14:22:56.912Z",
+      "lastSeen": "2026-01-22T20:25:47.125Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": "telefonica-de",
+      "tenantId": "telefonica.de",
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "63a95ea6-cc83-4da9-aa8c-2cc88a617312": {
+      "deviceId": "63a95ea6-cc83-4da9-aa8c-2cc88a617312",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-01-23T08:23:29.362Z",
+      "updatedAt": "2026-03-18T14:22:56.912Z",
+      "lastSeen": "2026-01-28T18:15:05.018Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": "telefonica-de",
+      "tenantId": "telefonica.de",
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "4179d16e-1f90-489b-8fbe-2c7dd8627d9f": {
+      "deviceId": "4179d16e-1f90-489b-8fbe-2c7dd8627d9f",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-01-23T10:12:10.836Z",
+      "updatedAt": "2026-03-18T14:22:56.912Z",
+      "lastSeen": "2026-01-25T19:55:51.799Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": "telefonica-de",
+      "tenantId": "telefonica.de",
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "3a70e333-b457-49d0-83bc-110167e07fdf": {
+      "deviceId": "3a70e333-b457-49d0-83bc-110167e07fdf",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-01-28T18:24:13.303Z",
+      "updatedAt": "2026-03-18T14:22:56.912Z",
+      "lastSeen": "2026-02-06T22:51:38.243Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": "telefonica-de",
+      "tenantId": "telefonica.de",
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "9e6e4929-f72d-4289-8a44-f35c7c79695f": {
+      "deviceId": "9e6e4929-f72d-4289-8a44-f35c7c79695f",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-01-30T21:36:53.734Z",
+      "updatedAt": "2026-03-18T14:22:56.912Z",
+      "lastSeen": "2026-02-25T13:29:47.086Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": "telefonica-de",
+      "tenantId": "telefonica.de",
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "2af7adc2-3401-4f5e-b2d3-148ed2f27cb3": {
+      "deviceId": "2af7adc2-3401-4f5e-b2d3-148ed2f27cb3",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-02-02T15:05:40.043Z",
+      "updatedAt": "2026-03-18T14:22:56.912Z",
+      "lastSeen": "2026-02-02T15:06:26.513Z",
+      "platform": "android",
+      "appVersion": 12,
+      "companyId": "telefonica-de",
+      "tenantId": "telefonica.de",
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "2ed29a5c-1f75-4eac-b844-432cc09c535e": {
+      "deviceId": "2ed29a5c-1f75-4eac-b844-432cc09c535e",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-02-02T15:08:58.009Z",
+      "updatedAt": "2026-03-18T14:22:56.912Z",
+      "lastSeen": "2026-02-02T15:08:58.009Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": "telefonica-de",
+      "tenantId": "telefonica.de",
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "36b7a5e2-5bad-44a6-a294-7e98695dd44c": {
+      "deviceId": "36b7a5e2-5bad-44a6-a294-7e98695dd44c",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-02-06T22:56:36.515Z",
+      "updatedAt": "2026-03-18T14:22:56.912Z",
+      "lastSeen": "2026-02-07T19:32:06.902Z",
+      "platform": "android",
+      "appVersion": 12,
+      "companyId": "telefonica-de",
+      "tenantId": "telefonica.de",
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "9c61313b-13a8-41a3-a555-b83deaf46168": {
+      "deviceId": "9c61313b-13a8-41a3-a555-b83deaf46168",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-02-07T19:37:32.710Z",
+      "updatedAt": "2026-02-07T19:37:32.710Z",
+      "lastSeen": "2026-02-07T19:37:32.710Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "8080c8b6-eed4-4606-9122-fa539f0fe93a": {
+      "deviceId": "8080c8b6-eed4-4606-9122-fa539f0fe93a",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-02-07T20:11:13.365Z",
+      "updatedAt": "2026-02-07T20:11:13.365Z",
+      "lastSeen": "2026-02-07T20:23:55.451Z",
+      "platform": "android",
+      "appVersion": 12,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "5d7fc6bd-9eaf-420f-b697-a95970c8caf9": {
+      "deviceId": "5d7fc6bd-9eaf-420f-b697-a95970c8caf9",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-02-07T20:42:15.629Z",
+      "updatedAt": "2026-02-07T20:42:15.629Z",
+      "lastSeen": "2026-02-07T22:14:19.349Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "2ecce268-61b9-41a8-bc3f-f7de2a026b6d": {
+      "deviceId": "2ecce268-61b9-41a8-bc3f-f7de2a026b6d",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-02-07T22:18:17.700Z",
+      "updatedAt": "2026-02-07T22:18:17.700Z",
+      "lastSeen": "2026-03-09T18:41:19.331Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "11eca3de-2b9c-439a-b02b-ece6a4fac9b7": {
+      "deviceId": "11eca3de-2b9c-439a-b02b-ece6a4fac9b7",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-02-09T14:54:58.182Z",
+      "updatedAt": "2026-02-09T14:54:58.182Z",
+      "lastSeen": "2026-02-24T09:32:34.171Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "baff0ef0-8a70-4037-ade0-1497aec59722": {
+      "deviceId": "baff0ef0-8a70-4037-ade0-1497aec59722",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-10T10:27:54.288Z",
+      "updatedAt": "2026-03-10T10:27:54.288Z",
+      "lastSeen": "2026-03-10T10:42:20.737Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "f8658b6b-dde6-4cf9-9377-688ad767ed99": {
+      "deviceId": "f8658b6b-dde6-4cf9-9377-688ad767ed99",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-10T12:50:30.062Z",
+      "updatedAt": "2026-03-10T12:50:30.062Z",
+      "lastSeen": "2026-03-10T19:13:54.449Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "17e2a13b-a5d8-45f6-816f-9a04ff8d38ed": {
+      "deviceId": "17e2a13b-a5d8-45f6-816f-9a04ff8d38ed",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-11T13:19:25.677Z",
+      "updatedAt": "2026-03-11T13:19:25.677Z",
+      "lastSeen": "2026-03-11T13:39:46.381Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "927e4537-edc6-4837-bfad-38706fc54659": {
+      "deviceId": "927e4537-edc6-4837-bfad-38706fc54659",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-11T13:40:36.960Z",
+      "updatedAt": "2026-03-11T13:40:36.960Z",
+      "lastSeen": "2026-03-11T13:49:00.664Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "4db1e927-56be-4973-b72f-13bc25c048ae": {
+      "deviceId": "4db1e927-56be-4973-b72f-13bc25c048ae",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-13T13:36:14.191Z",
+      "updatedAt": "2026-03-13T13:36:14.191Z",
+      "lastSeen": "2026-03-13T13:36:34.811Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "5085b0d3-be6f-459c-8f51-a1d8fe797340": {
+      "deviceId": "5085b0d3-be6f-459c-8f51-a1d8fe797340",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-16T13:38:05.235Z",
+      "updatedAt": "2026-03-16T13:38:05.235Z",
+      "lastSeen": "2026-03-16T14:43:31.902Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "93b8043a-8060-47ee-9077-3ac0b13a3d51": {
+      "deviceId": "93b8043a-8060-47ee-9077-3ac0b13a3d51",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-16T14:45:12.474Z",
+      "updatedAt": "2026-03-16T14:45:12.474Z",
+      "lastSeen": "2026-03-16T15:05:07.821Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "c887165a-c55a-4c8b-b22d-0e4796a29960": {
+      "deviceId": "c887165a-c55a-4c8b-b22d-0e4796a29960",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-18T14:32:39.941Z",
+      "updatedAt": "2026-03-18T14:35:15.267Z",
+      "lastSeen": "2026-03-18T14:35:15.267Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "0e9e6e5c-c82f-4d04-a2b5-67a98daf3814": {
+      "deviceId": "0e9e6e5c-c82f-4d04-a2b5-67a98daf3814",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-18T14:48:30.580Z",
+      "updatedAt": "2026-03-18T14:57:35.507Z",
+      "lastSeen": "2026-03-18T14:57:35.507Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "9163c879-19c0-4ca8-a508-932ad39ab9b4": {
+      "deviceId": "9163c879-19c0-4ca8-a508-932ad39ab9b4",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-18T15:03:30.904Z",
+      "updatedAt": "2026-03-18T15:46:59.290Z",
+      "lastSeen": "2026-03-18T15:46:59.290Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "dae1cece-e79d-4885-8ec7-ad485ac07ac9": {
+      "deviceId": "dae1cece-e79d-4885-8ec7-ad485ac07ac9",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-19T07:46:19.045Z",
+      "updatedAt": "2026-03-19T08:04:30.030Z",
+      "lastSeen": "2026-03-19T08:04:30.030Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "9e5132d3-7d75-4ef8-8577-8d3575207731": {
+      "deviceId": "9e5132d3-7d75-4ef8-8577-8d3575207731",
+      "allowed": true,
+      "message": "test",
+      "graceUntil": null,
+      "createdAt": "2026-03-19T08:13:25.838Z",
+      "updatedAt": "2026-03-19T15:03:15.024Z",
+      "lastSeen": "2026-03-19T12:41:43.623Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": "Testfirma2",
+      "tenantId": "Testfirma2",
+      "userEmail": "david.graf@gnetzonline.de",
+      "lastSeenEmail": "david.graf@gnetzonline.de",
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": "2026-03-19T08:20:03.043Z",
+      "assignmentUpdatedBy": "dashboard"
+    },
+    "live-verify-tempton-01": {
+      "deviceId": "live-verify-tempton-01",
+      "allowed": true,
+      "message": "test",
+      "graceUntil": null,
+      "createdAt": "2026-03-19T08:57:54.988Z",
+      "updatedAt": "2026-03-19T15:02:49.593Z",
+      "lastSeen": "2026-03-19T08:57:55.020Z",
+      "platform": "unknown",
+      "appVersion": 0,
+      "companyId": "tempton",
+      "tenantId": "tempton",
+      "userEmail": "live.verify@tempton.de",
+      "lastSeenEmail": "live.verify@tempton.de",
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "de4cda38-6c4a-4876-9abd-bc7c74bde0a3": {
+      "deviceId": "de4cda38-6c4a-4876-9abd-bc7c74bde0a3",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-19T12:46:54.058Z",
+      "updatedAt": "2026-03-19T14:27:38.358Z",
+      "lastSeen": "2026-03-19T14:27:38.358Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "b1a3061f-af4f-4040-a472-4c38f9001632": {
+      "deviceId": "b1a3061f-af4f-4040-a472-4c38f9001632",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-19T14:28:21.101Z",
+      "updatedAt": "2026-03-19T15:15:58.419Z",
+      "lastSeen": "2026-03-19T15:15:58.419Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": "tempton",
+      "tenantId": "tempton",
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": "2026-03-19T15:15:28.623Z",
+      "assignmentUpdatedBy": "admin"
+    },
+    "5441c13d-eb76-4453-bdf1-aaf6ae2bb588": {
+      "deviceId": "5441c13d-eb76-4453-bdf1-aaf6ae2bb588",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-19T15:16:44.048Z",
+      "updatedAt": "2026-03-19T15:25:07.109Z",
+      "lastSeen": "2026-03-19T15:25:07.109Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "7b38d0e1-8e0c-446a-83a2-9b98b6af1aea": {
+      "deviceId": "7b38d0e1-8e0c-446a-83a2-9b98b6af1aea",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-19T15:26:19.598Z",
+      "updatedAt": "2026-03-19T15:36:40.554Z",
+      "lastSeen": "2026-03-19T15:36:40.554Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "0e45dc2e-05b5-4a8c-9cf7-afed600812e1": {
+      "deviceId": "0e45dc2e-05b5-4a8c-9cf7-afed600812e1",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-19T15:37:53.533Z",
+      "updatedAt": "2026-03-19T15:57:56.552Z",
+      "lastSeen": "2026-03-19T15:57:56.552Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "b1f67707-1222-48c3-a931-9438405baa6c": {
+      "deviceId": "b1f67707-1222-48c3-a931-9438405baa6c",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-19T16:53:40.444Z",
+      "updatedAt": "2026-03-19T16:56:17.332Z",
+      "lastSeen": "2026-03-19T16:56:17.332Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": null,
+      "lastSeenEmail": null,
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "email-sync-test-001": {
+      "deviceId": "email-sync-test-001",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-20T07:45:41.092Z",
+      "updatedAt": "2026-03-20T07:45:41.092Z",
+      "lastSeen": "2026-03-20T07:45:41.092Z",
+      "platform": "android",
+      "appVersion": 0,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": "fallback.test@example.com",
+      "lastSeenEmail": "fallback.test@example.com",
+      "installationId": "inst-sync-001",
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "email-race-test-001": {
+      "deviceId": "email-race-test-001",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-20T07:45:49.697Z",
+      "updatedAt": "2026-03-20T07:45:49.706Z",
+      "lastSeen": "2026-03-20T07:45:49.706Z",
+      "platform": "android",
+      "appVersion": 0,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": "race.sync@example.com",
+      "lastSeenEmail": "race.sync@example.com",
+      "installationId": "inst-race-001",
+      "fingerprintHash": null,
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "2eca9f35-2b18-49f4-8752-78a1585b9a02": {
+      "deviceId": "2eca9f35-2b18-49f4-8752-78a1585b9a02",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-20T07:47:22.562Z",
+      "updatedAt": "2026-03-20T07:51:15.298Z",
+      "lastSeen": "2026-03-20T07:51:15.298Z",
+      "platform": "android",
+      "appVersion": 1,
+      "companyId": "tempton",
+      "tenantId": "tempton",
+      "userEmail": "davidgraf1999dg@gmail.com",
+      "lastSeenEmail": "davidgraf1999dg@gmail.com",
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": "2026-03-20T07:50:50.204Z",
+      "assignmentUpdatedBy": "admin"
+    },
+    "0e725732-19e7-4ae8-bdde-30b6a9fbe47e": {
+      "deviceId": "0e725732-19e7-4ae8-bdde-30b6a9fbe47e",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-20T07:51:29.432Z",
+      "updatedAt": "2026-03-20T07:54:33.336Z",
+      "lastSeen": "2026-03-20T07:54:33.336Z",
+      "platform": "android",
+      "appVersion": 0,
+      "companyId": "tempton",
+      "tenantId": "tempton",
+      "userEmail": "davidgraf1999dg@gmail.com",
+      "lastSeenEmail": "davidgraf1999dg@gmail.com",
+      "installationId": null,
+      "fingerprintHash": null,
+      "assignmentStatus": "assigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    },
+    "dev_fp-reinstall-001": {
+      "deviceId": "dev_fp-reinstall-001",
+      "allowed": true,
+      "message": "",
+      "graceUntil": null,
+      "createdAt": "2026-03-20T08:03:15.126Z",
+      "updatedAt": "2026-03-20T08:07:21.463Z",
+      "lastSeen": "2026-03-20T08:07:21.463Z",
+      "platform": "android",
+      "appVersion": 0,
+      "companyId": null,
+      "tenantId": null,
+      "userEmail": "reinstall.test@example.com",
+      "lastSeenEmail": "reinstall.test@example.com",
+      "installationId": "inst-final-001",
+      "fingerprintHash": "fp-reinstall-001",
+      "assignmentStatus": "unassigned",
+      "assignmentUpdatedAt": null,
+      "assignmentUpdatedBy": null
+    }
+  },
+  "deviceAliases": {
+    "reinstall-old-001": "dev_fp-reinstall-001"
+  },
+  "tenantConfigs": {
+    "tempton": {
+      "tenantId": "tempton",
+      "name": "Tempton",
+      "defaultStorageTargetId": "mydrive",
+      "defaultTemplateId": "tempton_fcp_1496",
+      "storageTargets": [
+        {
+          "id": "mydrive",
+          "type": "onedrive_personal",
+          "label": "Tempton OneDrive",
+          "icon": "­ƒô▒",
+          "subtitle": "Persoenlicher Upload fuer Tempton",
+          "configurable": {
+            "basePath": "/Tempton"
+          }
+        }
+      ],
+      "templates": [
+        {
+          "templateId": "tempton_fcp_1496",
+          "name": "FCP 1496",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "sicherungen",
+              "label": "sicherungen",
+              "translationKey": "photo_sicherungen",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "mgmt_switch_verkabelung",
+              "label": "mgmt_switch_verkabelung",
+              "translationKey": "photo_mgmt_switch_verkabelung",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "spr_verkabelung",
+              "label": "spr_verkabelung",
+              "translationKey": "photo_spr_verkabelung",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "ppf103_splitter_verkabelung",
+              "label": "ppf103_splitter_verkabelung",
+              "translationKey": "photo_ppf103_splitter_verkabelung",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "ppf103_ppx_verkabelung",
+              "label": "ppf103_ppx_verkabelung",
+              "translationKey": "photo_ppf103_ppx_verkabelung",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "AN_mgmt_patch",
+              "label": "AN_mgmt_patch",
+              "translationKey": "photo_AN_mgmt_patch",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 19
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_fcp_3696",
+          "name": "FCP 3696",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "spr_verkabelung",
+              "label": "spr_verkabelung",
+              "translationKey": "photo_spr_verkabelung",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "eqf803_gesamt",
+              "label": "eqf803_gesamt",
+              "translationKey": "photo_eqf803_gesamt",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "eqf804_gesamt",
+              "label": "eqf804_gesamt",
+              "translationKey": "photo_eqf804_gesamt",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "eqf805_gesamt",
+              "label": "eqf805_gesamt",
+              "translationKey": "photo_eqf805_gesamt",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "sicherungen",
+              "label": "sicherungen",
+              "translationKey": "photo_sicherungen",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "mgmt_switch_verkabelung",
+              "label": "mgmt_switch_verkabelung",
+              "translationKey": "photo_mgmt_switch_verkabelung",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "odf102_gesamt",
+              "label": "odf102_gesamt",
+              "translationKey": "photo_odf102_gesamt",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "pmf202_gesamt",
+              "label": "pmf202_gesamt",
+              "translationKey": "photo_pmf202_gesamt",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "ppf103_splitter_verkabelung",
+              "label": "ppf103_splitter_verkabelung",
+              "translationKey": "photo_ppf103_splitter_verkabelung",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "ppf103_ppx_verkabelung",
+              "label": "ppf103_ppx_verkabelung",
+              "translationKey": "photo_ppf103_ppx_verkabelung",
+              "required": true,
+              "order": 22
+            },
+            {
+              "id": "ppf203_gesamt",
+              "label": "ppf203_gesamt",
+              "translationKey": "photo_ppf203_gesamt",
+              "required": true,
+              "order": 23
+            },
+            {
+              "id": "ppf203_splitter_verkabelung",
+              "label": "ppf203_splitter_verkabelung",
+              "translationKey": "photo_ppf203_splitter_verkabelung",
+              "required": true,
+              "order": 24
+            },
+            {
+              "id": "ppf203_ppx_verkabelung",
+              "label": "ppf203_ppx_verkabelung",
+              "translationKey": "photo_ppf203_ppx_verkabelung",
+              "required": true,
+              "order": 25
+            },
+            {
+              "id": "AN_mgmt_patch",
+              "label": "AN_mgmt_patch",
+              "translationKey": "photo_AN_mgmt_patch",
+              "required": true,
+              "order": 26
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 27
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_fcp_400_v2",
+          "name": "FCP 400 v2",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "sicherungen",
+              "label": "sicherungen",
+              "translationKey": "photo_sicherungen",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "modem",
+              "label": "modem",
+              "translationKey": "photo_modem",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "spr",
+              "label": "spr",
+              "translationKey": "photo_spr",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "ups",
+              "label": "ups",
+              "translationKey": "photo_ups",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "splitter_verkabelung",
+              "label": "splitter_verkabelung",
+              "translationKey": "photo_splitter_verkabelung",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "ppx_lade_verkabelung",
+              "label": "ppx_lade_verkabelung",
+              "translationKey": "photo_ppx_lade_verkabelung",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "AN_mgmt_patch",
+              "label": "AN_mgmt_patch",
+              "translationKey": "photo_AN_mgmt_patch",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 16
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_ap_3696",
+          "name": "AP 3696",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "olt_verkabelung",
+              "label": "olt_verkabelung",
+              "translationKey": "photo_olt_verkabelung",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "bar_verkabelung",
+              "label": "bar_verkabelung",
+              "translationKey": "photo_bar_verkabelung",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "spr_verkabelung",
+              "label": "spr_verkabelung",
+              "translationKey": "photo_spr_verkabelung",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "eqf803_gesamt",
+              "label": "eqf803_gesamt",
+              "translationKey": "photo_eqf803_gesamt",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "eqf804_gesamt",
+              "label": "eqf804_gesamt",
+              "translationKey": "photo_eqf804_gesamt",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "eqf805_gesamt",
+              "label": "eqf805_gesamt",
+              "translationKey": "photo_eqf805_gesamt",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "lte_router",
+              "label": "lte_router",
+              "translationKey": "photo_lte_router",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "mgmt_sw2",
+              "label": "mgmt_sw2",
+              "translationKey": "photo_mgmt_sw2",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "odf102_gesamt",
+              "label": "odf102_gesamt",
+              "translationKey": "photo_odf102_gesamt",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "odf146_148",
+              "label": "odf146_148",
+              "translationKey": "photo_odf146_148",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 22
+            },
+            {
+              "id": "pmf202_gesamt",
+              "label": "pmf202_gesamt",
+              "translationKey": "photo_pmf202_gesamt",
+              "required": true,
+              "order": 23
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 24
+            },
+            {
+              "id": "ppf103_splitter_verkabelung",
+              "label": "ppf103_splitter_verkabelung",
+              "translationKey": "photo_ppf103_splitter_verkabelung",
+              "required": true,
+              "order": 25
+            },
+            {
+              "id": "ppf103_ppx_verkabelung",
+              "label": "ppf103_ppx_verkabelung",
+              "translationKey": "photo_ppf103_ppx_verkabelung",
+              "required": true,
+              "order": 26
+            },
+            {
+              "id": "ppf203_gesamt",
+              "label": "ppf203_gesamt",
+              "translationKey": "photo_ppf203_gesamt",
+              "required": true,
+              "order": 27
+            },
+            {
+              "id": "ppf203_splitter_verkabelung",
+              "label": "ppf203_splitter_verkabelung",
+              "translationKey": "photo_ppf203_splitter_verkabelung",
+              "required": true,
+              "order": 28
+            },
+            {
+              "id": "ppf203_ppx_verkabelung",
+              "label": "ppf203_ppx_verkabelung",
+              "translationKey": "photo_ppf203_ppx_verkabelung",
+              "required": true,
+              "order": 29
+            },
+            {
+              "id": "AN_edge_patch",
+              "label": "AN_edge_patch",
+              "translationKey": "photo_AN_edge_patch",
+              "required": true,
+              "order": 30
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 31
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_ap_1496",
+          "name": "AP 1496",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "lte_router",
+              "label": "lte_router",
+              "translationKey": "photo_lte_router",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "mgmt_sw2",
+              "label": "mgmt_sw2",
+              "translationKey": "photo_mgmt_sw2",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "olt_verkabelung",
+              "label": "olt_verkabelung",
+              "translationKey": "photo_olt_verkabelung",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "bar_verkabelung",
+              "label": "bar_verkabelung",
+              "translationKey": "photo_bar_verkabelung",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "spr",
+              "label": "spr",
+              "translationKey": "photo_spr",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "dwdm",
+              "label": "dwdm",
+              "translationKey": "photo_dwdm",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "ups",
+              "label": "ups",
+              "translationKey": "photo_ups",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "ppf103_splitter_verkabelung",
+              "label": "ppf103_splitter_verkabelung",
+              "translationKey": "photo_ppf103_splitter_verkabelung",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "AN_edge_patch",
+              "label": "AN_edge_patch",
+              "translationKey": "photo_AN_edge_patch",
+              "required": true,
+              "order": 22
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 23
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_ap_1188",
+          "name": "AP 1188",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "lte_router",
+              "label": "lte_router",
+              "translationKey": "photo_lte_router",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "mgmt_sw2",
+              "label": "mgmt_sw2",
+              "translationKey": "photo_mgmt_sw2",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "olt_verkabelung",
+              "label": "olt_verkabelung",
+              "translationKey": "photo_olt_verkabelung",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "bar_verkabelung",
+              "label": "bar_verkabelung",
+              "translationKey": "photo_bar_verkabelung",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "spr",
+              "label": "spr",
+              "translationKey": "photo_spr",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "ups",
+              "label": "ups",
+              "translationKey": "photo_ups",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "splitter_verkabelung",
+              "label": "splitter_verkabelung",
+              "translationKey": "photo_splitter_verkabelung",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "AN_edge_patch",
+              "label": "AN_edge_patch",
+              "translationKey": "photo_AN_edge_patch",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 22
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_mp_400_v2",
+          "name": "MP 400 v2",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "sicherungen",
+              "label": "sicherungen",
+              "translationKey": "photo_sicherungen",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "lte_router",
+              "label": "lte_router",
+              "translationKey": "photo_lte_router",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "mgmt_sw2",
+              "label": "mgmt_sw2",
+              "translationKey": "photo_mgmt_sw2",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "olt_verkabelung",
+              "label": "olt_verkabelung",
+              "translationKey": "photo_olt_verkabelung",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "spr",
+              "label": "spr",
+              "translationKey": "photo_spr",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "dwdm",
+              "label": "dwdm",
+              "translationKey": "photo_dwdm",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "ups",
+              "label": "ups",
+              "translationKey": "photo_ups",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "splitter_verkabelung",
+              "label": "splitter_verkabelung",
+              "translationKey": "photo_splitter_verkabelung",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "ppx_lade_verkabelung",
+              "label": "ppx_lade_verkabelung",
+              "translationKey": "photo_ppx_lade_verkabelung",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "AN_edge_patch",
+              "label": "AN_edge_patch",
+              "translationKey": "photo_AN_edge_patch",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 19
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_cp_ap_2600",
+          "name": "CP/AP 2600",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "olts_verkabelung",
+              "label": "olts_verkabelung",
+              "translationKey": "photo_olts_verkabelung",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "bars_verkabelung",
+              "label": "bars_verkabelung",
+              "translationKey": "photo_bars_verkabelung",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "spr_verkabelung",
+              "label": "spr_verkabelung",
+              "translationKey": "photo_spr_verkabelung",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "eqf803_gesamt",
+              "label": "eqf803_gesamt",
+              "translationKey": "photo_eqf803_gesamt",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "eqf804_gesamt",
+              "label": "eqf804_gesamt",
+              "translationKey": "photo_eqf804_gesamt",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "wdm_geraete",
+              "label": "wdm_geraete",
+              "translationKey": "photo_wdm_geraete",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "spare_panel",
+              "label": "spare_panel",
+              "translationKey": "photo_spare_panel",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "eqf805_gesamt",
+              "label": "eqf805_gesamt",
+              "translationKey": "photo_eqf805_gesamt",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "lte_router",
+              "label": "lte_router",
+              "translationKey": "photo_lte_router",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "mgmt_sw2",
+              "label": "mgmt_sw2",
+              "translationKey": "photo_mgmt_sw2",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "edge1",
+              "label": "edge1",
+              "translationKey": "photo_edge1",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "edge2",
+              "label": "edge2",
+              "translationKey": "photo_edge2",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 22
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 23
+            },
+            {
+              "id": "weitere_odfs",
+              "label": "weitere_odfs",
+              "translationKey": "photo_weitere_odfs",
+              "required": true,
+              "order": 24
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 25
+            },
+            {
+              "id": "pmf202_gesamt",
+              "label": "pmf202_gesamt",
+              "translationKey": "photo_pmf202_gesamt",
+              "required": true,
+              "order": 26
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 27
+            },
+            {
+              "id": "ppf203_gesamt",
+              "label": "ppf203_gesamt",
+              "translationKey": "photo_ppf203_gesamt",
+              "required": true,
+              "order": 28
+            },
+            {
+              "id": "ppx_lade_verkabelung",
+              "label": "ppx_lade_verkabelung",
+              "translationKey": "photo_ppx_lade_verkabelung",
+              "required": true,
+              "order": 29
+            },
+            {
+              "id": "splitter_verkabelung",
+              "label": "splitter_verkabelung",
+              "translationKey": "photo_splitter_verkabelung",
+              "required": true,
+              "order": 30
+            },
+            {
+              "id": "AN_edge_patch",
+              "label": "AN_edge_patch",
+              "translationKey": "photo_AN_edge_patch",
+              "required": true,
+              "order": 31
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 32
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_co_v1",
+          "name": "CO v1",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "zte_usv_config",
+              "label": "zte_usv_config",
+              "translationKey": "photo_zte_usv_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "iloq",
+              "label": "iloq",
+              "translationKey": "photo_iloq",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "sicherungen",
+              "label": "sicherungen",
+              "translationKey": "photo_sicherungen",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "zte_sensoren",
+              "label": "zte_sensoren",
+              "translationKey": "photo_zte_sensoren",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "eqf101_gesamt",
+              "label": "eqf101_gesamt",
+              "translationKey": "photo_eqf101_gesamt",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "olts",
+              "label": "olts",
+              "translationKey": "photo_olts",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "edge",
+              "label": "edge",
+              "translationKey": "photo_edge",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "wdm_geraete",
+              "label": "wdm_geraete",
+              "translationKey": "photo_wdm_geraete",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "eqf102",
+              "label": "eqf102",
+              "translationKey": "photo_eqf102",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "odf_verkabelung",
+              "label": "odf_verkabelung",
+              "translationKey": "photo_odf_verkabelung",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "onu",
+              "label": "onu",
+              "translationKey": "photo_onu",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "exfo",
+              "label": "exfo",
+              "translationKey": "photo_exfo",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "rmopr",
+              "label": "rmopr",
+              "translationKey": "photo_rmopr",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "strom",
+              "label": "strom",
+              "translationKey": "photo_strom",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "eqf103_gesamt",
+              "label": "eqf103_gesamt",
+              "translationKey": "photo_eqf103_gesamt",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "lte_router",
+              "label": "lte_router",
+              "translationKey": "photo_lte_router",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "mgmt_sw2",
+              "label": "mgmt_sw2",
+              "translationKey": "photo_mgmt_sw2",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "rtu",
+              "label": "rtu",
+              "translationKey": "photo_rtu",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "sicherungen_strom",
+              "label": "sicherungen_strom",
+              "translationKey": "photo_sicherungen_strom",
+              "required": true,
+              "order": 22
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_ap_2992",
+          "name": "AP 2992",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "olt_verkabelung",
+              "label": "olt_verkabelung",
+              "translationKey": "photo_olt_verkabelung",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "bar_verkabelung",
+              "label": "bar_verkabelung",
+              "translationKey": "photo_bar_verkabelung",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "splitter_verkabelung",
+              "label": "splitter_verkabelung",
+              "translationKey": "photo_splitter_verkabelung",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "eqf803_gesamt",
+              "label": "eqf803_gesamt",
+              "translationKey": "photo_eqf803_gesamt",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "eqf804_gesamt",
+              "label": "eqf804_gesamt",
+              "translationKey": "photo_eqf804_gesamt",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "eqf805_gesamt",
+              "label": "eqf805_gesamt",
+              "translationKey": "photo_eqf805_gesamt",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "sicherungen",
+              "label": "sicherungen",
+              "translationKey": "photo_sicherungen",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "lte_console_verkabelung",
+              "label": "lte_console_verkabelung",
+              "translationKey": "photo_lte_console_verkabelung",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "mgmt_switch_verkabelung",
+              "label": "mgmt_switch_verkabelung",
+              "translationKey": "photo_mgmt_switch_verkabelung",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "odf201_gesamt",
+              "label": "odf201_gesamt",
+              "translationKey": "photo_odf201_gesamt",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "pmf202_gesamt",
+              "label": "pmf202_gesamt",
+              "translationKey": "photo_pmf202_gesamt",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 22
+            },
+            {
+              "id": "ppx_lade_verkabelung",
+              "label": "ppx_lade_verkabelung",
+              "translationKey": "photo_ppx_lade_verkabelung",
+              "required": true,
+              "order": 23
+            },
+            {
+              "id": "ppf203_gesamt",
+              "label": "ppf203_gesamt",
+              "translationKey": "photo_ppf203_gesamt",
+              "required": true,
+              "order": 24
+            },
+            {
+              "id": "AN_edge_patch",
+              "label": "AN_edge_patch",
+              "translationKey": "photo_AN_edge_patch",
+              "required": true,
+              "order": 25
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 26
+            }
+          ]
+        }
+      ],
+      "createdAt": "2026-03-18T14:40:07.120Z",
+      "updatedAt": "2026-03-20T08:06:02.169Z",
+      "sourceCompanyId": "tempton",
+      "managedBy": "company-sync+file-override",
+      "fields": [
+        {
+          "key": "popId",
+          "type": "text",
+          "label": "POP ID",
+          "required": true,
+          "placeholder": "z. B. APE-001"
+        },
+        {
+          "key": "popType",
+          "type": "dropdown",
+          "label": "POP Typ",
+          "required": true,
+          "options": [
+            "FCP 1496",
+            "FCP 3696",
+            "FCP 400 v2",
+            "AP 3696",
+            "AP 1496",
+            "AP 1188",
+            "MP 400 v2",
+            "CP/AP 2600",
+            "CO v1",
+            "AP 2992"
+          ]
+        }
+      ]
+    },
+    "telefonica-de": {
+      "tenantId": "telefonica-de",
+      "name": "Telef├│nica Germany",
+      "sourceCompanyId": "telefonica-de",
+      "managedBy": "company-sync",
+      "defaultStorageTargetId": "target-1",
+      "storageTargets": [
+        {
+          "id": "target-1",
+          "type": "onedrive_personal",
+          "label": "Eigenes OneDrive",
+          "icon": "­ƒô▒",
+          "subtitle": "Eigenes OneDrive"
+        },
+        {
+          "id": "target-2",
+          "type": "shared_folder",
+          "label": "Mobilfunk 26",
+          "icon": "­ƒôé",
+          "subtitle": "Mobilfunk 26",
+          "driveId": "1d7bf7cb82b53d77",
+          "itemId": "1D7BF7CB82B53D77!s28512ac59890412cb993a5fe758db97b"
+        },
+        {
+          "id": "target-3",
+          "type": "sharepoint",
+          "label": "Firmen-SharePoint",
+          "icon": "­ƒÅó",
+          "subtitle": "Firmen-SharePoint",
+          "driveId": "b!vau6kwInn0OKZbalezAc9S0zVCMn7yxAnRarefPitqIO1m_cK6i_TLpSvSNGguTF",
+          "appFolder": "GRAVIT_UPLOADS"
+        }
+      ],
+      "defaultTemplateId": "telefonica-de_default",
+      "templates": [
+        {
+          "templateId": "telefonica-de_default",
+          "name": "Telef├│nica Germany Standard",
+          "folderPattern": "{city} {siteId} {netElement} {project}",
+          "fileNamePattern": "{netElement}_{project}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "test",
+              "label": "test",
+              "translationKey": "photo_test",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "erdung_1",
+              "label": "Erdung_1",
+              "translationKey": "photo_erdung_1",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "erdung_2",
+              "label": "Erdung_2",
+              "translationKey": "photo_erdung_2",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "rack_gesamtansicht",
+              "label": "Rack_Gesamtansicht",
+              "translationKey": "photo_rack_gesamtansicht",
+              "required": false,
+              "order": 4
+            },
+            {
+              "id": "rack_detailansicht",
+              "label": "Rack_Detailansicht",
+              "translationKey": "photo_rack_detailansicht",
+              "required": false,
+              "order": 5
+            },
+            {
+              "id": "rrh_vor_umbau",
+              "label": "RRH_vor_Umbau",
+              "translationKey": "photo_rrh_vor_umbau",
+              "required": false,
+              "order": 6
+            },
+            {
+              "id": "rrh_nach_umbau",
+              "label": "RRH_nach_Umbau",
+              "translationKey": "photo_rrh_nach_umbau",
+              "required": false,
+              "order": 7
+            },
+            {
+              "id": "kabelweg",
+              "label": "Kabelweg",
+              "translationKey": "photo_kabelweg",
+              "required": false,
+              "order": 8
+            },
+            {
+              "id": "beschriftung_am_gerat_1",
+              "label": "Beschriftung_am_Ger├ñt_1",
+              "translationKey": "photo_beschriftung_am_gerat_1",
+              "required": false,
+              "order": 9
+            },
+            {
+              "id": "beschriftung_am_gerat_2",
+              "label": "Beschriftung_am_Ger├ñt_2",
+              "translationKey": "photo_beschriftung_am_gerat_2",
+              "required": false,
+              "order": 10
+            },
+            {
+              "id": "beschilderung_am_mast",
+              "label": "Beschilderung_am_Mast",
+              "translationKey": "photo_beschilderung_am_mast",
+              "required": false,
+              "order": 11
+            },
+            {
+              "id": "gesamtansicht",
+              "label": "Gesamtansicht",
+              "translationKey": "photo_gesamtansicht",
+              "required": false,
+              "order": 12
+            }
+          ]
+        }
+      ],
+      "updatedAt": "2026-03-19T09:50:56.324Z",
+      "createdAt": "2026-03-19T07:36:28.395Z",
+      "fields": [
+        {
+          "key": "city",
+          "type": "text",
+          "label": "Stadt",
+          "required": true
+        },
+        {
+          "key": "siteId",
+          "type": "text",
+          "label": "Standort-ID",
+          "required": true
+        },
+        {
+          "key": "netElement",
+          "type": "text",
+          "label": "Netzelementnummer",
+          "required": true
+        },
+        {
+          "key": "project",
+          "type": "text",
+          "label": "Projektnummer",
+          "required": true
+        }
+      ]
+    },
+    "Testfirma1": {
+      "tenantId": "Testfirma1",
+      "name": "Testfirma1",
+      "sourceCompanyId": "Testfirma1",
+      "managedBy": "company-sync",
+      "defaultStorageTargetId": "mydrive",
+      "storageTargets": [
+        {
+          "id": "mydrive",
+          "type": "onedrive_personal",
+          "label": "Eigenes OneDrive",
+          "icon": "­ƒô▒",
+          "subtitle": "Eigenes OneDrive",
+          "configurable": {
+            "basePath": "/test"
+          }
+        }
+      ],
+      "defaultTemplateId": "Testfirma1_default",
+      "templates": [
+        {
+          "templateId": "Testfirma1_default",
+          "name": "Testfirma1 Standard",
+          "folderPattern": "{Rechnungsnummer}",
+          "fileNamePattern": "{rechnungsnummer}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "vor_umbau",
+              "label": "vor_Umbau",
+              "translationKey": "photo_vor_umbau",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "solarpanel1",
+              "label": "Solarpanel1",
+              "translationKey": "photo_solarpanel1",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "solarpanel_2",
+              "label": "Solarpanel_2",
+              "translationKey": "photo_solarpanel_2",
+              "required": true,
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "updatedAt": "2026-03-20T08:06:02.169Z",
+      "createdAt": "2026-03-19T07:36:28.395Z",
+      "fields": [
+        {
+          "key": "rechnungsnummer",
+          "type": "text",
+          "label": "Rechnungsnummer",
+          "required": true
+        }
+      ]
+    },
+    "Testfirma2": {
+      "tenantId": "Testfirma2",
+      "name": "Testfirma2",
+      "sourceCompanyId": "Testfirma2",
+      "managedBy": "company-sync",
+      "fields": [
+        {
+          "key": "city",
+          "type": "text",
+          "label": "Stadt",
+          "required": true
+        },
+        {
+          "key": "Adresse",
+          "type": "text",
+          "label": "Adresse",
+          "required": false
+        },
+        {
+          "key": "Hausnummer",
+          "type": "text",
+          "label": "Hausnummer",
+          "required": false
+        }
+      ],
+      "defaultStorageTargetId": "mydrive",
+      "storageTargets": [
+        {
+          "id": "mydrive",
+          "type": "onedrive_personal",
+          "label": "Eigenes OneDrive",
+          "icon": "­ƒô▒",
+          "subtitle": "Persoenlicher Cloud-Speicher"
+        }
+      ],
+      "defaultTemplateId": "Testfirma2_default",
+      "templates": [
+        {
+          "templateId": "Testfirma2_default",
+          "name": "Testfirma2 Standard",
+          "folderPattern": "{city} {Adresse} {Hausnummer}",
+          "fileNamePattern": "{netElement}_{project}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "hausnummer1",
+              "label": "Hausnummer1",
+              "translationKey": "photo_hausnummer1",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "keller",
+              "label": "Keller",
+              "translationKey": "photo_keller",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "dachgeschoss",
+              "label": "Dachgeschoss",
+              "translationKey": "photo_dachgeschoss",
+              "required": true,
+              "order": 3
+            }
+          ]
+        }
+      ],
+      "updatedAt": "2026-03-20T08:06:02.169Z",
+      "createdAt": "2026-03-19T08:18:25.932Z"
+    },
+    "telefonica.de": {
+      "tenantId": "telefonica.de",
+      "name": "Telef├│nica Germany",
+      "sourceCompanyId": "telefonica-de",
+      "managedBy": "company-sync",
+      "fields": [
+        {
+          "key": "city",
+          "type": "text",
+          "label": "Stadt",
+          "required": true
+        },
+        {
+          "key": "siteId",
+          "type": "text",
+          "label": "Standort-ID",
+          "required": true
+        },
+        {
+          "key": "netElement",
+          "type": "text",
+          "label": "Netzelementnummer",
+          "required": true
+        },
+        {
+          "key": "project",
+          "type": "text",
+          "label": "Projektnummer",
+          "required": true
+        }
+      ],
+      "defaultStorageTargetId": "target-1",
+      "storageTargets": [
+        {
+          "id": "target-1",
+          "type": "onedrive_personal",
+          "label": "Eigenes OneDrive",
+          "icon": "­ƒô▒",
+          "subtitle": "Eigenes OneDrive"
+        },
+        {
+          "id": "target-2",
+          "type": "shared_folder",
+          "label": "Mobilfunk 26",
+          "icon": "­ƒôé",
+          "subtitle": "Mobilfunk 26",
+          "driveId": "1d7bf7cb82b53d77",
+          "itemId": "1D7BF7CB82B53D77!s28512ac59890412cb993a5fe758db97b"
+        },
+        {
+          "id": "target-3",
+          "type": "sharepoint",
+          "label": "Firmen-SharePoint",
+          "icon": "­ƒÅó",
+          "subtitle": "Firmen-SharePoint",
+          "driveId": "b!vau6kwInn0OKZbalezAc9S0zVCMn7yxAnRarefPitqIO1m_cK6i_TLpSvSNGguTF",
+          "appFolder": "GRAVIT_UPLOADS"
+        }
+      ],
+      "defaultTemplateId": "telefonica-de_default",
+      "templates": [
+        {
+          "templateId": "telefonica-de_default",
+          "name": "Telef├│nica Germany Standard",
+          "folderPattern": "{city} {siteId} {netElement} {project}",
+          "fileNamePattern": "{netElement}_{project}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "test",
+              "label": "test",
+              "translationKey": "photo_test",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "erdung_1",
+              "label": "Erdung_1",
+              "translationKey": "photo_erdung_1",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "erdung_2",
+              "label": "Erdung_2",
+              "translationKey": "photo_erdung_2",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "rack_gesamtansicht",
+              "label": "Rack_Gesamtansicht",
+              "translationKey": "photo_rack_gesamtansicht",
+              "required": false,
+              "order": 4
+            },
+            {
+              "id": "rack_detailansicht",
+              "label": "Rack_Detailansicht",
+              "translationKey": "photo_rack_detailansicht",
+              "required": false,
+              "order": 5
+            },
+            {
+              "id": "rrh_vor_umbau",
+              "label": "RRH_vor_Umbau",
+              "translationKey": "photo_rrh_vor_umbau",
+              "required": false,
+              "order": 6
+            },
+            {
+              "id": "rrh_nach_umbau",
+              "label": "RRH_nach_Umbau",
+              "translationKey": "photo_rrh_nach_umbau",
+              "required": false,
+              "order": 7
+            },
+            {
+              "id": "kabelweg",
+              "label": "Kabelweg",
+              "translationKey": "photo_kabelweg",
+              "required": false,
+              "order": 8
+            },
+            {
+              "id": "beschriftung_am_gerat_1",
+              "label": "Beschriftung_am_Ger├ñt_1",
+              "translationKey": "photo_beschriftung_am_gerat_1",
+              "required": false,
+              "order": 9
+            },
+            {
+              "id": "beschriftung_am_gerat_2",
+              "label": "Beschriftung_am_Ger├ñt_2",
+              "translationKey": "photo_beschriftung_am_gerat_2",
+              "required": false,
+              "order": 10
+            },
+            {
+              "id": "beschilderung_am_mast",
+              "label": "Beschilderung_am_Mast",
+              "translationKey": "photo_beschilderung_am_mast",
+              "required": false,
+              "order": 11
+            },
+            {
+              "id": "gesamtansicht",
+              "label": "Gesamtansicht",
+              "translationKey": "photo_gesamtansicht",
+              "required": false,
+              "order": 12
+            }
+          ]
+        }
+      ],
+      "updatedAt": "2026-03-20T08:06:02.168Z",
+      "createdAt": "2026-03-19T13:11:49.610Z"
+    }
+  },
+  "domainTenantMapping": {
+    "testfirma2.de": "Testfirma2",
+    "telefonica.de": "telefonica.de",
+    "tempton.de": "tempton",
+    "testfirma1.de": "Testfirma1",
+    "testfirma2": "Testfirma2"
+  },
+  "defaultTenantId": "gravit_default",
+  "manualTenantId": "",
+  "assignments": [
+    {
+      "ts": "2026-03-19T08:18:55.372Z",
+      "action": "assign",
+      "actor": "dashboard",
+      "deviceId": "9e5132d3-7d75-4ef8-8577-8d3575207731",
+      "fromCompanyId": null,
+      "toCompanyId": "Testfirma1",
+      "fromUserEmail": null,
+      "toUserEmail": "david.graf@gnetzonline.de",
+      "fromTenantId": null,
+      "toTenantId": "Testfirma1"
+    },
+    {
+      "ts": "2026-03-19T08:20:03.043Z",
+      "action": "assign",
+      "actor": "dashboard",
+      "deviceId": "9e5132d3-7d75-4ef8-8577-8d3575207731",
+      "fromCompanyId": "Testfirma1",
+      "toCompanyId": "Testfirma2",
+      "fromUserEmail": "david.graf@gnetzonline.de",
+      "toUserEmail": "david.graf@gnetzonline.de",
+      "fromTenantId": "Testfirma1",
+      "toTenantId": "Testfirma2"
+    },
+    {
+      "ts": "2026-03-19T15:15:21.805Z",
+      "action": "assign",
+      "actor": "admin",
+      "deviceId": "b1a3061f-af4f-4040-a472-4c38f9001632",
+      "fromCompanyId": null,
+      "toCompanyId": "telefonica-de",
+      "fromUserEmail": null,
+      "toUserEmail": null,
+      "fromTenantId": null,
+      "toTenantId": "telefonica.de"
+    },
+    {
+      "ts": "2026-03-19T15:15:28.623Z",
+      "action": "assign",
+      "actor": "admin",
+      "deviceId": "b1a3061f-af4f-4040-a472-4c38f9001632",
+      "fromCompanyId": "telefonica-de",
+      "toCompanyId": "tempton",
+      "fromUserEmail": null,
+      "toUserEmail": null,
+      "fromTenantId": "telefonica.de",
+      "toTenantId": "tempton"
+    },
+    {
+      "ts": "2026-03-20T07:50:50.205Z",
+      "action": "assign",
+      "actor": "admin",
+      "deviceId": "2eca9f35-2b18-49f4-8752-78a1585b9a02",
+      "fromCompanyId": null,
+      "toCompanyId": "tempton",
+      "fromUserEmail": "davidgraf1999dg@gmail.com",
+      "toUserEmail": "davidgraf1999dg@gmail.com",
+      "fromTenantId": null,
+      "toTenantId": "tempton"
+    }
+  ]
+}

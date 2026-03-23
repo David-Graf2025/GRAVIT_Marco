@@ -1,0 +1,1801 @@
+{
+  "schemaVersion": 2,
+  "companies": {},
+  "users": {},
+  "devices": {},
+  "tenantConfigs": {
+    "tempton": {
+      "tenantId": "tempton",
+      "name": "Tempton",
+      "createdAt": "2026-03-19T09:45:01.608Z",
+      "updatedAt": "2026-03-19T09:45:01.834Z",
+      "fields": [
+        {
+          "key": "popId",
+          "type": "text",
+          "label": "POP ID",
+          "required": true,
+          "placeholder": "z. B. APE-001"
+        },
+        {
+          "key": "popType",
+          "type": "dropdown",
+          "label": "POP Typ",
+          "required": true,
+          "options": [
+            "FCP 1496",
+            "FCP 3696",
+            "FCP 400 v2",
+            "AP 3696",
+            "AP 1496",
+            "AP 1188",
+            "MP 400 v2",
+            "CP/AP 2600",
+            "CO v1",
+            "AP 2992"
+          ]
+        }
+      ],
+      "storageTargets": [
+        {
+          "id": "mydrive",
+          "type": "onedrive_personal",
+          "label": "Tempton OneDrive",
+          "icon": "📱",
+          "subtitle": "Persoenlicher Upload fuer Tempton",
+          "configurable": {
+            "basePath": "/Tempton"
+          }
+        }
+      ],
+      "defaultStorageTargetId": "mydrive",
+      "templates": [
+        {
+          "templateId": "tempton_fcp_1496",
+          "name": "FCP 1496",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "sicherungen",
+              "label": "sicherungen",
+              "translationKey": "photo_sicherungen",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "mgmt_switch_verkabelung",
+              "label": "mgmt_switch_verkabelung",
+              "translationKey": "photo_mgmt_switch_verkabelung",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "spr_verkabelung",
+              "label": "spr_verkabelung",
+              "translationKey": "photo_spr_verkabelung",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "ppf103_splitter_verkabelung",
+              "label": "ppf103_splitter_verkabelung",
+              "translationKey": "photo_ppf103_splitter_verkabelung",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "ppf103_ppx_verkabelung",
+              "label": "ppf103_ppx_verkabelung",
+              "translationKey": "photo_ppf103_ppx_verkabelung",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "AN_mgmt_patch",
+              "label": "AN_mgmt_patch",
+              "translationKey": "photo_AN_mgmt_patch",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 19
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_fcp_3696",
+          "name": "FCP 3696",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "spr_verkabelung",
+              "label": "spr_verkabelung",
+              "translationKey": "photo_spr_verkabelung",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "eqf803_gesamt",
+              "label": "eqf803_gesamt",
+              "translationKey": "photo_eqf803_gesamt",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "eqf804_gesamt",
+              "label": "eqf804_gesamt",
+              "translationKey": "photo_eqf804_gesamt",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "eqf805_gesamt",
+              "label": "eqf805_gesamt",
+              "translationKey": "photo_eqf805_gesamt",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "sicherungen",
+              "label": "sicherungen",
+              "translationKey": "photo_sicherungen",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "mgmt_switch_verkabelung",
+              "label": "mgmt_switch_verkabelung",
+              "translationKey": "photo_mgmt_switch_verkabelung",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "odf102_gesamt",
+              "label": "odf102_gesamt",
+              "translationKey": "photo_odf102_gesamt",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "pmf202_gesamt",
+              "label": "pmf202_gesamt",
+              "translationKey": "photo_pmf202_gesamt",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "ppf103_splitter_verkabelung",
+              "label": "ppf103_splitter_verkabelung",
+              "translationKey": "photo_ppf103_splitter_verkabelung",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "ppf103_ppx_verkabelung",
+              "label": "ppf103_ppx_verkabelung",
+              "translationKey": "photo_ppf103_ppx_verkabelung",
+              "required": true,
+              "order": 22
+            },
+            {
+              "id": "ppf203_gesamt",
+              "label": "ppf203_gesamt",
+              "translationKey": "photo_ppf203_gesamt",
+              "required": true,
+              "order": 23
+            },
+            {
+              "id": "ppf203_splitter_verkabelung",
+              "label": "ppf203_splitter_verkabelung",
+              "translationKey": "photo_ppf203_splitter_verkabelung",
+              "required": true,
+              "order": 24
+            },
+            {
+              "id": "ppf203_ppx_verkabelung",
+              "label": "ppf203_ppx_verkabelung",
+              "translationKey": "photo_ppf203_ppx_verkabelung",
+              "required": true,
+              "order": 25
+            },
+            {
+              "id": "AN_mgmt_patch",
+              "label": "AN_mgmt_patch",
+              "translationKey": "photo_AN_mgmt_patch",
+              "required": true,
+              "order": 26
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 27
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_fcp_400_v2",
+          "name": "FCP 400 v2",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "sicherungen",
+              "label": "sicherungen",
+              "translationKey": "photo_sicherungen",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "modem",
+              "label": "modem",
+              "translationKey": "photo_modem",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "spr",
+              "label": "spr",
+              "translationKey": "photo_spr",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "ups",
+              "label": "ups",
+              "translationKey": "photo_ups",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "splitter_verkabelung",
+              "label": "splitter_verkabelung",
+              "translationKey": "photo_splitter_verkabelung",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "ppx_lade_verkabelung",
+              "label": "ppx_lade_verkabelung",
+              "translationKey": "photo_ppx_lade_verkabelung",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "AN_mgmt_patch",
+              "label": "AN_mgmt_patch",
+              "translationKey": "photo_AN_mgmt_patch",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 16
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_ap_3696",
+          "name": "AP 3696",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "olt_verkabelung",
+              "label": "olt_verkabelung",
+              "translationKey": "photo_olt_verkabelung",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "bar_verkabelung",
+              "label": "bar_verkabelung",
+              "translationKey": "photo_bar_verkabelung",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "spr_verkabelung",
+              "label": "spr_verkabelung",
+              "translationKey": "photo_spr_verkabelung",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "eqf803_gesamt",
+              "label": "eqf803_gesamt",
+              "translationKey": "photo_eqf803_gesamt",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "eqf804_gesamt",
+              "label": "eqf804_gesamt",
+              "translationKey": "photo_eqf804_gesamt",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "eqf805_gesamt",
+              "label": "eqf805_gesamt",
+              "translationKey": "photo_eqf805_gesamt",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "lte_router",
+              "label": "lte_router",
+              "translationKey": "photo_lte_router",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "mgmt_sw2",
+              "label": "mgmt_sw2",
+              "translationKey": "photo_mgmt_sw2",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "odf102_gesamt",
+              "label": "odf102_gesamt",
+              "translationKey": "photo_odf102_gesamt",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "odf146_148",
+              "label": "odf146_148",
+              "translationKey": "photo_odf146_148",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 22
+            },
+            {
+              "id": "pmf202_gesamt",
+              "label": "pmf202_gesamt",
+              "translationKey": "photo_pmf202_gesamt",
+              "required": true,
+              "order": 23
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 24
+            },
+            {
+              "id": "ppf103_splitter_verkabelung",
+              "label": "ppf103_splitter_verkabelung",
+              "translationKey": "photo_ppf103_splitter_verkabelung",
+              "required": true,
+              "order": 25
+            },
+            {
+              "id": "ppf103_ppx_verkabelung",
+              "label": "ppf103_ppx_verkabelung",
+              "translationKey": "photo_ppf103_ppx_verkabelung",
+              "required": true,
+              "order": 26
+            },
+            {
+              "id": "ppf203_gesamt",
+              "label": "ppf203_gesamt",
+              "translationKey": "photo_ppf203_gesamt",
+              "required": true,
+              "order": 27
+            },
+            {
+              "id": "ppf203_splitter_verkabelung",
+              "label": "ppf203_splitter_verkabelung",
+              "translationKey": "photo_ppf203_splitter_verkabelung",
+              "required": true,
+              "order": 28
+            },
+            {
+              "id": "ppf203_ppx_verkabelung",
+              "label": "ppf203_ppx_verkabelung",
+              "translationKey": "photo_ppf203_ppx_verkabelung",
+              "required": true,
+              "order": 29
+            },
+            {
+              "id": "AN_edge_patch",
+              "label": "AN_edge_patch",
+              "translationKey": "photo_AN_edge_patch",
+              "required": true,
+              "order": 30
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 31
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_ap_1496",
+          "name": "AP 1496",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "lte_router",
+              "label": "lte_router",
+              "translationKey": "photo_lte_router",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "mgmt_sw2",
+              "label": "mgmt_sw2",
+              "translationKey": "photo_mgmt_sw2",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "olt_verkabelung",
+              "label": "olt_verkabelung",
+              "translationKey": "photo_olt_verkabelung",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "bar_verkabelung",
+              "label": "bar_verkabelung",
+              "translationKey": "photo_bar_verkabelung",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "spr",
+              "label": "spr",
+              "translationKey": "photo_spr",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "dwdm",
+              "label": "dwdm",
+              "translationKey": "photo_dwdm",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "ups",
+              "label": "ups",
+              "translationKey": "photo_ups",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "ppf103_splitter_verkabelung",
+              "label": "ppf103_splitter_verkabelung",
+              "translationKey": "photo_ppf103_splitter_verkabelung",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "AN_edge_patch",
+              "label": "AN_edge_patch",
+              "translationKey": "photo_AN_edge_patch",
+              "required": true,
+              "order": 22
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 23
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_ap_1188",
+          "name": "AP 1188",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "lte_router",
+              "label": "lte_router",
+              "translationKey": "photo_lte_router",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "mgmt_sw2",
+              "label": "mgmt_sw2",
+              "translationKey": "photo_mgmt_sw2",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "olt_verkabelung",
+              "label": "olt_verkabelung",
+              "translationKey": "photo_olt_verkabelung",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "bar_verkabelung",
+              "label": "bar_verkabelung",
+              "translationKey": "photo_bar_verkabelung",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "spr",
+              "label": "spr",
+              "translationKey": "photo_spr",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "ups",
+              "label": "ups",
+              "translationKey": "photo_ups",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "splitter_verkabelung",
+              "label": "splitter_verkabelung",
+              "translationKey": "photo_splitter_verkabelung",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "AN_edge_patch",
+              "label": "AN_edge_patch",
+              "translationKey": "photo_AN_edge_patch",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 22
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_mp_400_v2",
+          "name": "MP 400 v2",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "sicherungen",
+              "label": "sicherungen",
+              "translationKey": "photo_sicherungen",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "lte_router",
+              "label": "lte_router",
+              "translationKey": "photo_lte_router",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "mgmt_sw2",
+              "label": "mgmt_sw2",
+              "translationKey": "photo_mgmt_sw2",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "olt_verkabelung",
+              "label": "olt_verkabelung",
+              "translationKey": "photo_olt_verkabelung",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "spr",
+              "label": "spr",
+              "translationKey": "photo_spr",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "dwdm",
+              "label": "dwdm",
+              "translationKey": "photo_dwdm",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "ups",
+              "label": "ups",
+              "translationKey": "photo_ups",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "splitter_verkabelung",
+              "label": "splitter_verkabelung",
+              "translationKey": "photo_splitter_verkabelung",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "ppx_lade_verkabelung",
+              "label": "ppx_lade_verkabelung",
+              "translationKey": "photo_ppx_lade_verkabelung",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "AN_edge_patch",
+              "label": "AN_edge_patch",
+              "translationKey": "photo_AN_edge_patch",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 19
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_cp_ap_2600",
+          "name": "CP/AP 2600",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "olts_verkabelung",
+              "label": "olts_verkabelung",
+              "translationKey": "photo_olts_verkabelung",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "bars_verkabelung",
+              "label": "bars_verkabelung",
+              "translationKey": "photo_bars_verkabelung",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "spr_verkabelung",
+              "label": "spr_verkabelung",
+              "translationKey": "photo_spr_verkabelung",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "eqf803_gesamt",
+              "label": "eqf803_gesamt",
+              "translationKey": "photo_eqf803_gesamt",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "eqf804_gesamt",
+              "label": "eqf804_gesamt",
+              "translationKey": "photo_eqf804_gesamt",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "wdm_geraete",
+              "label": "wdm_geraete",
+              "translationKey": "photo_wdm_geraete",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "spare_panel",
+              "label": "spare_panel",
+              "translationKey": "photo_spare_panel",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "eqf805_gesamt",
+              "label": "eqf805_gesamt",
+              "translationKey": "photo_eqf805_gesamt",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "lte_router",
+              "label": "lte_router",
+              "translationKey": "photo_lte_router",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "mgmt_sw2",
+              "label": "mgmt_sw2",
+              "translationKey": "photo_mgmt_sw2",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "edge1",
+              "label": "edge1",
+              "translationKey": "photo_edge1",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "edge2",
+              "label": "edge2",
+              "translationKey": "photo_edge2",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "test_cpe",
+              "label": "test_cpe",
+              "translationKey": "photo_test_cpe",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 22
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 23
+            },
+            {
+              "id": "weitere_odfs",
+              "label": "weitere_odfs",
+              "translationKey": "photo_weitere_odfs",
+              "required": true,
+              "order": 24
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 25
+            },
+            {
+              "id": "pmf202_gesamt",
+              "label": "pmf202_gesamt",
+              "translationKey": "photo_pmf202_gesamt",
+              "required": true,
+              "order": 26
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 27
+            },
+            {
+              "id": "ppf203_gesamt",
+              "label": "ppf203_gesamt",
+              "translationKey": "photo_ppf203_gesamt",
+              "required": true,
+              "order": 28
+            },
+            {
+              "id": "ppx_lade_verkabelung",
+              "label": "ppx_lade_verkabelung",
+              "translationKey": "photo_ppx_lade_verkabelung",
+              "required": true,
+              "order": 29
+            },
+            {
+              "id": "splitter_verkabelung",
+              "label": "splitter_verkabelung",
+              "translationKey": "photo_splitter_verkabelung",
+              "required": true,
+              "order": 30
+            },
+            {
+              "id": "AN_edge_patch",
+              "label": "AN_edge_patch",
+              "translationKey": "photo_AN_edge_patch",
+              "required": true,
+              "order": 31
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 32
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_co_v1",
+          "name": "CO v1",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "zte_usv_config",
+              "label": "zte_usv_config",
+              "translationKey": "photo_zte_usv_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "iloq",
+              "label": "iloq",
+              "translationKey": "photo_iloq",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "sicherungen",
+              "label": "sicherungen",
+              "translationKey": "photo_sicherungen",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "zte_sensoren",
+              "label": "zte_sensoren",
+              "translationKey": "photo_zte_sensoren",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "eqf101_gesamt",
+              "label": "eqf101_gesamt",
+              "translationKey": "photo_eqf101_gesamt",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "olts",
+              "label": "olts",
+              "translationKey": "photo_olts",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "edge",
+              "label": "edge",
+              "translationKey": "photo_edge",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "wdm_geraete",
+              "label": "wdm_geraete",
+              "translationKey": "photo_wdm_geraete",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "eqf102",
+              "label": "eqf102",
+              "translationKey": "photo_eqf102",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "odf_verkabelung",
+              "label": "odf_verkabelung",
+              "translationKey": "photo_odf_verkabelung",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "onu",
+              "label": "onu",
+              "translationKey": "photo_onu",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "exfo",
+              "label": "exfo",
+              "translationKey": "photo_exfo",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "rmopr",
+              "label": "rmopr",
+              "translationKey": "photo_rmopr",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "strom",
+              "label": "strom",
+              "translationKey": "photo_strom",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "eqf103_gesamt",
+              "label": "eqf103_gesamt",
+              "translationKey": "photo_eqf103_gesamt",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "lte_router",
+              "label": "lte_router",
+              "translationKey": "photo_lte_router",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "mgmt_sw1",
+              "label": "mgmt_sw1",
+              "translationKey": "photo_mgmt_sw1",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "mgmt_sw2",
+              "label": "mgmt_sw2",
+              "translationKey": "photo_mgmt_sw2",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "rtu",
+              "label": "rtu",
+              "translationKey": "photo_rtu",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "sicherungen_strom",
+              "label": "sicherungen_strom",
+              "translationKey": "photo_sicherungen_strom",
+              "required": true,
+              "order": 22
+            }
+          ]
+        },
+        {
+          "templateId": "tempton_ap_2992",
+          "name": "AP 2992",
+          "folderPattern": "{popId} {popType}",
+          "fileNamePattern": "{popId}_{popType}_{photoVar}.jpg",
+          "captureSteps": [
+            {
+              "id": "ups_config",
+              "label": "ups_config",
+              "translationKey": "photo_ups_config",
+              "required": true,
+              "order": 1
+            },
+            {
+              "id": "pop_gesamt",
+              "label": "pop_gesamt",
+              "translationKey": "photo_pop_gesamt",
+              "required": true,
+              "order": 2
+            },
+            {
+              "id": "pop_maengel",
+              "label": "pop_maengel",
+              "translationKey": "photo_pop_maengel",
+              "required": true,
+              "order": 3
+            },
+            {
+              "id": "airco_config",
+              "label": "airco_config",
+              "translationKey": "photo_airco_config",
+              "required": true,
+              "order": 4
+            },
+            {
+              "id": "eqf801_gesamt",
+              "label": "eqf801_gesamt",
+              "translationKey": "photo_eqf801_gesamt",
+              "required": true,
+              "order": 5
+            },
+            {
+              "id": "olt_verkabelung",
+              "label": "olt_verkabelung",
+              "translationKey": "photo_olt_verkabelung",
+              "required": true,
+              "order": 6
+            },
+            {
+              "id": "bar_verkabelung",
+              "label": "bar_verkabelung",
+              "translationKey": "photo_bar_verkabelung",
+              "required": true,
+              "order": 7
+            },
+            {
+              "id": "splitter_verkabelung",
+              "label": "splitter_verkabelung",
+              "translationKey": "photo_splitter_verkabelung",
+              "required": true,
+              "order": 8
+            },
+            {
+              "id": "eqf802_gesamt",
+              "label": "eqf802_gesamt",
+              "translationKey": "photo_eqf802_gesamt",
+              "required": true,
+              "order": 9
+            },
+            {
+              "id": "eqf803_gesamt",
+              "label": "eqf803_gesamt",
+              "translationKey": "photo_eqf803_gesamt",
+              "required": true,
+              "order": 10
+            },
+            {
+              "id": "eqf804_gesamt",
+              "label": "eqf804_gesamt",
+              "translationKey": "photo_eqf804_gesamt",
+              "required": true,
+              "order": 11
+            },
+            {
+              "id": "eqf805_gesamt",
+              "label": "eqf805_gesamt",
+              "translationKey": "photo_eqf805_gesamt",
+              "required": true,
+              "order": 12
+            },
+            {
+              "id": "sicherungen",
+              "label": "sicherungen",
+              "translationKey": "photo_sicherungen",
+              "required": true,
+              "order": 13
+            },
+            {
+              "id": "apollo",
+              "label": "apollo",
+              "translationKey": "photo_apollo",
+              "required": true,
+              "order": 14
+            },
+            {
+              "id": "lte_console_verkabelung",
+              "label": "lte_console_verkabelung",
+              "translationKey": "photo_lte_console_verkabelung",
+              "required": true,
+              "order": 15
+            },
+            {
+              "id": "mgmt_switch_verkabelung",
+              "label": "mgmt_switch_verkabelung",
+              "translationKey": "photo_mgmt_switch_verkabelung",
+              "required": true,
+              "order": 16
+            },
+            {
+              "id": "odf101_gesamt",
+              "label": "odf101_gesamt",
+              "translationKey": "photo_odf101_gesamt",
+              "required": true,
+              "order": 17
+            },
+            {
+              "id": "odf145_146",
+              "label": "odf145_146",
+              "translationKey": "photo_odf145_146",
+              "required": true,
+              "order": 18
+            },
+            {
+              "id": "odf201_gesamt",
+              "label": "odf201_gesamt",
+              "translationKey": "photo_odf201_gesamt",
+              "required": true,
+              "order": 19
+            },
+            {
+              "id": "pmf102_gesamt",
+              "label": "pmf102_gesamt",
+              "translationKey": "photo_pmf102_gesamt",
+              "required": true,
+              "order": 20
+            },
+            {
+              "id": "pmf202_gesamt",
+              "label": "pmf202_gesamt",
+              "translationKey": "photo_pmf202_gesamt",
+              "required": true,
+              "order": 21
+            },
+            {
+              "id": "ppf103_gesamt",
+              "label": "ppf103_gesamt",
+              "translationKey": "photo_ppf103_gesamt",
+              "required": true,
+              "order": 22
+            },
+            {
+              "id": "ppx_lade_verkabelung",
+              "label": "ppx_lade_verkabelung",
+              "translationKey": "photo_ppx_lade_verkabelung",
+              "required": true,
+              "order": 23
+            },
+            {
+              "id": "ppf203_gesamt",
+              "label": "ppf203_gesamt",
+              "translationKey": "photo_ppf203_gesamt",
+              "required": true,
+              "order": 24
+            },
+            {
+              "id": "AN_edge_patch",
+              "label": "AN_edge_patch",
+              "translationKey": "photo_AN_edge_patch",
+              "required": true,
+              "order": 25
+            },
+            {
+              "id": "AN_odf_patch",
+              "label": "AN_odf_patch",
+              "translationKey": "photo_AN_odf_patch",
+              "required": true,
+              "order": 26
+            }
+          ]
+        }
+      ],
+      "defaultTemplateId": "tempton_fcp_1496",
+      "managedBy": "file-override"
+    }
+  },
+  "domainTenantMapping": {},
+  "defaultTenantId": "gravit_default",
+  "manualTenantId": "",
+  "assignments": []
+}

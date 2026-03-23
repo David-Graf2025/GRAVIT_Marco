@@ -1,0 +1,362 @@
+Vorgaben Fotodokumentation Dienstleister
+Deutsch
+Hier möchten wir euch die Benamung für die Zukünftige Ablage der Fotodokumentation aufzeigen.
+Die Fotos müssen am am selben Tag spätestens am Folge Tage in das DG Dataspace hochgeladen werden!
+Folgende Vorgabe gilt für ALLE PoPʼs egal ob Passive oder aktive Komponente 
+Fotos müssen so gemacht werden dass die Höheneinheit erkennbar ist!
+Desweiteren wird unten aufgeführt welche Bilder in welchem Standort gemacht werden müssen.
+Die Fotos sind entsprechend dieser forgabe zu beschriften:-
+1 Am Anfang der Beschriftung den PoP Namen
+2 an zweiter Stelle Rack/Gesamtansicht
+3 Die Lade/das Gerät bzw. die Geräte *
+* zb. mgmt Switch 1 + mgmt Switch 2 und LTE können zu mgmt zusammen gefasst werden. 
+Die einzige Ausnahme hierzu sind die Street Cabinets.  Hier gelten nur die Punkte 1 und 2
+Beispiel: MSN-005
+msn-005 - Gesamtansicht
+msn-005 - EQF-805 - Gesamtansicht Rack
+msn-005 - ODF 101 - ODF 145
+ msn-005 - EQF-801 - OLT1
+ msn-005 - EQF-805 - MGMT
+Beispiel:
+Nachfolgenden die Angaben welche Fotos in welchem POP gemacht werden müssen:
+FCP 1496
+Bilder die bei einem FCP 1496 gemacht werden müssen:
+UPS + Config
+FCP 3696
+Foto POP Gesamtansicht
+Foto POP Mängel (Falls vorhanden)
+Foto Airco + Config
+EQF-801
+Gesamtansicht Rack
+EQF-802
+Gesamtansicht Rack
+Foto Sicherungen
+Foto Apollo
+Foto Test CPE
+Foto mgmt-switch inkl. Verkabelung
+Foto SPR inkl. Verkabelung
+ODF-101
+Gesamtansicht Rack
+Foto ODF 145/146
+PMF-102
+Gesamtansicht Rack
+PPF-103
+Gesamtansicht Rack
+Foto der Splitter inkl. Verkabelung
+Foto PPX Lade inkl. Verkabelung
+Gegenseitiger POP
+Foto mgmt-sw2/mgmt-sw1 an den Verkabelt wurde (inkl. Verkabelung)
+Foto ODF über den der Patch gemacht wurde
+Bilder die bei einem FCP 3696 gemacht werden müssen:
+UPS + Config
+Foto POP Gesamtansicht
+Foto POP Mängel (Falls vorhanden)
+Foto Airco + Config
+EQF-801
+Gesamtansicht Rack
+Foto SPR inkl. Verkabelung
+EQF-802
+Gesamtansicht Rack
+EQF-803
+Gesamtansicht Rack
+EQF-804
+Gesamtansicht Rack
+EQF-805
+Gesamtansicht Rack
+Foto Sicherungen
+FCP 400 v2
+Foto Apollo
+Foto Test CPE
+Foto mgmt-switch inkl. Verkabelung
+ODF 101
+Gesamtansicht Rack
+Foto ODF 145/146
+ODF 102
+Gesamtansicht Rack
+PMF 102
+Gesamtansicht Rack
+PMF 202
+Gesamtansicht Rack
+PPF 103
+Gesamtansicht Rack
+Foto der Splitter inkl. Verkabelung
+Foto PPX Lade inkl. Verkabelung
+PPF 203
+Gesamtansicht Rack
+Foto der Splitter inkl. Verkabelung
+Foto PPX Lade inkl. Verkabelung
+Gegenseitiger POP
+Foto mgmt-sw2/mgmt-sw1 an den Verkabelt wurde (inkl. Verkabelung)
+Foto ODF über den der Patch gemacht wurde
+Bilder die bei einem FCP 400 v2 gemacht werden müssen
+Foto POP Gesamtansicht
+Foto POP Mängel (Falls vorhanden)
+Foto Sicherungen 
+EQF-801
+Gesamtansicht Rack
+Foto Apollo
+Foto mgmt-sw1
+Foto Modem
+Foto Test CPE
+Foto SPR
+Foto ups
+ODF-101
+Gesamtansicht Rack
+Foto der Splitter inkl. Verkabelung
+Foto PPX Lade inkl. Verkabelung
+Foto ODF 145/146
+Gegenseitiger POP
+Foto mgmt-sw2/mgmt-sw1 an den Verkabelt wurde (inkl. Verkabelung)
+AP 3696
+Foto ODF über den der Patch gemacht wurde
+Bilder die bei einem AP 3696 gemacht werden müssen:
+UPS + Config
+Foto POP Gesamtansicht
+Foto POP Mängel (Falls vorhanden)
+Foto Airco + Config
+EQF-801
+Gesamtansicht Rack
+Foto OLT inkl. Verkabelung
+Foto Bar inkl Verkabelung
+Foto SPR inkl. Verkabelung
+EQF-802
+Gesamtansicht Rack
+EQF-803
+Gesamtansicht Rack
+EQF-804
+Gesamtansicht Rack
+EQF-805
+Gesamtansicht Rack
+Foto Apollo
+Foto LTE Router
+Foto mgmt-sw1
+Foto mgmt-sw2
+Foto Test CPE
+ODF 101
+Gesamtansicht Rack
+Foto ODF 145/146
+ODF 102
+Gesamtansicht Rack
+Fotos ODF 146/148
+PMF 102
+Gesamtansicht Rack
+PMF 202
+Gesamtansicht Rack
+PPF 103
+Gesamtansicht Rack
+Foto der Splitter inkl. Verkabelung
+Foto PPX Lade inkl. Verkabelung
+PPF 203
+Gesamtansicht Rack
+Foto der Splitter inkl. Verkabelung
+Foto PPX Lade inkl. Verkabelung
+AP 1496
+AP 1188
+Gegenseitiger POP
+Foto edge an den Verkabelt wurde (inkl. Verkabelung)
+Foto ODF über den der Patch gemacht wurde
+Bilder die bei einem AP 1496 gemacht werden müssen:
+UPS + Config
+Foto POP Gesamtansicht
+Foto POP Mängel (Falls vorhanden)
+Foto Airco + Config
+EQF-801
+Gesamtansicht Rack
+EQF-802
+Gesamtansicht Rack
+Foto Apollo
+Foto LTE Router
+Foto mgmt-sw1
+Foto mgmt-sw2
+Foto Test CPE
+Foto OLT inkl. Verkabelung
+Foto Bar inkl Verkabelung
+Foto SPR
+Fotos dwdm
+Foto ups
+ODF-101
+Gesamtansicht Rack
+Foto ODF 145/146
+PMF-102
+Gesamtansicht Rack
+PPF-103
+Gesamtansicht Rack
+Foto ODF 145/146
+Foto der Splitter inkl. Verkabelung
+Gegenseitiger POP
+Foto edge an den Verkabelt wurde (inkl. Verkabelung)
+Foto ODF über den der Patch gemacht wurde
+Bilder die bei einem AP 1188 gemacht werden müssen:
+UPS + Config
+Foto POP Gesamtansicht
+Foto POP Mängel (Falls vorhanden)
+Foto Airco + Config
+MP 400 v2
+EQF-801
+Gesamtansicht Rack
+EQF-802
+Gesamtansicht Rack
+Foto Apollo
+Foto LTE Router
+Foto mgmt-sw1
+Foto mgmt-sw2
+Foto OLT inkl. Verkabelung
+Foto Bar inkl Verkabelung
+Foto Test CPE
+Foto SPR
+Foto ups
+ODF-101
+Gesamtansicht Rack
+Foto ODF 145/146
+Foto der Splitter inkl. Verkabelung
+PMF-102
+Gesamtansicht Rack
+PPF-103
+Gesamtansicht Rack
+Foto ODF 145/146
+Gegenseitiger POP
+Foto edge an den Verkabelt wurde (inkl. Verkabelung)
+Foto ODF über den der Patch gemacht wurde
+Bilder die bei einem MP 400 v2 gemacht werden müssen
+Foto POP Gesamtansicht
+Foto POP Mängel (Falls vorhanden)
+Foto Sicherungen 
+EQF-801
+a. Gesamtansicht Rack
+b. Foto Apollo
+c. Foto LTE Router
+d. Foto mgmt-sw1
+e. Foto mgmt-sw2
+f. Foto OLT inkl. Verkabelung
+g. Foto Test CPE
+h. Foto SPR
+i. Foto dwdm
+j. Foto ups
+ODF-101
+Gesamtansicht Rack
+CP/AP 2600
+Foto der Splitter inkl. Verkabelung
+Foto PPX Lade inkl. Verkabelung
+Foto ODF 145/146
+Gegenseitiger POP
+Foto edge an den Verkabelt wurde (inkl. Verkabelung)
+Foto ODF über den der Patch gemacht wurde
+Bilder die bei einem CP/AP 2600 gemacht werden müssen:
+UPS + Config
+Foto POP Gesamtansicht
+Foto POP Mängel (Falls vorhanden)
+Foto Airco + Config
+EQF-801
+Gesamtansicht Rack
+Foto OLTs inkl. Verkabelung
+Foto Bars inkl Verkabelung
+Foto SPR inkl. Verkabelung
+EQF-802
+Gesamtansicht Rack
+EQF-803
+Gesamtansicht Rack
+EQF-804
+Gesamtansicht Rack
+Foto wdm Geräte
+Foto Spare Panel
+EQF-805
+Gesamtansicht Rack
+Foto Apollo
+Foto LTE Router
+Foto mgmt-sw1
+Foto mgmt-sw2
+Foto edge1
+Foto edge 2
+Foto Test CPE
+ODF 101
+Gesamtansicht Rack
+Foto ODF 145/146
+Foto weitere ODFs
+PMF 102
+Gesamtansicht Rack
+PMF 202
+Gesamtansicht Rack
+PPF 103
+CO
+AP 2992
+Gesamtansicht Rack
+Foto der Splitter inkl. Verkabelung
+Foto PPX Lade inkl. Verkabelung
+ODF/PPF 203
+Gesamtansicht Rack
+Foto der ODF Laden inkl. Verkabelung
+ODF/PPF 201
+Gesamtansicht Rack
+Foto ODF 145/146
+Foto weitere ODF Laden inkl. Verkabelung
+Gegenseitiger POP
+Foto edge an den Verkabelt wurde (inkl. Verkabelung)
+Foto ODF über den der Patch gemacht wurde
+Bilder die bei einem CO v1 gemacht werden müssen:
+ZTE USV+ Config
+Foto POP Gesamtansicht
+Foto POP Mängel (Falls vorhanden)
+Fotos iloq
+Fotos Sicherungen
+Fotos ZTE Sensoren
+EQF-101
+Gesamtansicht Rack
+Fotos der OLTs
+Fotos edge
+Fotos wdm Geräte
+EQF-102
+Fotos ODF Laden inkl. Verkabelung
+Fotos ONU
+Fotos Exfo
+Fotos RMOPR
+Fotos Strom
+EQF-103
+Gesamtansicht Rack
+Foto LTE Router
+Foto mgmt-sw1
+Foto mgmt-sw2
+Foto RTU
+Foto Sicherungen/Strom
+Bilder die bei einem AP 2992 gemacht werden müssen:
+UPS + Config
+Foto POP Gesamtansicht
+Foto POP Mängel (Falls vorhanden)
+Foto Airco + Config
+EQF-801
+Gesamtansicht Rack
+Foto OLT inkl Verkabelung
+Foto BAR inkl Verkabelung
+Foto Splitter inkl Verkabelung
+EQF-802
+Gesamtansicht Rack
+EQF-803
+Gesamtansicht Rack
+EQF-804
+Gesamtansicht Rack
+EQF-805
+Gesamtansicht Rack
+Foto Sicherungen
+Foto Apollo
+Foto LTE/Console inkl Verkabelung
+Foto mgmt-switch inkl. Verkabelung
+ODF 101
+Gesamtansicht Rack
+Foto ODF 145/146
+Foto der Splitter inkl Verkabelung
+ODF 201
+Gesamtansicht Rack
+Foto  ODF 145/146
+Foto der Splitter inkl Verkabelung
+PMF 102
+Gesamtansicht Rack
+PMF 202
+Gesamtansicht Rack
+PPF 103
+Gesamtansicht Rack
+Foto PPX Lade inkl. Verkabelung
+PPF 203
+Gesamtansicht Rack
+Foto PPX Lade inkl. Verkabelung
+Gegenseitiger POP
+Foto edge an den Verkabelt wurde (inkl. Verkabelung)
+Foto ODF über den der Patch gemacht wurde

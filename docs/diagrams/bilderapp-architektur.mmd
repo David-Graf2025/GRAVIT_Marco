@@ -1,0 +1,71 @@
+flowchart LR
+    subgraph MobileApp[Flutter App]
+      AG[AccessGate]
+      HWP[HomeWithPlugin]
+      LFW[LocationFormWidget]
+      DC[Dynamic Controller Mapping\ncity, siteId, popId, popType]
+      TS[TenantConfigService]
+      RTS[RemoteTenantConfigService]
+      AS[AppPreferencesService]
+      PS[PhotoService]
+      UQ[UploadQueueService]
+      ODS[OneDrive Service]
+      SSS[SharePoint Service]
+      PG[PhotoGalleryWidget]
+      PC[PhotoCaptureWidget]
+    end
+
+    subgraph Backend[Node Backend]
+      A1[/v1 access/:deviceId/]
+      C1[/v1 config/:deviceId/]
+      T1[/v1 tenant-config/:tenantId/]
+      R1[/v1 tenant-routing/]
+      AD[/admin api tenants and companies/]
+      SRV[server.js\ntenant override merge]
+    end
+
+    subgraph DataLayer[Konfiguration und Persistenz]
+      TD[devices.json\ntenant configs, companies, devices]
+      TT[tempton-tenant.json\npopType specific templates]
+      ACFG[assets config tenants]
+      SP[SharedPreferences\ncache and local state]
+    end
+
+    subgraph Cloud[Cloud Ziele]
+      OD[OneDrive]
+      SH[SharePoint]
+    end
+
+    AG --> HWP
+    HWP --> LFW
+    LFW --> DC
+
+    HWP --> TS
+    TS --> RTS
+    TS --> ACFG
+    RTS --> T1
+    RTS --> R1
+
+    HWP --> AS
+    AS --> SP
+
+    HWP --> PG
+    HWP --> PC
+    PC --> PS
+    PS --> UQ
+
+    HWP --> ODS
+    HWP --> SSS
+    ODS --> OD
+    SSS --> SH
+
+    C1 --> SRV
+    T1 --> SRV
+    AD --> SRV
+    SRV --> TD
+    SRV --> TT
+
+    C1 -.effectiveTenantConfig.-> HWP
+    T1 -.templates and captureSteps.-> TS
+    DC -.popType selects active template.-> HWP
+    HWP -.photo vars from active template.-> PG

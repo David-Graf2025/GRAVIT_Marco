@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "501924056149",
+    "project_id": "bilderapp-452709",
+    "storage_bucket": "bilderapp-452709.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:501924056149:android:fc45f416f3f7a64b1dd8dc",
+        "android_client_info": {
+          "package_name": "com.example.bilder_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "501924056149-hqpogkj0a77v3u0ooa0jqgp1bg977kt2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bilder_app",
+            "certificate_hash": "442f9709ac547d5505e00335b20768f5a1b63a4a"
+          }
+        },
+        {
+          "client_id": "501924056149-3f53rnf4mpq8e6rh1edgp2oa19n1p2d7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_oWaqiEXS6ALdx9irpIuRxWNDrhZkMbg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "501924056149-3f53rnf4mpq8e6rh1edgp2oa19n1p2d7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

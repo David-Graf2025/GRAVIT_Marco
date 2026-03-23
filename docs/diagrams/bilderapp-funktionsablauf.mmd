@@ -1,0 +1,35 @@
+sequenceDiagram
+    participant U as User
+    participant APP as HomeWithPlugin
+    participant CFG as TenantConfigService
+    participant API as Backend API
+    participant TPL as Active Template Resolver
+    participant GAL as PhotoGallery
+    participant CAP as PhotoCapture
+    participant Q as UploadQueueService
+    participant CL as Cloud Target
+
+    U->>APP: App starten
+    APP->>API: GET v1 access/deviceId
+    APP->>CFG: load tenant config
+    CFG->>API: GET v1 tenant-routing
+    CFG->>API: GET v1 tenant-config/tenantId
+    API-->>CFG: fields plus templates plus captureSteps
+    CFG-->>APP: TenantConfig
+
+    U->>APP: Standortdaten eingeben plus popType wählen
+    APP->>TPL: resolve by popType
+    TPL-->>APP: active templateId
+
+    APP->>GAL: set variablesOrder from active captureSteps
+    GAL-->>U: unterschiedliche Bildvariablen je popType
+
+    U->>CAP: Foto aufnehmen
+    CAP->>Q: Queue entry anlegen
+    Q-->>APP: pending uploads
+
+    U->>APP: Upload starten
+    APP->>Q: upload entries for site
+    Q->>CL: Datei hochladen
+    CL-->>Q: Erfolg
+    Q-->>APP: Status aktualisiert

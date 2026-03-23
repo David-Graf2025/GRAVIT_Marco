@@ -1,0 +1,10 @@
+{
+  "defaultTenantId": "gravit_default",
+  "manualTenantId": "",
+  "domainTenantMapping": {
+    "gnetzonline.de": "gravit_default",
+    "firma-a.de": "firma_a",
+    "firma-b.de": "firma_b",
+    "firma-c.de": "firma_c"
+  }
+}

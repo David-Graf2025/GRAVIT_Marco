@@ -1,0 +1,66 @@
+name: bilder_app
+
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+12
+
+environment:
+  sdk: ^3.6.0
+dependency_overrides:
+  path: 1.9.0
+dependencies:
+  flutter:
+    sdk: flutter
+  google_fonts: ^6.2.1
+  image_picker: ^1.1.2
+  file_picker: ^10.2.0
+  pdf: ^3.10.8
+
+  path:
+  path_provider: ^2.0.15
+  printing: ^5.11.1
+  cupertino_icons: ^1.0.8
+  permission_handler: ^11.4.0
+  http: ^1.3.0
+  open_file: ^3.3.2
+  shared_preferences: ^2.2.2
+  flutter_onedrive: ^1.8.0
+  url_launcher: ^6.2.5
+  flutter_secure_storage: ^9.0.0
+  app_links: ^6.4.0
+  fluttertoast: ^8.2.12
+  package_info_plus: ^8.0.0
+  device_info_plus: ^10.1.0
+  android_id: ^0.4.0
+  crypto: ^3.0.3
+
+  uuid: ^4.3.3
+  logger: ^2.0.2
+  provider: ^6.1.1
+  get_it: ^7.6.7
+  flutter_dotenv: ^5.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
+  mocktail: ^1.0.0
+  mockito: ^5.4.4
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: assets/icon/icon.png
+  remove_alpha_ios: true
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/icon/icon.png
+    - assets/arial.ttf
+    - assets/config/tenant_routing.json
+    - assets/config/tenants/
+

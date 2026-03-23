@@ -1,0 +1,8 @@
+{
+  "defaultTenantId": "gravit_default",
+  "manualTenantId": "",
+  "domainTenantMapping": {
+    "gnetzonline.de": "tempton",
+    "tempton.de": "tempton"
+  }
+}

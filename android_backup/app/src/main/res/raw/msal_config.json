@@ -1,0 +1,12 @@
+{
+  "client_id": "3aed5ca0-d392-4f3f-88b2-66b895382445",
+  "redirect_uri": "msal3aed5ca0-d392-4f3f-88b2-66b895382445://auth",
+  "authorities": [
+    {
+      "type": "AAD",
+      "audience": {
+        "type": "AzureADMultipleOrgs"
+      }
+    }
+  ]
+}

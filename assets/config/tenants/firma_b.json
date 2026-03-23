@@ -1,0 +1,30 @@
+{
+  "tenantId": "firma_b",
+  "name": "Firma B",
+  "storageTargets": [
+    {
+      "id": "sharepoint",
+      "type": "sharepoint",
+      "label": "Firma B SharePoint",
+      "icon": "🏢",
+      "subtitle": "SharePoint Upload",
+      "driveId": "b!vau6kwInn0OKZbalezAc9S0zVCMn7yxAnRarefPitqIO1m_cK6i_TLpSvSNGguTF",
+      "appFolder": "GRAVIT_UPLOADS"
+    }
+  ],
+  "defaultStorageTargetId": "sharepoint",
+  "templates": [
+    {
+      "templateId": "default",
+      "name": "Firma B POP",
+      "folderPattern": "{siteId}",
+      "fileNamePattern": "{siteId}_{photoVar}.jpg",
+      "captureSteps": [
+        { "id": "vor_umbau", "label": "vor Umbau", "translationKey": "photo_vor_umbau", "required": true, "order": 1 },
+        { "id": "erdung_1", "label": "Erdung_1", "translationKey": "photo_erdung_1", "required": true, "order": 2 },
+        { "id": "tresor", "label": "Tresor", "translationKey": "photo_tresor", "required": false, "order": 3 }
+      ]
+    }
+  ],
+  "defaultTemplateId": "default"
+}

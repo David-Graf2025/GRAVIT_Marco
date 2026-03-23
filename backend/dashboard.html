@@ -1,0 +1,2262 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BilderApp – Multi-Tenant Dashboard</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#121a33;
+      --panel2:#0f1630;
+      --text:#e8ecff;
+      --muted:#a7b0d6;
+      --ok:#2dd4bf;
+      --bad:#fb7185;
+      --warn:#fbbf24;
+      --line:#253055;
+      --btn:#1f2a52;
+      --btn2:#2a3870;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+      --radius:14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 800px at 20% 0%, #141b3d 0%, var(--bg) 55%);
+      color:var(--text);
+      font-family:var(--sans);
+    }
+    header{
+      position:sticky; top:0;
+      backdrop-filter: blur(10px);
+      background: rgba(11,16,32,.7);
+      border-bottom:1px solid rgba(37,48,85,.6);
+      z-index:10;
+    }
+    .wrap{max-width:1400px;margin:0 auto;padding:18px 16px;}
+    .top{display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;}
+    .brand{display:flex; gap:10px; align-items:center;}
+    .logo{width:38px;height:38px;border-radius:12px;background: linear-gradient(135deg, #6d28d9, #22c55e);box-shadow: var(--shadow);}
+    h1{font-size:16px;margin:0}
+    .sub{color:var(--muted);font-size:12px}
+
+    .tabs{display:flex;gap:4px;margin-top:14px;border-bottom:1px solid var(--line)}
+    .tab{background:transparent;border:none;color:var(--muted);padding:12px 20px;cursor:pointer;border-bottom:2px solid transparent;font-size:14px;font-weight:600;}
+    .tab:hover{color:var(--text)}
+    .tab.active{color:var(--text);border-bottom-color:var(--ok)}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+
+    .bar{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+    .input, select, textarea{
+      background: rgba(18,26,51,.9);
+      border:1px solid rgba(37,48,85,.8);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      outline:none;
+      font-family:inherit;
+    }
+    .input{min-width:260px}
+    textarea{width:100%;min-height:100px;resize:vertical;font-family:var(--mono);font-size:12px}
+    select{padding:10px 12px}
+    .btn{
+      background: linear-gradient(180deg, var(--btn2), var(--btn));
+      border:1px solid rgba(37,48,85,.9);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 16px;
+      cursor:pointer;
+      font-size:14px;
+      font-weight:600;
+    }
+    .btn:hover{filter:brightness(1.05)}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .btn.primary{background:linear-gradient(180deg, #2dd4bf, #14b8a6)}
+    .btn.danger{background:linear-gradient(180deg, #fb7185, #f43f5e)}
+
+    .grid{display:grid;grid-template-columns: 1fr 1fr 1fr 1fr;gap:12px;margin-top:14px;}
+    .card{background: rgba(18,26,51,.75);border:1px solid rgba(37,48,85,.65);border-radius: var(--radius);padding:16px;box-shadow: var(--shadow);}
+    .company-card{background: rgba(18,26,51,.75);border:1px solid rgba(37,48,85,.65);border-radius: var(--radius);padding:18px;box-shadow: var(--shadow);margin-bottom:12px;}
+    .company-card h3{margin:0 0 8px 0;font-size:16px}
+    .kpi{font-size:12px;color:var(--muted)}
+    .kval{font-size:18px;font-weight:700;margin-top:6px}
+    .tableWrap{margin-top:14px;background: rgba(18,26,51,.65);border:1px solid rgba(37,48,85,.65);border-radius: var(--radius);overflow:hidden;box-shadow: var(--shadow);}
+    table{width:100%; border-collapse:collapse; font-size:12px}
+    thead{background: rgba(15,22,48,.9)}
+    th, td{padding:10px 10px;border-bottom: 1px solid rgba(37,48,85,.6);vertical-align:top;}
+    th{text-align:left;color: var(--muted);font-weight:600;white-space:nowrap;}
+    tr:hover td{background: rgba(15,22,48,.45)}
+    .mono{font-family:var(--mono)}
+    .pill{display:inline-flex; align-items:center; gap:6px;padding:4px 8px;border-radius:999px;border:1px solid rgba(37,48,85,.8);background: rgba(15,22,48,.55);white-space:nowrap;font-size:11px;}
+    .dot{width:8px;height:8px;border-radius:99px;display:inline-block}
+    .ok{background: var(--ok)}
+    .bad{background: var(--bad)}
+    .warn{background: var(--warn)}
+    .actions{display:flex; flex-wrap:wrap; gap:8px;}
+    .mini{font-size:12px;padding:8px 10px;border-radius:10px;background: rgba(15,22,48,.7);border:1px solid rgba(37,48,85,.8);color:var(--text);cursor:pointer;}
+    .mini:hover{filter:brightness(1.08)}
+    .mini.danger{border-color: rgba(251,113,133,.65)}
+    .mini.good{border-color: rgba(45,212,191,.65)}
+    .mini.warn{border-color: rgba(251,191,36,.65)}
+    .row2{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px;}
+    .toast{position: fixed; right: 16px; bottom: 16px;background: rgba(18,26,51,.92);border:1px solid rgba(37,48,85,.85);color: var(--text);padding: 12px 14px;border-radius: 14px;box-shadow: var(--shadow);max-width: 420px;display:none;z-index:99;}
+    .muted{color:var(--muted)}
+    .small{font-size:11px}
+    .domain-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+    .domain-pill{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;border:1px solid rgba(37,48,85,.75);background:rgba(15,22,48,.55);font-size:11px;font-family:var(--mono);}
+
+    /* Modal */
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;backdrop-filter:blur(4px);}
+    .modal.active{display:flex;align-items:center;justify-content:center}
+    .modal-content{background:var(--panel);border:1px solid rgba(37,48,85,.8);border-radius:var(--radius);max-width:800px;width:95%;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:var(--shadow);}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+    .modal-header h2{margin:0;font-size:18px}
+    .close-modal{background:transparent;border:none;color:var(--muted);font-size:24px;cursor:pointer;padding:0;width:32px;height:32px;}
+    .close-modal:hover{color:var(--text)}
+    .form-group{margin-bottom:16px}
+    .form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--muted);}
+    .form-group input,.form-group select,.form-group textarea{width:100%;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+
+    /* Config Editor */
+    .section-header{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:10px 0;
+      border-bottom:1px solid var(--line);
+      margin-bottom:12px;
+    }
+    .section-header h3{margin:0;font-size:14px;color:var(--ok)}
+    .step-item,.target-item,.domain-item,.field-item{
+      background:rgba(15,22,48,.7);
+      border:1px solid rgba(37,48,85,.7);
+      border-radius:10px;
+      padding:12px;
+      margin-bottom:8px;
+      display:grid;
+      gap:8px;
+    }
+    .step-item{grid-template-columns: auto 1fr 1fr auto auto;}
+    .target-item{grid-template-columns: 1fr 1fr 1fr auto;}
+    .domain-item{grid-template-columns: 1fr auto 1fr auto;}
+    .field-item{grid-template-columns: 1.2fr .9fr .55fr 2fr auto;}
+    .dropdown-photo-group{
+      background:rgba(15,22,48,.55);
+      border:1px solid rgba(37,48,85,.65);
+      border-radius:10px;
+      padding:10px;
+      margin-bottom:8px;
+    }
+    .dropdown-photo-group h4{margin:0 0 8px;font-size:12px;color:var(--text)}
+    .dropdown-photo-row{display:grid;grid-template-columns:1fr 2.2fr;gap:8px;align-items:center;margin-bottom:6px}
+    .dropdown-photo-option{
+      font-size:11px;
+      color:var(--muted);
+      font-family:var(--mono);
+      background:rgba(18,26,51,.75);
+      border:1px solid rgba(37,48,85,.65);
+      border-radius:7px;
+      padding:7px 9px;
+    }
+    .dropdown-photo-hint{margin:0 0 10px}
+    .item-input{
+      background:rgba(18,26,51,.9);
+      border:1px solid rgba(37,48,85,.8);
+      color:var(--text);
+      border-radius:8px;
+      padding:7px 10px;
+      font-size:12px;
+      width:100%;
+    }
+    .item-label{font-size:10px;color:var(--muted);margin-bottom:3px}
+    .remove-btn{
+      background:rgba(251,113,133,.15);
+      border:1px solid rgba(251,113,133,.4);
+      color:var(--bad);
+      border-radius:8px;
+      padding:6px 10px;
+      cursor:pointer;
+      font-size:12px;
+      align-self:end;
+    }
+    .remove-btn:hover{background:rgba(251,113,133,.25)}
+    .move-btn{
+      background:rgba(37,48,85,.4);
+      border:1px solid rgba(37,48,85,.7);
+      color:var(--muted);
+      border-radius:6px;
+      padding:4px 7px;
+      cursor:pointer;
+      font-size:10px;
+      align-self:end;
+      display:flex;flex-direction:column;gap:2px;
+    }
+    .add-btn{
+      background:rgba(45,212,191,.1);
+      border:1px solid rgba(45,212,191,.35);
+      color:var(--ok);
+      border-radius:8px;
+      padding:8px 14px;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:600;
+      width:100%;
+      margin-top:6px;
+    }
+    .add-btn:hover{background:rgba(45,212,191,.2)}
+    .modal-tabs{display:flex;gap:2px;margin-bottom:16px;background:rgba(15,22,48,.5);border-radius:10px;padding:4px;}
+    .modal-tab{flex:1;background:transparent;border:none;color:var(--muted);padding:8px;cursor:pointer;border-radius:8px;font-size:13px;font-weight:600;}
+    .modal-tab.active{background:rgba(37,48,85,.8);color:var(--text);}
+    .modal-tab-content{display:none}
+    .modal-tab-content.active{display:block}
+    .arrow{color:var(--muted);align-self:end;padding-bottom:8px;font-size:14px;}
+
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr 1fr}
+      .input{min-width: 180px}
+      .step-item{grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto}
+      .target-item{grid-template-columns:1fr 1fr}
+      .domain-item{grid-template-columns:1fr 1fr}
+      .dropdown-photo-row{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <h1>Multi-Tenant Dashboard</h1>
+          <div class="sub">BilderApp • Companies & Devices & Konfiguration • Admin</div>
+        </div>
+      </div>
+      <div class="bar">
+        <button class="btn primary" id="btnContextNew">+ Neu</button>
+        <button id="btnDebugMode" class="btn">Debug: aus</button>
+        <button id="reload" class="btn">Neu laden</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-view="devices">📱 Geräte</button>
+      <button class="tab" data-view="companies">🏢 Firmen</button>
+      <button class="tab" data-view="tenants">🎛️ Konfiguration</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ========== DEVICES VIEW ========== -->
+  <div id="tab-devices" class="tab-content active">
+    <div class="bar" style="margin-top:16px">
+      <input id="q" class="input" placeholder="Suche: Device-ID / Plattform / Version …" />
+      <select id="filterCompany"><option value="">Alle Firmen</option></select>
+      <select id="sort">
+        <option value="lastSeen_desc">Sort: lastSeen ↓</option>
+        <option value="lastSeen_asc">Sort: lastSeen ↑</option>
+        <option value="createdAt_desc">Sort: createdAt ↓</option>
+        <option value="createdAt_asc">Sort: createdAt ↑</option>
+        <option value="id_asc">Sort: deviceId A→Z</option>
+      </select>
+      <select id="refresh">
+        <option value="0">Auto-Refresh: aus</option>
+        <option value="10">Auto-Refresh: 10s</option>
+        <option value="30" selected>Auto-Refresh: 30s</option>
+        <option value="60">Auto-Refresh: 60s</option>
+      </select>
+    </div>
+    <div class="grid">
+      <div class="card"><div class="kpi">Geräte gesamt</div><div class="kval" id="k_total">–</div><div class="muted small" id="k_updated">–</div></div>
+      <div class="card"><div class="kpi">Effektiv erlaubt</div><div class="kval" id="k_allowed">–</div><div class="muted small">allowed=true ODER grace aktiv</div></div>
+      <div class="card"><div class="kpi">Gesperrt</div><div class="kval" id="k_blocked">–</div><div class="muted small">allowed=false &amp; keine Grace</div></div>
+      <div class="card"><div class="kpi">Grace aktiv</div><div class="kval" id="k_grace">–</div><div class="muted small">Kulanz läuft noch</div></div>
+    </div>
+    <div class="row2">
+      <span class="pill"><span class="dot ok"></span> Effektiv erlaubt</span>
+      <span class="pill"><span class="dot warn"></span> Grace aktiv</span>
+      <span class="pill"><span class="dot bad"></span> Gesperrt</span>
+      <span class="muted small">Tipp: Klick auf Device-ID kopiert sie.</span>
+      <button class="mini" onclick="window.__aliasCleanupDryRun()">Alias Cleanup (Dry-Run)</button>
+      <button class="mini warn" onclick="window.__aliasCleanupApply()">Alias Cleanup anwenden</button>
+    </div>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Device-ID</th><th>E-Mail</th><th>Firma</th><th>Status</th><th>allowed</th><th>Grace</th><th>Platform / App</th><th>lastSeen</th><th>Aktionen</th></tr></thead>
+        <tbody id="rows"><tr><td colspan="9" class="muted">Lade…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== COMPANIES VIEW ========== -->
+  <div id="tab-companies" class="tab-content">
+    <div class="grid" style="margin-top:16px">
+      <div class="card"><div class="kpi">Firmen gesamt</div><div class="kval" id="k_companies_total">–</div></div>
+      <div class="card"><div class="kpi">Aktive Firmen</div><div class="kval" id="k_companies_active">–</div></div>
+      <div class="card"><div class="kpi">Devices gesamt</div><div class="kval" id="k_companies_devices">–</div></div>
+      <div class="card"><div class="kpi">Ø Devices/Firma</div><div class="kval" id="k_companies_avg">–</div></div>
+    </div>
+    <div id="companies-list" style="margin-top:16px"></div>
+  </div>
+
+  <!-- ========== TENANTS VIEW ========== -->
+  <div id="tab-tenants" class="tab-content">
+    <div class="grid" style="margin-top:16px">
+      <div class="card"><div class="kpi">Tenant Configs</div><div class="kval" id="k_tenants_total">–</div></div>
+      <div class="card"><div class="kpi">Domain Mappings</div><div class="kval" id="k_tenants_domains">–</div></div>
+      <div class="card"><div class="kpi">Standard-Tenant</div><div class="kval" id="k_tenants_default" style="font-size:13px">–</div></div>
+      <div class="card"><div class="kpi">API Endpoint (Flutter)</div><div class="kval small mono" style="font-size:11px;margin-top:8px">/v1/tenant-config/{id}</div></div>
+    </div>
+
+    <!-- Domain routing table -->
+    <div class="company-card" style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h3 style="margin:0">🗺️ Domain → Tenant Routing</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="mini" onclick="openRoutingEditor({presetDomain:''})">+ Domain</button>
+          <button class="mini good" onclick="openRoutingEditor()">Bearbeiten</button>
+        </div>
+      </div>
+      <div id="routing-table-wrap">
+        <table>
+          <thead><tr><th>Domain</th><th>→</th><th>Tenant ID</th></tr></thead>
+          <tbody id="routing-rows"><tr><td colspan="3" class="muted">Lade…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="company-card" style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <div>
+          <h3 style="margin:0">⚙️ Tenant-Onboarding</h3>
+          <div class="muted small" id="tenants-onboarding-note">Tenant-Konfigurationen werden im Reiter Firmen pro Firma gepflegt.</div>
+        </div>
+        <button class="mini" onclick="switchView('companies')">Zu Firmen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- ========== COMPANY MODAL ========== -->
+<div id="modal-company" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modal-title">Neue Firma anlegen</h2>
+      <button class="close-modal" onclick="closeCompanyModal()">×</button>
+    </div>
+    <div class="form-group"><label>Firmenname *</label><input type="text" id="company-name" placeholder="z.B. Telefónica Germany" /></div>
+    <div class="form-group"><label>Primäre Domain *</label><input type="text" id="company-domain" placeholder="z.B. telefonica.de" /></div>
+    <div class="muted small" id="company-auto-preview" style="margin:-4px 0 10px 0">Automatisch: Firma ID – • Tenant ID –</div>
+    <div class="row2" style="margin-top:0">
+      <button class="mini" type="button" id="company-advanced-toggle" onclick="toggleCompanyAdvanced()">Erweitert anzeigen</button>
+    </div>
+    <div id="company-advanced-fields" style="display:none;margin-top:8px">
+      <div class="form-group"><label>Firma ID *</label><input type="text" id="company-id" placeholder="z.B. telefonica" /><div class="muted small">Wird automatisch aus Firmenname erzeugt.</div></div>
+      <div class="form-group"><label>Haupt-Tenant ID *</label><input type="text" id="company-tenant-id" placeholder="z.B. telefonica.de" /><div class="muted small">Wird automatisch aus der Domain erzeugt.</div></div>
+    </div>
+    <div class="form-group"><label>Weitere Domains (optional)</label><textarea id="company-domains-extra" placeholder="z.B. telefonica.com&#10;telefonica.net" style="min-height:90px"></textarea><div class="muted small">Eine Domain pro Zeile oder durch Komma getrennt. Wird automatisch dem Haupt-Tenant zugeordnet.</div></div>
+    <div class="form-group"><label>Folder Naming Template</label><input type="text" id="company-folder-template" placeholder="{city} {siteId} {netElement} {project}" /><div class="muted small">Variablen: {city}, {siteId}, {netElement}, {project}, {date}</div></div>
+    <div class="form-group"><label>Konfiguration (JSON)</label><textarea id="company-config" placeholder='{"fields": [], "photoVariables": [], "uploadTargets": []}'></textarea></div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeCompanyModal()">Abbrechen</button>
+      <button class="btn primary" id="btn-save-company" onclick="saveCompany()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ASSIGN COMPANY MODAL ========== -->
+<div id="modal-assign-company" class="modal">
+  <div class="modal-content" style="max-width:520px">
+    <div class="modal-header">
+      <h2>Gerät zu Firma zuweisen</h2>
+      <button class="close-modal" onclick="closeAssignCompanyModal()">×</button>
+    </div>
+    <div class="form-group">
+      <label>Device-ID</label>
+      <input type="text" id="assign-device-id" readonly />
+    </div>
+    <div class="form-group">
+      <label>Firma auswählen</label>
+      <select id="assign-company-select">
+        <option value="">Bitte Firma wählen</option>
+      </select>
+      <div class="muted small">Du kannst hier direkt auf die gewünschte Firma klicken.</div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn" onclick="closeAssignCompanyModal()">Abbrechen</button>
+      <button type="button" class="btn primary" id="btn-assign-company-save" onclick="saveAssignCompany()">Zuweisen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TENANT CONFIG MODAL ========== -->
+<div id="modal-tenant" class="modal">
+  <div class="modal-content" style="max-width:900px">
+    <div class="modal-header">
+      <h2 id="modal-tenant-title">Neue Konfiguration</h2>
+      <button class="close-modal" onclick="closeTenantModal()">×</button>
+    </div>
+
+    <!-- Sub-tabs -->
+    <div class="modal-tabs">
+      <button class="modal-tab active" data-mtab="basics" onclick="switchModalTab('basics')">📋 Grunddaten</button>
+      <button class="modal-tab" data-mtab="upload-logic" onclick="switchModalTab('upload-logic')">🧭 Upload-Logik</button>
+      <button class="modal-tab" data-mtab="steps" onclick="switchModalTab('steps')">📸 Aufnahme-Schritte</button>
+      <button class="modal-tab" data-mtab="targets" onclick="switchModalTab('targets')">☁️ Upload-Ziele</button>
+      <button class="modal-tab" data-mtab="json" onclick="switchModalTab('json')">{ } JSON</button>
+    </div>
+
+    <!-- BASICS TAB -->
+    <div id="mtab-basics" class="modal-tab-content active">
+      <div class="section-header" style="margin-top:0"><h3>🏢 Firma</h3></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Firmenname *</label>
+          <input type="text" id="onb-company-name" placeholder="z.B. Telefónica Germany" />
+        </div>
+        <div class="form-group">
+          <label>Primäre Domain *</label>
+          <input type="text" id="onb-company-domain" placeholder="z.B. telefonica.de" />
+        </div>
+      </div>
+      <div class="muted small" id="onb-auto-preview" style="margin-top:-4px">Automatisch: Firma ID – • Tenant ID –</div>
+      <div class="row2" style="margin-top:8px">
+        <button class="mini" type="button" id="onb-advanced-toggle" onclick="toggleOnboardingAdvanced()">Erweitert anzeigen</button>
+      </div>
+
+      <div id="onb-advanced-fields" style="display:none;margin-top:10px">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Firma ID</label>
+            <input type="text" id="onb-company-id" placeholder="wird automatisch erzeugt" readonly />
+            <div class="muted small">Wird beim Onboarding automatisch aus Name/Domain erzeugt.</div>
+          </div>
+          <div class="form-group">
+            <label>Weitere Domains (optional)</label>
+            <input type="text" id="onb-company-domains-extra" placeholder="z.B. telefonica.com, telefonica.net" />
+            <div class="muted small">Komma-getrennt. Wird automatisch dem Tenant zugeordnet.</div>
+          </div>
+        </div>
+
+        <div class="section-header" style="margin-top:8px"><h3>⚙️ Tenant</h3></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tenant ID *</label>
+            <input type="text" id="t-id" placeholder="z.B. gravit_default" />
+            <div class="muted small">Eindeutig, keine Leerzeichen</div>
+          </div>
+          <div class="form-group">
+            <label>Tenant Name</label>
+            <input type="text" id="t-name" placeholder="z.B. GRAVIT Standard" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Standard Upload-Ziel ID</label>
+            <input type="text" id="t-default-target" placeholder="z.B. sharepoint" />
+            <div class="muted small">Muss mit einer Upload-Ziel-ID aus dem Tab übereinstimmen</div>
+          </div>
+          <div class="form-group">
+            <label>Standard Template ID</label>
+            <input type="text" id="t-template-id" placeholder="z.B. standard_umbau" />
+            <div class="muted small">Interne ID des Standard-Templates (Aufgaben-Profil)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UPLOAD LOGIC TAB -->
+    <div id="mtab-upload-logic" class="modal-tab-content">
+      <div class="section-header" style="margin-top:0"><h3>📋 Template-Konfiguration</h3></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Template Anzeige-Name</label>
+          <input type="text" id="t-template-name" placeholder="z.B. Standard Umbau" />
+        </div>
+        <div class="form-group"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ordner-Muster (folderPattern)</label>
+          <input type="text" id="t-folder" placeholder="{city} {siteId} {netElement} {project}" />
+          <div class="muted small">Token: {city} {siteId} {netElement} {project}</div>
+        </div>
+        <div class="form-group">
+          <label>Datei-Muster (fileNamePattern)</label>
+          <input type="text" id="t-file" placeholder="{netElement}_{project}_{photoVar}.jpg" />
+          <div class="muted small">Token: {netElement} {project} {photoVar}</div>
+        </div>
+      </div>
+
+      <div class="section-header" style="margin-top:8px"><h3>📍 Standort-Felder (fields)</h3></div>
+      <div style="margin-bottom:6px;display:grid;grid-template-columns:1.2fr .9fr .55fr 2fr auto;gap:8px;padding:0 4px">
+        <span class="muted small">Key</span>
+        <span class="muted small">Typ</span>
+        <span class="muted small">Pflicht</span>
+        <span class="muted small">Dropdown-Optionen (Komma-getrennt)</span>
+        <span></span>
+      </div>
+      <div id="fields-container"></div>
+      <button class="add-btn" onclick="addField()">+ Feld hinzufügen</button>
+    </div>
+
+    <!-- CAPTURE STEPS TAB -->
+    <div id="mtab-steps" class="modal-tab-content">
+      <div class="section-header">
+        <h3>📸 Aufnahme-Schritte</h3>
+        <span class="muted small">Nur Bildnamen eingeben, ID/translationKey/order werden automatisch erzeugt</span>
+      </div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label>Bildnamen (ein Name pro Zeile)</label>
+        <textarea id="t-step-names" style="min-height:220px" placeholder="vor Umbau&#10;Erdung_1&#10;Rack_Gesamtansicht"></textarea>
+        <div class="muted small">Beispiel: <code>vor Umbau</code>. Daraus wird automatisch <code>id=vor_umbau</code> und <code>translationKey=photo_vor_umbau</code>.</div>
+      </div>
+      <div class="form-row" style="grid-template-columns:1fr 1fr;gap:10px">
+        <label style="display:flex;align-items:center;gap:8px;margin:0">
+          <input type="checkbox" id="t-steps-required" checked />
+          <span>Alle Schritte als Pflicht markieren</span>
+        </label>
+      </div>
+
+      <div class="section-header" style="margin-top:14px">
+        <h3>🧩 Bildvariablen je Dropdown-Menü</h3>
+        <span class="muted small">Optional: pro Dropdown-Option eigene Bildvariablen hinterlegen</span>
+      </div>
+      <div class="bar" style="margin-bottom:8px;gap:8px;justify-content:flex-start">
+        <button class="btn" onclick="autofillDropdownPhotoMappingsFromTemplates()">✨ Aus Templates für alle POP-Typen füllen</button>
+      </div>
+      <p id="dropdown-photo-map-hint" class="muted small dropdown-photo-hint">Keine Dropdown-Felder mit Optionen vorhanden.</p>
+      <div id="dropdown-photo-map-container"></div>
+    </div>
+
+    <!-- UPLOAD TARGETS TAB -->
+    <div id="mtab-targets" class="modal-tab-content">
+      <div class="section-header">
+        <h3>☁️ Upload-Ziele</h3>
+        <span class="muted small">Wohin sollen Fotos hochgeladen werden?</span>
+      </div>
+      <div id="targets-container"></div>
+      <button class="add-btn" onclick="addTarget()">+ Upload-Ziel hinzufügen</button>
+    </div>
+
+    <!-- JSON TAB -->
+    <div id="mtab-json" class="modal-tab-content">
+      <div class="bar" style="margin-bottom:12px;gap:8px">
+        <button class="btn" onclick="syncJsonFromForm()">🔄 Aus Formular aktualisieren</button>
+        <button class="btn" onclick="syncFormFromJson()">← In Formular laden</button>
+        <button class="btn primary" onclick="importJsonFile()">📂 JSON importieren</button>
+        <input type="file" id="json-file-input" accept=".json" style="display:none" onchange="handleJsonImport(event)" />
+      </div>
+      <div class="form-group">
+        <label>Vollständige Tenant Config JSON</label>
+        <textarea id="t-json" style="min-height:380px;font-size:11px"></textarea>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="closeTenantModal()">Abbrechen</button>
+      <button class="btn primary" id="btn-save-tenant" onclick="saveTenant()">💾 Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ROUTING EDITOR MODAL ========== -->
+<div id="modal-routing" class="modal">
+  <div class="modal-content" style="max-width:700px">
+    <div class="modal-header">
+      <h2 id="routing-modal-title">🗺️ Domain Routing bearbeiten</h2>
+      <button class="close-modal" onclick="closeRoutingModal()">×</button>
+    </div>
+
+    <div class="form-row" style="margin-bottom:16px">
+      <div class="form-group">
+        <label>Standard-Tenant ID</label>
+        <input type="text" id="routing-default" placeholder="gravit_default" />
+        <div class="muted small">Wird verwendet wenn Domain nicht gefunden</div>
+      </div>
+      <div class="form-group">
+        <label>Manueller Override (optional)</label>
+        <input type="text" id="routing-manual" placeholder="Leer = kein Override" />
+        <div class="muted small">Überschreibt Domain-Routing komplett</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h3>Domain → Tenant Zuordnungen</h3>
+    </div>
+    <div style="margin-bottom:6px;display:grid;grid-template-columns:1fr auto 1fr auto;gap:8px;padding:0 4px">
+      <span class="muted small">Domain (z.B. firma.de)</span>
+      <span></span>
+      <span class="muted small">Tenant ID</span>
+      <span></span>
+    </div>
+    <div id="routing-editor-rows"></div>
+    <button class="add-btn" onclick="addRoutingRow()">+ Domain hinzufügen</button>
+
+    <div class="btn-row">
+      <button class="btn" onclick="closeRoutingModal()">Abbrechen</button>
+      <button class="btn primary" onclick="saveRouting()">💾 Routing speichern</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_DEVICES      = "/admin/api/devices";
+  const API_COMPANIES    = "/admin/api/companies";
+  const API_ALLOW        = "/admin/api/allow";
+  const API_BLOCK        = "/admin/api/block";
+  const API_ASSIGN       = "/admin/api/devices/:deviceId/assign";
+  const API_PURGE_USER   = "/admin/api/devices/:deviceId/purge-user";
+  const API_TENANTS      = "/admin/api/tenants";
+  const API_ROUTING      = "/admin/api/tenant-routing";
+  const API_ONBOARDING_SAVE = "/admin/api/onboarding/save";
+  const API_DEBUG_MODE   = "/admin/api/debug-mode";
+  const API_ALIAS_CLEANUP = "/admin/api/device-aliases/cleanup";
+
+  let allDevices = [];
+  let allCompanies = [];
+  let allTenants = [];
+  let currentRouting = { defaultTenantId: 'gravit_default', manualTenantId: '', domainTenantMapping: {} };
+  let refreshTimer = null;
+  let currentView = 'devices';
+  let editingCompanyId = null;
+  let editingTenantId = null;
+  let onboardingCompanyId = null;
+  let assigningDeviceId = null;
+  let assigningUserEmail = null;
+  let debugModeEnabled = false;
+
+  // ===== UTILITY =====
+  function toast(msg, ok=true){
+    const t = document.getElementById("toast");
+    t.style.display = "block";
+    t.textContent = msg;
+    t.style.borderColor = ok ? "rgba(45,212,191,.55)" : "rgba(251,113,133,.55)";
+    setTimeout(()=> t.style.display="none", 2800);
+  }
+  function fmtDate(iso){
+    if(!iso) return "–";
+    const d = new Date(iso);
+    if(isNaN(d.getTime())) return String(iso);
+    const p = n=> String(n).padStart(2,"0");
+    return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  function norm(s){ return (s||"").toString().toLowerCase().replaceAll("ä","ae").replaceAll("ö","oe").replaceAll("ü","ue").replaceAll("ß","ss"); }
+  function escAttr(s){ return String(s||"").replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;"); }
+  function escJsSingle(s){ return String(s||"").replaceAll("\\","\\\\").replaceAll("'","\\'"); }
+  async function postJson(url, body){
+    const res = await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    if(!res.ok){ const txt=await res.text().catch(()=>""); throw new Error(`HTTP ${res.status} ${txt}`); }
+    return res.json().catch(()=>({}));
+  }
+  async function putJson(url, body){
+    const res = await fetch(url,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    if(!res.ok){
+      const txt=await res.text().catch(()=>"");
+      throw new Error(`HTTP ${res.status} ${txt}`);
+    }
+    return res.json().catch(()=>({}));
+  }
+  async function deleteJson(url){
+    const res = await fetch(url,{method:"DELETE"});
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json().catch(()=>({}));
+  }
+  function copyToClipboard(text){
+    navigator.clipboard.writeText(text).then(()=>toast("Device-ID kopiert ✅")).catch(()=>toast("Kopieren nicht möglich ❌",false));
+  }
+  function updateDebugButton(){
+    const button=document.getElementById('btnDebugMode');
+    button.textContent=`Debug: ${debugModeEnabled?'an':'aus'}`;
+    button.classList.toggle('warn',debugModeEnabled);
+  }
+  async function loadDebugMode(){
+    try{
+      const res=await fetch(API_DEBUG_MODE,{cache:'no-store'});
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const payload=await res.json();
+      debugModeEnabled=payload&&payload.debugMode===true;
+      updateDebugButton();
+    }catch(e){
+      updateDebugButton();
+    }
+  }
+  function normalizeDomain(value){
+    return String(value||'').trim().toLowerCase();
+  }
+  function uniqueList(values){
+    return [...new Set((values||[]).map((item)=>String(item||'').trim()).filter(Boolean))];
+  }
+  function parseDomainsText(rawText){
+    return uniqueList(String(rawText||'')
+      .replaceAll('\n',',')
+      .split(',')
+      .map((item)=>normalizeDomain(item))
+      .filter(Boolean));
+  }
+  function getCompanyTenantId(company){
+    if(!company) return '';
+    return String(company.tenantId||company.id||'').trim();
+  }
+  function getRoutingMapping(){
+    if(!currentRouting||typeof currentRouting!=='object') return {};
+    return currentRouting.domainTenantMapping&&typeof currentRouting.domainTenantMapping==='object'
+      ? currentRouting.domainTenantMapping
+      : {};
+  }
+  function getDomainsForTenantId(tenantId){
+    const tid=String(tenantId||'').trim();
+    if(!tid) return [];
+    return Object.entries(getRoutingMapping())
+      .filter(([, mappedTenantId])=>String(mappedTenantId||'').trim()===tid)
+      .map(([domain])=>normalizeDomain(domain))
+      .filter(Boolean)
+      .sort((a,b)=>a.localeCompare(b));
+  }
+  function getCompanyDomains(company){
+    const fromRouting=getDomainsForTenantId(getCompanyTenantId(company));
+    const primary=normalizeDomain(company&&company.domain);
+    return uniqueList([primary,...fromRouting].filter(Boolean)).sort((a,b)=>a.localeCompare(b));
+  }
+  function renderDomainPills(domains){
+    if(!domains||domains.length===0) return '<div class="muted small" style="margin-top:8px">Keine Domains zugeordnet.</div>';
+    return `<div class="domain-pills">${domains.map((domain)=>`<span class="domain-pill">${escAttr(domain)}</span>`).join('')}</div>`;
+  }
+  function slugifyCompanyId(value){
+    return norm(value)
+      .replace(/[^a-z0-9]+/g,'-')
+      .replace(/^-+|-+$/g,'')
+      .replace(/-{2,}/g,'-');
+  }
+  function getOnboardingCompanyIdSuggestion(){
+    const name=document.getElementById('onb-company-name').value.trim();
+    const domain=normalizeDomain(document.getElementById('onb-company-domain').value);
+    return slugifyCompanyId(name)||slugifyCompanyId(domain.replaceAll('.','-'));
+  }
+  function getOnboardingTenantIdSuggestion(){
+    const domain=normalizeDomain(document.getElementById('onb-company-domain').value);
+    return domain||getOnboardingCompanyIdSuggestion()||'gravit_default';
+  }
+  function getOnboardingTemplateIdSuggestion(){
+    const tenantId=String(document.getElementById('t-id').value||'').trim()||getOnboardingTenantIdSuggestion();
+    const slug=slugifyCompanyId(tenantId)||'tenant';
+    return `${slug}_default`;
+  }
+  function getOnboardingTemplateNameSuggestion(){
+    const companyName=String(document.getElementById('onb-company-name').value||'').trim();
+    const base=companyName||String(document.getElementById('t-id').value||'').trim()||'Standard';
+    return `${base} Standard`;
+  }
+  function setOnboardingAdvanced(open){
+    const isOpen=!!open;
+    document.getElementById('onb-advanced-fields').style.display=isOpen?'block':'none';
+    document.getElementById('onb-advanced-toggle').textContent=isOpen?'Erweitert ausblenden':'Erweitert anzeigen';
+  }
+  function toggleOnboardingAdvanced(){
+    const isOpen=document.getElementById('onb-advanced-fields').style.display==='block';
+    setOnboardingAdvanced(!isOpen);
+  }
+  function setOnboardingAutoSync(enabled){
+    const flag=enabled?'1':'0';
+    ['onb-company-id','t-id','t-name','t-default-target','t-template-id','t-template-name','t-folder','t-file']
+      .forEach((id)=>{
+        const el=document.getElementById(id);
+        if(el) el.dataset.autoSync=flag;
+      });
+  }
+  function syncOnboardingIdentityFields(){
+    const companyIdInput=document.getElementById('onb-company-id');
+    const tenantInput=document.getElementById('t-id');
+    const tenantNameInput=document.getElementById('t-name');
+    const defaultTargetInput=document.getElementById('t-default-target');
+    const templateIdInput=document.getElementById('t-template-id');
+    const templateNameInput=document.getElementById('t-template-name');
+    const folderInput=document.getElementById('t-folder');
+    const fileInput=document.getElementById('t-file');
+    const preview=document.getElementById('onb-auto-preview');
+    if(!companyIdInput||!tenantInput) return;
+
+    const companyIdSuggestion=getOnboardingCompanyIdSuggestion();
+    const tenantIdSuggestion=getOnboardingTenantIdSuggestion();
+
+    if(!onboardingCompanyId || companyIdInput.dataset.autoSync!=='0'){
+      companyIdInput.value=companyIdSuggestion;
+    }
+    if(tenantInput.dataset.autoSync!=='0'){
+      tenantInput.value=tenantIdSuggestion;
+    }
+    if(tenantNameInput&&tenantNameInput.dataset.autoSync!=='0'){
+      tenantNameInput.value=String(document.getElementById('onb-company-name').value||'').trim()||tenantIdSuggestion;
+    }
+    if(defaultTargetInput&&defaultTargetInput.dataset.autoSync!=='0'){
+      defaultTargetInput.value='mydrive';
+    }
+    if(templateIdInput&&templateIdInput.dataset.autoSync!=='0'){
+      templateIdInput.value=getOnboardingTemplateIdSuggestion();
+    }
+    if(templateNameInput&&templateNameInput.dataset.autoSync!=='0'){
+      templateNameInput.value=getOnboardingTemplateNameSuggestion();
+    }
+    if(folderInput&&folderInput.dataset.autoSync!=='0'){
+      folderInput.value=buildAutoFolderPatternFromFields(getFieldsFromUI());
+    }
+    if(fileInput&&fileInput.dataset.autoSync!=='0'){
+      fileInput.value=buildAutoFilePatternFromFields(getFieldsFromUI());
+    }
+
+    if(preview){
+      preview.textContent=`Automatisch: Firma ID ${companyIdInput.value.trim()||'–'} • Tenant ID ${tenantInput.value.trim()||'–'}`;
+    }
+  }
+  function setOnboardingCompanyFields(company){
+    const c=company||null;
+    const primary=normalizeDomain(c&&c.domain);
+    const domains=c?getCompanyDomains(c):[];
+    const extraDomains=domains.filter((domain)=>domain!==primary);
+
+    document.getElementById('onb-company-id').value=c?c.id:'';
+    document.getElementById('onb-company-name').value=c?c.name:'';
+    document.getElementById('onb-company-domain').value=primary;
+    document.getElementById('onb-company-domains-extra').value=extraDomains.join(', ');
+  }
+  function getSuggestedCompanyId(){
+    const name=document.getElementById('company-name').value.trim();
+    const domain=normalizeDomain(document.getElementById('company-domain').value);
+    return slugifyCompanyId(name)||slugifyCompanyId(domain.replaceAll('.','-'));
+  }
+  function getSuggestedTenantId(){
+    const domain=normalizeDomain(document.getElementById('company-domain').value);
+    return domain||getSuggestedCompanyId();
+  }
+  function syncCompanyAutoFields(){
+    const idInput=document.getElementById('company-id');
+    const tenantInput=document.getElementById('company-tenant-id');
+    const suggestedId=getSuggestedCompanyId();
+    const suggestedTenant=getSuggestedTenantId();
+
+    if(!editingCompanyId && idInput.dataset.autoSync!=='0'){
+      idInput.value=suggestedId;
+      idInput.dataset.autoSync='1';
+    }
+    if(!editingCompanyId && tenantInput.dataset.autoSync!=='0'){
+      tenantInput.value=suggestedTenant;
+      tenantInput.dataset.autoSync='1';
+    }
+
+    const preview=document.getElementById('company-auto-preview');
+    preview.textContent=`Automatisch: Firma ID ${idInput.value.trim()||'–'} • Tenant ID ${tenantInput.value.trim()||'–'}`;
+  }
+  function setCompanyAdvanced(open){
+    const isOpen=!!open;
+    document.getElementById('company-advanced-fields').style.display=isOpen?'block':'none';
+    document.getElementById('company-advanced-toggle').textContent=isOpen?'Erweitert ausblenden':'Erweitert anzeigen';
+  }
+
+  // ===== TAB SWITCHING =====
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click',()=> switchView(tab.dataset.view));
+  });
+  function switchView(view){
+    currentView=view;
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(v=>v.classList.remove('active'));
+    document.querySelector(`[data-view="${view}"]`).classList.add('active');
+    document.getElementById(`tab-${view}`).classList.add('active');
+
+    const btnNew = document.getElementById('btnContextNew');
+    if(view==='devices'){ btnNew.textContent=''; btnNew.style.display='none'; }
+    else if(view==='companies'){ btnNew.textContent='+ Neues Onboarding'; btnNew.style.display=''; btnNew.onclick=showNewCompanyOnboarding; }
+    else if(view==='tenants'){ btnNew.textContent='Domain-Routing'; btnNew.style.display=''; btnNew.onclick=()=>openRoutingEditor(); }
+
+    if(view==='companies') loadCompanies();
+    if(view==='tenants') loadTenants();
+  }
+  // Init button state
+  document.getElementById('btnContextNew').style.display='none';
+
+  // ===== MODAL TAB SWITCHING =====
+  function switchModalTab(name){
+    document.querySelectorAll('.modal-tab').forEach(t=>t.classList.toggle('active', t.dataset.mtab===name));
+    document.querySelectorAll('.modal-tab-content').forEach(c=>c.classList.toggle('active', c.id===`mtab-${name}`));
+  }
+
+  // ===== DEVICES =====
+  function computeEffective(d){ return (d.effectiveAllowed===true)||(d.allowed===true)||(d.graceActive===true); }
+  function statusPill(d){
+    const eff=computeEffective(d), grace=d.graceActive===true;
+    if(eff&&grace) return `<span class="pill"><span class="dot warn"></span> Grace aktiv</span>`;
+    if(eff) return `<span class="pill"><span class="dot ok"></span> Erlaubt</span>`;
+    return `<span class="pill"><span class="dot bad"></span> Gesperrt</span>`;
+  }
+  function getCompanyName(id){ const c=allCompanies.find(c=>c.id===id); return c?c.name:(id||'–'); }
+  function sortDevices(list){
+    const v=document.getElementById('sort').value;
+    const get=(d,k)=>{ const t=new Date(d[k]).getTime(); return isNaN(t)?0:t; };
+    const copy=[...list];
+    if(v==="lastSeen_desc") copy.sort((a,b)=>get(b,"lastSeen")-get(a,"lastSeen"));
+    else if(v==="lastSeen_asc") copy.sort((a,b)=>get(a,"lastSeen")-get(b,"lastSeen"));
+    else if(v==="createdAt_desc") copy.sort((a,b)=>get(b,"createdAt")-get(a,"createdAt"));
+    else if(v==="createdAt_asc") copy.sort((a,b)=>get(a,"createdAt")-get(b,"createdAt"));
+    else if(v==="id_asc") copy.sort((a,b)=>(a.deviceId||"").localeCompare(b.deviceId||""));
+    return copy;
+  }
+  function filterDevices(list){
+    const q=norm(document.getElementById('q').value.trim());
+    const fc=document.getElementById('filterCompany').value;
+    let f=list;
+    if(fc) f=f.filter(d=>d.companyId===fc);
+    if(q) f=f.filter(d=>norm([d.deviceId,d.primaryEmail,d.userEmail,d.lastSeenEmail,d.platform,d.appVersion,d.message,d.companyId].join(" ")).includes(q));
+    return f;
+  }
+  function updateKPIs(devs){
+    let al=0,bl=0,gr=0;
+    for(const d of devs){ if(d.graceActive)gr++; if(computeEffective(d))al++; else bl++; }
+    document.getElementById('k_total').textContent=devs.length;
+    document.getElementById('k_allowed').textContent=al;
+    document.getElementById('k_blocked').textContent=bl;
+    document.getElementById('k_grace').textContent=gr;
+    document.getElementById('k_updated').textContent=`Update: ${new Date().toLocaleString()}`;
+  }
+  function rowHtml(d){
+    const id=d.deviceId||"–", idJs=escJsSingle(id);
+    const email=(d.primaryEmail||d.userEmail||d.lastSeenEmail||'').trim();
+    const grace=d.graceActive?`aktiv bis ${fmtDate(d.graceUntil)}`:"–";
+    return `<tr>
+      <td><div class="mono" style="cursor:pointer" title="Klicken zum Kopieren" onclick="window.__copy('${idJs}')">${escAttr(id)}</div></td>
+      <td>${email?`<span class="mono">${escAttr(email)}</span>`:'<span class="muted">–</span>'}</td>
+      <td><span class="pill">${escAttr(getCompanyName(d.companyId))}</span></td>
+      <td>${statusPill(d)}</td>
+      <td class="mono">${d.allowed===true?"true":"false"}</td>
+      <td>${grace}</td>
+      <td>${escAttr(`${d.platform||"–"} / ${d.appVersion??"–"}`)}</td>
+      <td>${fmtDate(d.lastSeen)}</td>
+      <td><div class="actions">
+        <button class="mini good" onclick="window.__allow('${idJs}')">Allow</button>
+        <button class="mini danger" onclick="window.__block('${idJs}')">Block</button>
+        <button class="mini warn" onclick="window.__msg('${idJs}')">Message</button>
+        <button class="mini warn" onclick="window.__grace('${idJs}')">Grace</button>
+        <button class="mini" onclick="window.__assign('${idJs}','${escJsSingle(d.companyId||'')}','${escJsSingle(email)}')">Zuweisen</button>
+        <button class="mini danger" onclick="window.__purgeUser('${idJs}','${escJsSingle(email)}')">Löschen</button>
+      </div></td></tr>`;
+  }
+  function renderDevices(){
+    const sorted=sortDevices(filterDevices(allDevices));
+    updateKPIs(allDevices);
+    const tbody=document.getElementById('rows');
+    tbody.innerHTML=sorted.length===0?`<tr><td colspan="9" class="muted">Keine Treffer.</td></tr>`:sorted.map(rowHtml).join("");
+  }
+  async function loadDevices(){
+    document.getElementById('reload').disabled=true;
+    try{
+      const res=await fetch(API_DEVICES,{cache:"no-store"});
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data=await res.json();
+      allDevices=Array.isArray(data)?data:(data.devices||[]);
+      updateCompanyFilter();
+      renderDevices();
+    }catch(e){
+      document.getElementById('rows').innerHTML=`<tr><td colspan="9" class="muted">Fehler: ${escAttr(e.message)}</td></tr>`;
+      toast("Fehler beim Laden ❌",false);
+    }finally{
+      document.getElementById('reload').disabled=false;
+    }
+  }
+  function updateCompanyFilter(){
+    const sel=document.getElementById('filterCompany'), cur=sel.value;
+    sel.innerHTML='<option value="">Alle Firmen</option>';
+    [...new Set(allDevices.map(d=>d.companyId).filter(Boolean))].forEach(id=>{
+      sel.innerHTML+=`<option value="${escAttr(id)}">${escAttr(getCompanyName(id))}</option>`;
+    });
+    if(cur) sel.value=cur;
+  }
+
+  // Device actions
+  window.__copy=copyToClipboard;
+  window.__allow=async(id)=>{ try{ await postJson(API_ALLOW,{deviceId:id}); toast(`Allow ✅`); await loadDevices(); }catch(e){ toast("Fehler ❌",false); } };
+  window.__block=async(id)=>{ try{ await postJson(API_BLOCK,{deviceId:id}); toast(`Block ✅`); await loadDevices(); }catch(e){ toast("Fehler ❌",false); } };
+  window.__msg=async(id)=>{ const m=prompt("Message:","")||null; if(m===null)return; try{ await postJson(API_ALLOW,{deviceId:id,message:m}); toast("Message gesetzt ✅"); await loadDevices(); }catch(e){ toast("Fehler ❌",false); } };
+  window.__grace=async(id)=>{ const h=prompt("Grace-Hours (z.B. 168 = 7 Tage):","168"); if(h===null)return; const gh=parseInt(h,10); if(!Number.isFinite(gh)||gh<0){toast("Ungültige Zahl ❌",false);return;} try{ await postJson(API_BLOCK,{deviceId:id,graceHours:gh}); toast(`Grace gesetzt ✅ (${gh}h)`); await loadDevices(); }catch(e){ toast("Fehler ❌",false); } };
+  window.__aliasCleanupDryRun=async()=>{
+    try{
+      const result=await postJson(API_ALIAS_CLEANUP,{dryRun:true});
+      const removed=Number(result&&result.removedCount)||0;
+      toast(`Alias Dry-Run ✅ Kandidaten: ${removed}`);
+    }catch(e){
+      toast(`Alias Dry-Run fehlgeschlagen ❌ (${e.message||'Fehler'})`,false);
+    }
+  };
+  window.__aliasCleanupApply=async()=>{
+    if(!confirm('Alias Cleanup wirklich anwenden? Diese Aktion entfernt ungültige Alias-Einträge.')) return;
+    try{
+      const result=await postJson(API_ALIAS_CLEANUP,{dryRun:false});
+      const removed=Number(result&&result.removedCount)||0;
+      toast(`Alias Cleanup ✅ Entfernt: ${removed}`);
+      await loadDevices();
+    }catch(e){
+      toast(`Alias Cleanup fehlgeschlagen ❌ (${e.message||'Fehler'})`,false);
+    }
+  };
+  window.__purgeUser=async(id,currentUserEmail='')=>{
+    const email=String(currentUserEmail||'').trim().toLowerCase();
+    const sameUserCount=email
+      ? allDevices.filter((d)=>String(d.primaryEmail||d.userEmail||d.lastSeenEmail||'').trim().toLowerCase()===email).length
+      : 1;
+
+    const confirmText=email
+      ? `Wirklich ALLE Daten für User ${email} löschen?\n\nBetroffene Devices: ${sameUserCount}`
+      : `Keine E-Mail gefunden. Nur Device ${id} löschen?`;
+
+    if(!confirm(confirmText)) return;
+
+    try{
+      const result=await postJson(API_PURGE_USER.replace(':deviceId',id),{
+        userEmail: email || null,
+        actor: 'admin',
+      });
+
+      const removedDevices=(result&&Array.isArray(result.removedDeviceIds))?result.removedDeviceIds.length:0;
+      const removedAssignments=(result&&Number.isFinite(Number(result.removedAssignments)))?Number(result.removedAssignments):0;
+      toast(`Gelöscht ✅ Devices: ${removedDevices} • Assignments: ${removedAssignments}`);
+      await loadDevices();
+    }catch(e){
+      toast(`Löschen fehlgeschlagen ❌ (${e.message||'unbekannter Fehler'})`,false);
+    }
+  };
+  window.__assign=async(id,currentCompanyId='',currentUserEmail='')=>{
+    assigningDeviceId=id;
+    assigningUserEmail=String(currentUserEmail||'').trim().toLowerCase()||null;
+    if(!allCompanies.length){
+      try{
+        const response=await fetch(API_COMPANIES,{cache:'no-store'});
+        if(response.ok){
+          const data=await response.json();
+          allCompanies=Array.isArray(data)?data:(data.companies||[]);
+        }
+      }catch(_){ }
+    }
+
+    if(!allCompanies.length){
+      toast('Keine Firmen gefunden ❌',false);
+      return;
+    }
+
+    const select=document.getElementById('assign-company-select');
+    const saveButton=document.getElementById('btn-assign-company-save');
+    saveButton.disabled=false;
+    select.innerHTML='<option value="">Bitte Firma wählen</option>';
+
+    [...allCompanies]
+      .sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')))
+      .forEach((company)=>{
+        const option=document.createElement('option');
+        option.value=company.id;
+        option.textContent=`${company.name} (${company.id})`;
+        select.appendChild(option);
+      });
+
+    const preferredCompanyId=String(currentCompanyId||'').trim();
+    if(preferredCompanyId && [...select.options].some((option)=>option.value===preferredCompanyId)){
+      select.value=preferredCompanyId;
+    }else if(allCompanies.length===1){
+      select.value=allCompanies[0].id;
+    }
+
+    document.getElementById('assign-device-id').value=id;
+    document.getElementById('modal-assign-company').classList.add('active');
+  };
+  window.closeAssignCompanyModal=function(){
+    document.getElementById('modal-assign-company').classList.remove('active');
+    document.getElementById('assign-device-id').value='';
+    document.getElementById('assign-company-select').value='';
+    document.getElementById('btn-assign-company-save').disabled=false;
+    assigningDeviceId=null;
+    assigningUserEmail=null;
+  };
+  window.saveAssignCompany=async function(){
+    const companyId=document.getElementById('assign-company-select').value.trim();
+    if(!assigningDeviceId||!companyId){
+      toast('Bitte Firma auswählen ❌',false);
+      return;
+    }
+
+    const button=document.getElementById('btn-assign-company-save');
+    button.disabled=true;
+    try{
+      const payload={companyId};
+      if(assigningUserEmail) payload.userEmail=assigningUserEmail;
+      await postJson(API_ASSIGN.replace(':deviceId',assigningDeviceId),payload);
+      const company=allCompanies.find((item)=>item.id===companyId);
+      toast(`Device zugewiesen ✅ (${company?company.name:companyId})`);
+      closeAssignCompanyModal();
+      await loadDevices();
+    }catch(e){
+      toast(`Zuweisung fehlgeschlagen ❌ (${e.message||'unbekannter Fehler'})`,false);
+    }finally{
+      button.disabled=false;
+    }
+  };
+
+  // ===== COMPANIES =====
+  async function loadCompanies(){
+    try{
+      const [cRes, rRes] = await Promise.all([
+        fetch(API_COMPANIES,{cache:"no-store"}),
+        fetch('/v1/tenant-routing',{cache:"no-store"})
+      ]);
+      if(!cRes.ok) throw new Error(`HTTP ${cRes.status}`);
+      const data=await cRes.json();
+      allCompanies=Array.isArray(data)?data:(data.companies||[]);
+      if(rRes.ok) currentRouting=await rRes.json();
+      renderCompanies();
+    }catch(e){ toast("Fehler beim Laden der Firmen ❌",false); }
+  }
+  function renderCompanies(){
+    document.getElementById('k_companies_total').textContent=allCompanies.length;
+    document.getElementById('k_companies_active').textContent=allCompanies.filter(c=>c.isActive).length;
+    const dpC={};
+    allDevices.forEach(d=>{ if(d.companyId) dpC[d.companyId]=(dpC[d.companyId]||0)+1; });
+    const tot=Object.values(dpC).reduce((a,b)=>a+b,0);
+    document.getElementById('k_companies_devices').textContent=tot;
+    document.getElementById('k_companies_avg').textContent=allCompanies.length>0?Math.round(tot/allCompanies.length):0;
+
+    const list=document.getElementById('companies-list');
+    if(!allCompanies.length){list.innerHTML='<p class="muted">Noch keine Firmen angelegt.</p>';return;}
+    list.innerHTML=allCompanies.map(c=>{
+      const dc=dpC[c.id]||0;
+      const sc=c.isActive?'var(--ok)':'var(--muted)';
+      const tenantId=getCompanyTenantId(c);
+      const domains=getCompanyDomains(c);
+      return `<div class="company-card">
+        <div style="display:flex;justify-content:space-between;align-items:start">
+          <div>
+            <h3>${escAttr(c.name)}</h3>
+            <div class="muted small">ID: ${escAttr(c.id)} • Haupt-TenantID: <span class="mono">${escAttr(tenantId||'–')}</span></div>
+            <div class="muted small">Primäre Domain: ${escAttr(c.domain||'–')}</div>
+            ${renderDomainPills(domains)}
+            <div class="muted small">Devices: ${dc} • Erstellt: ${fmtDate(c.createdAt)}</div>
+          </div>
+          <span class="pill" style="border-color:${sc}"><span class="dot" style="background:${sc}"></span>${c.isActive?'Aktiv':'Inaktiv'}</span>
+        </div>
+        <div class="actions" style="margin-top:12px">
+          <button class="mini warn" onclick="viewCompanyDevices('${escJsSingle(c.id)}')">Geräte</button>
+          <button class="mini good" onclick="openCompanyOnboarding('${escJsSingle(c.id)}')">Onboarding</button>
+          <button class="mini ${c.isActive?'danger':'good'}" onclick="toggleCompanyStatus('${escJsSingle(c.id)}',${!c.isActive})">${c.isActive?'Deaktivieren':'Aktivieren'}</button>
+        </div></div>`;
+    }).join('');
+  }
+
+  window.showNewCompanyOnboarding=function(){
+    onboardingCompanyId=null;
+    showNewTenantModal();
+    document.getElementById('modal-tenant-title').textContent='Neues Firmen-Onboarding';
+    document.getElementById('onb-company-id').value='';
+    document.getElementById('onb-company-name').value='';
+    document.getElementById('onb-company-domain').value='';
+    document.getElementById('onb-company-domains-extra').value='';
+    setOnboardingAutoSync(true);
+    setOnboardingAdvanced(false);
+    syncOnboardingIdentityFields();
+  };
+
+  window.openCompanyOnboarding=async function(companyId){
+    const company=allCompanies.find((item)=>item.id===companyId);
+    if(!company){
+      toast('Firma nicht gefunden ❌',false);
+      return;
+    }
+
+    try{
+      onboardingCompanyId=company.id;
+      if(!allTenants.length){
+        const response=await fetch(API_TENANTS,{cache:'no-store'});
+        if(response.ok){
+          const payload=await response.json();
+          allTenants=Array.isArray(payload)?payload:(payload.tenants||[]);
+        }
+      }
+
+      const tenantId=getCompanyTenantId(company)||company.id;
+      const existingTenant=allTenants.find((tenant)=>String(tenant&&tenant.tenantId||'').trim()===tenantId);
+
+      if(existingTenant){
+        editTenant(tenantId,company);
+        return;
+      }
+
+      showNewTenantModal();
+      onboardingCompanyId=company.id;
+      setOnboardingCompanyFields(company);
+      document.getElementById('onb-company-id').value=company.id;
+      setOnboardingAutoSync(false);
+      setOnboardingAdvanced(false);
+
+      const baseConfig=(company&&company.config&&typeof company.config==='object')?company.config:{};
+      const fields=Array.isArray(baseConfig.fields)?baseConfig.fields:[];
+      const photoVariables=Array.isArray(baseConfig.photoVariables)?baseConfig.photoVariables:[];
+      const dropdownPhotoVariables=(baseConfig.dropdownPhotoVariables&&typeof baseConfig.dropdownPhotoVariables==='object')
+        ? baseConfig.dropdownPhotoVariables
+        : {};
+      const uploadTargets=Array.isArray(baseConfig.uploadTargets)?baseConfig.uploadTargets:[];
+
+      const templateId=`${slugify(tenantId)||'tenant'}_default`;
+      const captureSteps=photoVariables.map((label,index)=>{
+        const stepId=slugify(label)||`step_${index+1}`;
+        return {
+          id: stepId,
+          label: String(label||''),
+          translationKey: `photo_${stepId}`,
+          required: false,
+          order: index+1,
+        };
+      });
+
+      document.getElementById('t-id').value=tenantId;
+      document.getElementById('t-name').value=company.name||tenantId;
+      document.getElementById('t-default-target').value=uploadTargets[0]&&uploadTargets[0].id?uploadTargets[0].id:'mydrive';
+      document.getElementById('t-template-id').value=templateId;
+      document.getElementById('t-template-name').value=`${company.name||tenantId} Standard`;
+      document.getElementById('t-folder').value=baseConfig.folderNamingTemplate||'{city} {siteId} {netElement} {project}';
+      document.getElementById('t-file').value=baseConfig.fileNamingTemplate||'{netElement}_{project}_{photoVar}.jpg';
+
+      buildFieldsUI(fields,dropdownPhotoVariables);
+      buildStepsUI(captureSteps);
+      buildTargetsUI(uploadTargets);
+      syncJsonFromForm();
+
+      toast('Onboarding aus Firmenprofil vorbereitet ✅');
+    }catch(e){
+      toast(`Onboarding konnte nicht geöffnet werden ❌ (${e.message||'Fehler'})`,false);
+    }
+  };
+
+  window.showNewCompanyModal=function(){
+    editingCompanyId=null;
+    document.getElementById('modal-title').textContent='Neue Firma anlegen';
+    ['company-id','company-tenant-id','company-name','company-domain','company-domains-extra','company-folder-template','company-config'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('company-id').dataset.autoSync='1';
+    document.getElementById('company-tenant-id').dataset.autoSync='1';
+    document.getElementById('company-id').disabled=false;
+    setCompanyAdvanced(false);
+    document.getElementById('company-config').value='{}';
+    syncCompanyAutoFields();
+    document.getElementById('modal-company').classList.add('active');
+  };
+  window.closeCompanyModal=function(){ document.getElementById('modal-company').classList.remove('active'); editingCompanyId=null; };
+  window.toggleCompanyAdvanced=function(){
+    const current=document.getElementById('company-advanced-fields').style.display==='block';
+    setCompanyAdvanced(!current);
+  };
+  window.editCompany=function(id){
+    editingCompanyId=id;
+    const c=allCompanies.find(c=>c.id===id); if(!c) return;
+    const tenantId=getCompanyTenantId(c);
+    const domains=getCompanyDomains(c);
+    const primaryDomain=normalizeDomain(c.domain);
+    const extraDomains=domains.filter((domain)=>domain!==primaryDomain);
+    document.getElementById('modal-title').textContent='Firma bearbeiten';
+    document.getElementById('company-id').value=c.id;
+    document.getElementById('company-id').disabled=true;
+    document.getElementById('company-id').dataset.autoSync='0';
+    document.getElementById('company-tenant-id').value=tenantId;
+    document.getElementById('company-tenant-id').dataset.autoSync='0';
+    document.getElementById('company-name').value=c.name;
+    document.getElementById('company-domain').value=c.domain;
+    document.getElementById('company-domains-extra').value=extraDomains.join('\n');
+    document.getElementById('company-folder-template').value=c.config?.folderNamingTemplate||'';
+    document.getElementById('company-config').value=JSON.stringify(c.config,null,2);
+    setCompanyAdvanced(false);
+    syncCompanyAutoFields();
+    document.getElementById('modal-company').classList.add('active');
+  };
+  window.saveCompany=async function(){
+    const id=document.getElementById('company-id').value.trim()||getSuggestedCompanyId();
+    const tenantId=document.getElementById('company-tenant-id').value.trim()||getSuggestedTenantId()||id;
+    const name=document.getElementById('company-name').value.trim();
+    const domain=normalizeDomain(document.getElementById('company-domain').value);
+    const extraDomains=parseDomainsText(document.getElementById('company-domains-extra').value);
+    const ft=document.getElementById('company-folder-template').value.trim();
+    const ct=document.getElementById('company-config').value.trim();
+    if(!id||!name||!domain||!tenantId){toast("Bitte alle Pflichtfelder ausfüllen ❌",false);return;}
+    let config={};
+    if(ct){try{config=JSON.parse(ct);}catch(e){toast("Ungültige JSON Config ❌",false);return;}}
+    if(ft) config.folderNamingTemplate=ft;
+
+    const previousCompany=editingCompanyId?allCompanies.find((company)=>company.id===id):null;
+    const previousPrimaryDomain=normalizeDomain(previousCompany&&previousCompany.domain);
+    const previousTenantId=getCompanyTenantId(previousCompany);
+
+    const btn=document.getElementById('btn-save-company'); btn.disabled=true;
+    try{
+      if(editingCompanyId) await putJson(`${API_COMPANIES}/${id}`,{name,domain,tenantId,config});
+      else await postJson(API_COMPANIES,{id,name,domain,tenantId,config});
+
+      const latestRoutingRes=await fetch('/v1/tenant-routing',{cache:'no-store'});
+      const latestRouting=latestRoutingRes.ok?await latestRoutingRes.json():currentRouting;
+      const routingBase={
+        defaultTenantId:(latestRouting&&latestRouting.defaultTenantId)||'gravit_default',
+        manualTenantId:(latestRouting&&latestRouting.manualTenantId)||'',
+        domainTenantMapping:{
+          ...((latestRouting&&latestRouting.domainTenantMapping&&typeof latestRouting.domainTenantMapping==='object')
+            ? latestRouting.domainTenantMapping
+            : {}),
+        },
+      };
+
+      const nextDomains=uniqueList([domain,...extraDomains].map((item)=>normalizeDomain(item)).filter(Boolean));
+      nextDomains.forEach((mappedDomain)=>{ routingBase.domainTenantMapping[mappedDomain]=tenantId; });
+
+      if(previousPrimaryDomain&&previousPrimaryDomain!==domain&&routingBase.domainTenantMapping[previousPrimaryDomain]===previousTenantId){
+        delete routingBase.domainTenantMapping[previousPrimaryDomain];
+      }
+
+      let routingUpdateFailed=false;
+      try{
+        await putJson(API_ROUTING,routingBase);
+        currentRouting=routingBase;
+      }catch(err){
+        routingUpdateFailed=true;
+      }
+
+      toast(routingUpdateFailed
+        ? 'Firma gespeichert, aber Domain-Routing konnte nicht aktualisiert werden ⚠️'
+        : (editingCompanyId?"Firma aktualisiert ✅":"Firma erstellt ✅"), !routingUpdateFailed);
+
+      if(!routingUpdateFailed){
+        closeCompanyModal();
+      }
+      await Promise.all([loadCompanies(),loadTenants()]);
+    }catch(e){ toast(`Fehler: ${e.message} ❌`,false); }
+    finally{ btn.disabled=false; }
+  };
+  window.viewCompanyConfig=function(id){
+    const c=allCompanies.find(c=>c.id===id); if(!c) return;
+    const tenantId=getCompanyTenantId(c);
+    const domains=getCompanyDomains(c);
+    const p=window.open('','Config','width=700,height=600');
+    p.document.write(`<html><head><title>Config: ${c.name}</title><style>body{font-family:monospace;background:#0b1020;color:#e8ecff;padding:20px}pre{background:#121a33;border:1px solid #253055;border-radius:8px;padding:16px;overflow:auto}h2{color:#2dd4bf}</style></head><body><h2>${c.name}</h2><p>ID: ${c.id} • TenantID: ${tenantId} • Primärdomain: ${c.domain}</p><p>Domains: ${domains.join(', ')||'–'}</p><pre>${JSON.stringify(c.config,null,2)}</pre></body></html>`);
+  };
+  window.viewCompanyDevices=async function(companyId){
+    const company=allCompanies.find((item)=>item.id===companyId);
+    switchView('devices');
+    document.getElementById('q').value='';
+    await loadDevices();
+
+    const filter=document.getElementById('filterCompany');
+    if(![...filter.options].some((option)=>option.value===companyId)){
+      const option=document.createElement('option');
+      option.value=companyId;
+      option.textContent=company?company.name:companyId;
+      filter.appendChild(option);
+    }
+
+    filter.value=companyId;
+    renderDevices();
+    toast(`Geräte für ${company?company.name:companyId} geladen ✅`);
+  };
+  window.toggleCompanyStatus=async(id,status)=>{ try{ await putJson(`${API_COMPANIES}/${id}`,{isActive:status}); toast("Status geändert ✅"); await loadCompanies(); }catch(e){ toast("Fehler ❌",false); } };
+
+  // ===== TENANTS =====
+  async function loadTenants(){
+    try{
+      const [tRes, rRes] = await Promise.all([
+        fetch(API_TENANTS,{cache:"no-store"}),
+        fetch('/v1/tenant-routing',{cache:"no-store"})
+      ]);
+      const tData = await tRes.json();
+      allTenants = Array.isArray(tData)?tData:(tData.tenants||[]);
+      if(rRes.ok) currentRouting = await rRes.json();
+      renderTenants();
+    }catch(e){ toast("Fehler beim Laden der Configs ❌",false); }
+  }
+  function renderTenants(){
+    document.getElementById('k_tenants_total').textContent=allTenants.length;
+    const dm=currentRouting.domainTenantMapping||{};
+    document.getElementById('k_tenants_domains').textContent=Object.keys(dm).length;
+    document.getElementById('k_tenants_default').textContent=currentRouting.defaultTenantId||'–';
+
+    // Routing table
+    const rows=document.getElementById('routing-rows');
+    const entries=Object.entries(dm);
+    rows.innerHTML=entries.length===0?`<tr><td colspan="3" class="muted">Keine Mappings</td></tr>`:
+      entries.map(([domain,tid])=>`<tr><td class="mono">${escAttr(domain)}</td><td class="muted">→</td><td class="mono">${escAttr(tid)}</td></tr>`).join('');
+
+    const note=document.getElementById('tenants-onboarding-note');
+    if(note){
+      note.textContent=allTenants.length
+        ? `Es gibt ${allTenants.length} Tenant-Konfigurationen. Bearbeite sie pro Firma über den Button "Onboarding" im Reiter Firmen.`
+        : 'Noch keine Tenant-Konfigurationen vorhanden. Lege zuerst eine Firma an und öffne dann dort den Button "Onboarding".';
+    }
+  }
+
+  // ===== TENANT EDITOR HELPERS =====
+  function getPrimaryTemplate(tenant){
+    const templates=Array.isArray(tenant&&tenant.templates)?tenant.templates:[];
+    const defaultTemplateId=String((tenant&&tenant.defaultTemplateId)||'').trim();
+
+    return templates.find((tpl)=>String((tpl&&tpl.templateId)||'').trim()===defaultTemplateId)
+      || templates[0]
+      || {
+        templateId: defaultTemplateId || 'standard',
+        name: '',
+        folderPattern: (tenant&&tenant.folderPattern) || '',
+        fileNamePattern: (tenant&&tenant.fileNamePattern) || '',
+        captureSteps: Array.isArray(tenant&&tenant.captureSteps) ? tenant.captureSteps : [],
+        dropdownPhotoVariables: (tenant&&tenant.dropdownPhotoVariables&&typeof tenant.dropdownPhotoVariables==='object')
+          ? tenant.dropdownPhotoVariables
+          : {},
+      };
+  }
+
+  function buildStepsUI(steps){
+    const namesInput=document.getElementById('t-step-names');
+    const requiredInput=document.getElementById('t-steps-required');
+    if(!namesInput) return;
+
+    const safeSteps=Array.isArray(steps)?steps:[];
+    const names=safeSteps
+      .map((step)=>String((step&&step.label)||step&&step.id||'').trim())
+      .filter(Boolean);
+
+    namesInput.value=names.join('\n');
+
+    if(requiredInput){
+      requiredInput.checked=safeSteps.length===0
+        ? true
+        : safeSteps.every((step)=>step&&step.required!==false);
+    }
+  }
+
+  function sanitizeStepIdFromName(name,index){
+    const raw=norm(name)
+      .replace(/[^a-z0-9]+/g,'_')
+      .replace(/^_+|_+$/g,'')
+      .replace(/_{2,}/g,'_');
+    return raw||`step_${index+1}`;
+  }
+
+  function parseStepNames(rawText){
+    return String(rawText||'')
+      .replaceAll('\r','')
+      .split('\n')
+      .map((line)=>line.trim())
+      .filter(Boolean);
+  }
+
+  function getStepsFromUI(){
+    const namesInput=document.getElementById('t-step-names');
+    const requiredInput=document.getElementById('t-steps-required');
+    const names=parseStepNames(namesInput?namesInput.value:'');
+    const requiredDefault=requiredInput?requiredInput.checked:true;
+
+    return names.map((name,index)=>{
+      const id=sanitizeStepIdFromName(name,index);
+      return {
+        id,
+        label:name,
+        translationKey:`photo_${id}`,
+        required:requiredDefault,
+        order:index+1,
+      };
+    });
+  }
+
+  function normalizeFieldType(type){
+    const normalized=String(type||'').trim().toLowerCase();
+    if(normalized==='dropdown'||normalized==='date'||normalized==='text') return normalized;
+    return 'text';
+  }
+
+  function parseCommaSeparated(value){
+    if(Array.isArray(value)){
+      return value.map((item)=>String(item||'').trim()).filter(Boolean);
+    }
+    return String(value||'')
+      .split(',')
+      .map((item)=>item.trim())
+      .filter(Boolean);
+  }
+
+  function normalizePatternFieldKey(key){
+    return String(key||'').trim().replace(/[{}]/g,'');
+  }
+
+  function getPatternFieldKeys(fields){
+    return [...new Set((Array.isArray(fields)?fields:[])
+      .map((field)=>normalizePatternFieldKey(field&&field.key))
+      .filter(Boolean))];
+  }
+
+  function buildAutoFolderPatternFromFields(fields){
+    const keys=getPatternFieldKeys(fields);
+    if(!keys.length) return '{city} {siteId} {netElement} {project}';
+    return keys.map((key)=>`{${key}}`).join(' ');
+  }
+
+  function buildAutoFilePatternFromFields(fields){
+    const keys=getPatternFieldKeys(fields);
+    if(!keys.length) return '{netElement}_{project}_{photoVar}.jpg';
+    return `${keys.map((key)=>`{${key}}`).join('_')}_{photoVar}.jpg`;
+  }
+
+  function syncNamingPatternsFromFields(){
+    const folderInput=document.getElementById('t-folder');
+    const fileInput=document.getElementById('t-file');
+    if(!folderInput||!fileInput) return;
+
+    const fields=getFieldsFromUI();
+    folderInput.value=buildAutoFolderPatternFromFields(fields);
+    fileInput.value=buildAutoFilePatternFromFields(fields);
+  }
+
+  function getDropdownFieldsFromUI(){
+    return getFieldsFromUI()
+      .filter((field)=>field.type==='dropdown'&&Array.isArray(field.options)&&field.options.length)
+      .map((field)=>({
+        key: String(field.key||'').trim(),
+        options: [...new Set(parseCommaSeparated(field.options))],
+      }))
+      .filter((field)=>field.key&&field.options.length);
+  }
+
+  function normalizeDropdownPhotoVariablesMap(rawMap,dropdownFields){
+    const out={};
+    const source=(rawMap&&typeof rawMap==='object'&&!Array.isArray(rawMap))?rawMap:{};
+    const fields=Array.isArray(dropdownFields)?dropdownFields:[];
+
+    fields.forEach((field)=>{
+      const key=String(field&&field.key||'').trim();
+      if(!key) return;
+
+      const options=[...new Set(parseCommaSeparated(field.options))];
+      if(!options.length) return;
+
+      const fieldMap=source[key];
+      if(!fieldMap||typeof fieldMap!=='object'||Array.isArray(fieldMap)) return;
+
+      const normalizedFieldMap={};
+      options.forEach((option)=>{
+        const values=parseCommaSeparated(fieldMap[option]);
+        if(values.length) normalizedFieldMap[option]=values;
+      });
+
+      if(Object.keys(normalizedFieldMap).length){
+        out[key]=normalizedFieldMap;
+      }
+    });
+
+    return out;
+  }
+
+  function normalizeLookupKey(value){
+    return String(value||'')
+      .toLowerCase()
+      .replaceAll('ä','ae')
+      .replaceAll('ö','oe')
+      .replaceAll('ü','ue')
+      .replaceAll('ß','ss')
+      .replace(/[^a-z0-9]+/g,'')
+      .trim();
+  }
+
+  function buildDropdownPhotoVariablesFromTemplates(tenant){
+    const out={};
+    if(!tenant||typeof tenant!=='object') return out;
+
+    const fields=Array.isArray(tenant.fields)?tenant.fields:[];
+    const templates=Array.isArray(tenant.templates)?tenant.templates:[];
+
+    fields
+      .filter((field)=>normalizeFieldType(field&&field.type)==='dropdown')
+      .forEach((field)=>{
+        const fieldKey=String(field&&field.key||'').trim();
+        const options=parseCommaSeparated(field&&field.options);
+        if(!fieldKey||options.length===0) return;
+
+        const optionMap={};
+        options.forEach((option)=>{
+          const optionNorm=normalizeLookupKey(option);
+          if(!optionNorm) return;
+
+          const template=templates.find((tpl)=>{
+            const nameNorm=normalizeLookupKey(tpl&&tpl.name);
+            const idNorm=normalizeLookupKey(tpl&&tpl.templateId);
+            return nameNorm===optionNorm||idNorm===optionNorm||idNorm.endsWith(optionNorm);
+          });
+
+          const captureSteps=Array.isArray(template&&template.captureSteps)?template.captureSteps:[];
+          const vars=captureSteps
+            .map((step)=>String(step&&step.label||'').trim())
+            .filter(Boolean);
+
+          if(vars.length){
+            optionMap[option]=vars;
+          }
+        });
+
+        if(Object.keys(optionMap).length){
+          out[fieldKey]=optionMap;
+        }
+      });
+
+    return out;
+  }
+
+  function mergeDropdownPhotoMappings(primaryMap, fallbackMap){
+    const out={};
+    const first=(primaryMap&&typeof primaryMap==='object'&&!Array.isArray(primaryMap))?primaryMap:{};
+    const second=(fallbackMap&&typeof fallbackMap==='object'&&!Array.isArray(fallbackMap))?fallbackMap:{};
+
+    [...new Set([...Object.keys(second),...Object.keys(first)])].forEach((fieldKey)=>{
+      const merged={
+        ...((second[fieldKey]&&typeof second[fieldKey]==='object'&&!Array.isArray(second[fieldKey]))?second[fieldKey]:{}),
+        ...((first[fieldKey]&&typeof first[fieldKey]==='object'&&!Array.isArray(first[fieldKey]))?first[fieldKey]:{}),
+      };
+      if(Object.keys(merged).length){
+        out[fieldKey]=merged;
+      }
+    });
+
+    return out;
+  }
+
+  function buildDropdownPhotoMappingUI(rawMap){
+    const container=document.getElementById('dropdown-photo-map-container');
+    const hint=document.getElementById('dropdown-photo-map-hint');
+    if(!container||!hint) return;
+
+    const dropdownFields=getDropdownFieldsFromUI();
+    const normalizedMap=normalizeDropdownPhotoVariablesMap(rawMap,dropdownFields);
+    container.innerHTML='';
+
+    if(!dropdownFields.length){
+      hint.textContent='Keine Dropdown-Felder mit Optionen vorhanden.';
+      hint.style.display='block';
+      return;
+    }
+
+    hint.textContent='Passe hier die Bildvariablen je Dropdown-Option an (Komma-getrennt).';
+    hint.style.display='block';
+
+    dropdownFields.forEach((field)=>{
+      const group=document.createElement('div');
+      group.className='dropdown-photo-group';
+      group.dataset.fieldKey=field.key;
+
+      const heading=document.createElement('h4');
+      heading.textContent=`Dropdown: ${field.key}`;
+      group.appendChild(heading);
+
+      field.options.forEach((option)=>{
+        const row=document.createElement('div');
+        row.className='dropdown-photo-row';
+        row.dataset.optionValue=option;
+
+        const optionLabel=document.createElement('div');
+        optionLabel.className='dropdown-photo-option';
+        optionLabel.textContent=option;
+
+        const input=document.createElement('input');
+        input.type='text';
+        input.className='item-input dpm-vars';
+        input.placeholder='z.B. vor_umbau, erdung_1';
+        input.value=(normalizedMap[field.key]&&normalizedMap[field.key][option])
+          ? normalizedMap[field.key][option].join(', ')
+          : '';
+
+        row.appendChild(optionLabel);
+        row.appendChild(input);
+        group.appendChild(row);
+      });
+
+      container.appendChild(group);
+    });
+  }
+
+  function getDropdownPhotoVariablesFromUI(){
+    const container=document.getElementById('dropdown-photo-map-container');
+    if(!container) return {};
+
+    const out={};
+    [...container.querySelectorAll('.dropdown-photo-group')].forEach((group)=>{
+      const fieldKey=String(group.dataset.fieldKey||'').trim();
+      if(!fieldKey) return;
+
+      const fieldMap={};
+      [...group.querySelectorAll('.dropdown-photo-row')].forEach((row)=>{
+        const option=String(row.dataset.optionValue||'').trim();
+        if(!option) return;
+        const values=parseCommaSeparated(row.querySelector('.dpm-vars').value);
+        if(values.length){
+          fieldMap[option]=values;
+        }
+      });
+
+      if(Object.keys(fieldMap).length){
+        out[fieldKey]=fieldMap;
+      }
+    });
+
+    return out;
+  }
+
+  window.refreshDropdownPhotoMappings=function(){
+    const current=getDropdownPhotoVariablesFromUI();
+    buildDropdownPhotoMappingUI(current);
+    syncNamingPatternsFromFields();
+  };
+
+  window.autofillDropdownPhotoMappingsFromTemplates=function(){
+    try{
+      const tenant=JSON.parse(document.getElementById('t-json').value||'{}');
+      const current=getDropdownPhotoVariablesFromUI();
+      const fromTemplates=buildDropdownPhotoVariablesFromTemplates(tenant);
+      const merged=mergeDropdownPhotoMappings(current,fromTemplates);
+      buildDropdownPhotoMappingUI(merged);
+      syncJsonFromForm();
+      toast('Dropdown-Bildvariablen aus Templates übernommen ✅');
+    }catch(e){
+      toast(`Auto-Fill fehlgeschlagen ❌ (${e.message||'Fehler'})`,false);
+    }
+  };
+
+  function buildFieldsUI(fields,dropdownPhotoVariables=null){
+    const container=document.getElementById('fields-container');
+    if(!container) return;
+    const currentMap=dropdownPhotoVariables===null
+      ? getDropdownPhotoVariablesFromUI()
+      : dropdownPhotoVariables;
+    container.innerHTML='';
+    (fields||[]).forEach((field,index)=>container.appendChild(makeFieldRow(field,index)));
+    buildDropdownPhotoMappingUI(currentMap);
+  }
+
+  function makeFieldRow(field,index){
+    const safeField=field||{};
+    const type=normalizeFieldType(safeField.type);
+    const optionsRaw=Array.isArray(safeField.options)?safeField.options.join(', '):'';
+    const div=document.createElement('div');
+    div.className='field-item';
+    div.innerHTML=`
+      <div>
+        <div class="item-label">Key</div>
+        <input class="item-input f-key" placeholder="popType" value="${escAttr(safeField.key||'')}" oninput="refreshDropdownPhotoMappings()" />
+      </div>
+      <div>
+        <div class="item-label">Typ</div>
+        <select class="item-input f-type" onchange="refreshDropdownPhotoMappings()">
+          <option value="text" ${type==='text'?'selected':''}>Text</option>
+          <option value="dropdown" ${type==='dropdown'?'selected':''}>Dropdown</option>
+          <option value="date" ${type==='date'?'selected':''}>Datum</option>
+        </select>
+      </div>
+      <div style="text-align:center">
+        <div class="item-label">Pflicht</div>
+        <input type="checkbox" class="f-required" ${safeField.required?'checked':''} style="width:20px;height:20px;margin-top:6px;cursor:pointer" />
+      </div>
+      <div>
+        <div class="item-label">Dropdown-Optionen</div>
+        <input class="item-input f-options" placeholder="FCP 1496, FCP 3696" value="${escAttr(optionsRaw)}" oninput="refreshDropdownPhotoMappings()" />
+      </div>
+      <button class="remove-btn" onclick="removeField(${index})">✕</button>`;
+    return div;
+  }
+
+  window.addField=function(){
+    const container=document.getElementById('fields-container');
+    if(!container) return;
+    const index=container.children.length;
+    container.appendChild(makeFieldRow({key:'',type:'text',required:false,options:[]},index));
+    refreshDropdownPhotoMappings();
+  };
+
+  window.removeField=function(index){
+    const fields=getFieldsFromUI();
+    fields.splice(index,1);
+    buildFieldsUI(fields);
+    refreshDropdownPhotoMappings();
+  };
+
+  function getFieldsFromUI(){
+    const container=document.getElementById('fields-container');
+    if(!container) return [];
+
+    return [...container.children]
+      .map((row)=>{
+        const key=row.querySelector('.f-key').value.trim();
+        const type=normalizeFieldType(row.querySelector('.f-type').value);
+        const required=row.querySelector('.f-required').checked;
+        const optionsValue=row.querySelector('.f-options').value.trim();
+        if(!key) return null;
+
+        const out={key,type,required};
+        if(type==='dropdown'){
+          out.options=parseCommaSeparated(optionsValue);
+        }
+        return out;
+      })
+      .filter(Boolean);
+  }
+
+  function buildTargetsUI(targets){
+    const container=document.getElementById('targets-container');
+    container.innerHTML='';
+    (targets||[]).forEach((target,index)=>container.appendChild(makeTargetRow(target,index)));
+  }
+
+  function makeTargetRow(target,index){
+    const safeTarget=target||{};
+    const basePath=safeTarget.basePath||(safeTarget.configurable&&safeTarget.configurable.basePath)||'';
+    const div=document.createElement('div');
+    div.className='target-item';
+    div.innerHTML=`
+      <div>
+        <div class="item-label">ID</div>
+        <input class="item-input t-tid" placeholder="sharepoint" value="${escAttr(safeTarget.id||'')}" />
+      </div>
+      <div>
+        <div class="item-label">Typ</div>
+        <select class="item-input t-type">
+          <option value="sharepoint" ${safeTarget.type==='sharepoint'?'selected':''}>SharePoint</option>
+          <option value="onedrive_shared" ${safeTarget.type==='onedrive_shared'?'selected':''}>OneDrive Shared</option>
+          <option value="onedrive_personal" ${safeTarget.type==='onedrive_personal'?'selected':''}>OneDrive Personal</option>
+        </select>
+      </div>
+      <div>
+        <div class="item-label">Label</div>
+        <input class="item-input t-label" placeholder="Firmen-SharePoint" value="${escAttr(safeTarget.label||'')}" />
+      </div>
+      <button class="remove-btn" onclick="removeTarget(${index})">✕</button>
+      <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 60px;gap:8px">
+        <div>
+          <div class="item-label">Untertitel</div>
+          <input class="item-input t-subtitle" placeholder="z.B. GRAVIT_UPLOADS auf SharePoint" value="${escAttr(safeTarget.subtitle||'')}" />
+        </div>
+        <div>
+          <div class="item-label">Icon</div>
+          <input class="item-input t-icon" placeholder="🏢" value="${escAttr(safeTarget.icon||'')}" />
+        </div>
+      </div>
+      <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div>
+          <div class="item-label">Base Path (onedrive_personal)</div>
+          <input class="item-input t-basepath" placeholder="/Dokumentation/Gravit" value="${escAttr(basePath)}" />
+        </div>
+        <div>
+          <div class="item-label">Drive ID (shared/sharepoint)</div>
+          <input class="item-input t-driveid" placeholder="1d7bf7cb..." value="${escAttr(safeTarget.driveId||'')}" />
+        </div>
+        <div>
+          <div class="item-label">Item ID (onedrive_shared)</div>
+          <input class="item-input t-itemid" placeholder="..." value="${escAttr(safeTarget.itemId||'')}" />
+        </div>
+        <div>
+          <div class="item-label">Sub Path (onedrive_shared)</div>
+          <input class="item-input t-subpath" placeholder="" value="${escAttr(safeTarget.subPath||'')}" />
+        </div>
+        <div>
+          <div class="item-label">App Folder (sharepoint)</div>
+          <input class="item-input t-appfolder" placeholder="GRAVIT_UPLOADS" value="${escAttr(safeTarget.appFolder||'')}" />
+        </div>
+      </div>`;
+    return div;
+  }
+
+  window.addTarget=function(){
+    const container=document.getElementById('targets-container');
+    container.appendChild(makeTargetRow({id:'',type:'sharepoint',label:'',subtitle:'',icon:'☁️'},container.children.length));
+  };
+
+  window.removeTarget=function(index){
+    const targets=getTargetsFromUI();
+    targets.splice(index,1);
+    buildTargetsUI(targets);
+  };
+
+  function getTargetsFromUI(){
+    return [...document.getElementById('targets-container').children].map((row)=>{
+      const type=row.querySelector('.t-type').value;
+      const out={
+        id: row.querySelector('.t-tid').value.trim(),
+        type,
+        label: row.querySelector('.t-label').value.trim(),
+        subtitle: row.querySelector('.t-subtitle').value.trim(),
+        icon: row.querySelector('.t-icon').value.trim(),
+      };
+
+      const basePath=row.querySelector('.t-basepath').value.trim();
+      const driveId=row.querySelector('.t-driveid').value.trim();
+      const itemId=row.querySelector('.t-itemid').value.trim();
+      const subPath=row.querySelector('.t-subpath').value.trim();
+      const appFolder=row.querySelector('.t-appfolder').value.trim();
+
+      if(type==='onedrive_personal'&&basePath) out.configurable={basePath};
+      if(type==='onedrive_shared'){
+        if(driveId) out.driveId=driveId;
+        if(itemId) out.itemId=itemId;
+        if(subPath) out.subPath=subPath;
+      }
+      if(type==='sharepoint'){
+        if(driveId) out.driveId=driveId;
+        if(appFolder) out.appFolder=appFolder;
+      }
+
+      return out;
+    });
+  }
+
+  function buildJsonFromForm(){
+    const tenantId=document.getElementById('t-id').value.trim();
+    const tenantName=document.getElementById('t-name').value.trim();
+    const templateId=document.getElementById('t-template-id').value.trim()||'standard';
+    const dropdownPhotoVariables=getDropdownPhotoVariablesFromUI();
+    const template={
+      templateId,
+      name: document.getElementById('t-template-name').value.trim()||templateId,
+      folderPattern: document.getElementById('t-folder').value.trim(),
+      fileNamePattern: document.getElementById('t-file').value.trim(),
+      captureSteps: getStepsFromUI(),
+      dropdownPhotoVariables,
+    };
+
+    return {
+      tenantId,
+      tenantName,
+      name: tenantName,
+      fields: getFieldsFromUI(),
+      defaultStorageTargetId: document.getElementById('t-default-target').value.trim(),
+      defaultTemplateId: templateId,
+      folderPattern: template.folderPattern,
+      fileNamePattern: template.fileNamePattern,
+      captureSteps: template.captureSteps,
+      dropdownPhotoVariables,
+      storageTargets: getTargetsFromUI(),
+      templates: [template],
+    };
+  }
+
+  window.syncJsonFromForm=function(){
+    document.getElementById('t-json').value=JSON.stringify(buildJsonFromForm(),null,2);
+    toast("JSON aktualisiert ✅");
+  };
+
+  window.syncFormFromJson=function(){
+    try{
+      const obj=JSON.parse(document.getElementById('t-json').value);
+      loadTenantIntoForm(obj);
+      toast("Formular befüllt ✅");
+    }catch(e){ toast("Ungültiges JSON ❌",false); }
+  };
+
+  window.importJsonFile=function(){ document.getElementById('json-file-input').click(); };
+
+  window.handleJsonImport=function(e){
+    const file=e.target.files[0];
+    if(!file) return;
+    const reader=new FileReader();
+    reader.onload=(event)=>{
+      document.getElementById('t-json').value=event.target.result;
+      syncFormFromJson();
+      switchModalTab('basics');
+    };
+    reader.readAsText(file);
+    e.target.value='';
+  };
+
+  function loadTenantIntoForm(tenant){
+    const primaryTemplate=getPrimaryTemplate(tenant);
+    document.getElementById('t-id').value=tenant.tenantId||'';
+    document.getElementById('t-name').value=tenant.name||tenant.tenantName||'';
+    document.getElementById('t-default-target').value=tenant.defaultStorageTargetId||'';
+    document.getElementById('t-template-id').value=tenant.defaultTemplateId||primaryTemplate.templateId||'';
+    document.getElementById('t-template-name').value=primaryTemplate.name||'';
+    document.getElementById('t-folder').value=primaryTemplate.folderPattern||tenant.folderPattern||'';
+    document.getElementById('t-file').value=primaryTemplate.fileNamePattern||tenant.fileNamePattern||'';
+    const mappedFromTenant=(primaryTemplate.dropdownPhotoVariables&&typeof primaryTemplate.dropdownPhotoVariables==='object')
+      ? primaryTemplate.dropdownPhotoVariables
+      : (tenant.dropdownPhotoVariables&&typeof tenant.dropdownPhotoVariables==='object')
+        ? tenant.dropdownPhotoVariables
+        : {};
+    const mappedFromTemplates=buildDropdownPhotoVariablesFromTemplates(tenant);
+
+    buildFieldsUI(
+      tenant.fields||[],
+      mergeDropdownPhotoMappings(mappedFromTenant,mappedFromTemplates)
+    );
+    buildStepsUI(primaryTemplate.captureSteps||tenant.captureSteps||[]);
+    buildTargetsUI(tenant.storageTargets||[]);
+    syncJsonFromForm();
+  }
+
+  // ===== TENANT MODAL =====
+  window.showNewTenantModal=function(){
+    editingTenantId=null;
+    onboardingCompanyId=null;
+    document.getElementById('modal-tenant-title').textContent='Neue Konfiguration';
+    document.getElementById('t-id').disabled=false;
+    setOnboardingAutoSync(true);
+    ['t-id','t-name','t-folder','t-file','t-default-target','t-template-id','t-template-name','t-json'].forEach((id)=>{
+      document.getElementById(id).value='';
+    });
+    ['onb-company-id','onb-company-name','onb-company-domain','onb-company-domains-extra'].forEach((id)=>{
+      document.getElementById(id).value='';
+    });
+    buildFieldsUI([],{});
+    buildStepsUI([]);
+    buildTargetsUI([]);
+    setOnboardingAdvanced(false);
+    syncOnboardingIdentityFields();
+    switchModalTab('basics');
+    document.getElementById('modal-tenant').classList.add('active');
+  };
+
+  window.closeTenantModal=function(){
+    document.getElementById('modal-tenant').classList.remove('active');
+    editingTenantId=null;
+    onboardingCompanyId=null;
+  };
+
+  window.editTenant=function(id,companyContext=null){
+    editingTenantId=id;
+    const tenant=allTenants.find((item)=>item.tenantId===id);
+    if(!tenant) return;
+    const company=companyContext||allCompanies.find((item)=>getCompanyTenantId(item)===id)||null;
+    onboardingCompanyId=company?company.id:null;
+    document.getElementById('modal-tenant-title').textContent=`Bearbeiten: ${tenant.name||tenant.tenantName||tenant.tenantId}`;
+    document.getElementById('t-id').disabled=true;
+    setOnboardingAutoSync(false);
+    loadTenantIntoForm(tenant);
+    if(company){
+      setOnboardingCompanyFields(company);
+      document.getElementById('onb-company-id').value=company.id;
+    }
+    setOnboardingAdvanced(false);
+    switchModalTab('basics');
+    document.getElementById('modal-tenant').classList.add('active');
+  };
+  window.saveTenant=async function(){
+    syncOnboardingIdentityFields();
+    // Always sync JSON from form before saving
+    syncJsonFromForm();
+    let payload;
+    try{ payload=JSON.parse(document.getElementById('t-json').value); }
+    catch(e){ toast("Ungültiges JSON ❌",false); return; }
+    const tenantId=String(payload.tenantId||'').trim();
+    if(!tenantId){ toast("Tenant ID darf nicht leer sein ❌",false); return; }
+
+    const companyName=document.getElementById('onb-company-name').value.trim();
+    const primaryDomain=normalizeDomain(document.getElementById('onb-company-domain').value);
+    const extraDomains=parseDomainsText(document.getElementById('onb-company-domains-extra').value);
+    const suggestedCompanyId=getOnboardingCompanyIdSuggestion();
+    const companyId=String(document.getElementById('onb-company-id').value.trim()||onboardingCompanyId||suggestedCompanyId||slugifyCompanyId(tenantId));
+
+    if(!companyId||!companyName||!primaryDomain){
+      toast("Firma: Name und Primäre Domain sind Pflicht ❌",false);
+      switchModalTab('basics');
+      return;
+    }
+
+    const template=getPrimaryTemplate(payload);
+    const dropdownPhotoVariables=normalizeDropdownPhotoVariablesMap(
+      (template&&template.dropdownPhotoVariables&&typeof template.dropdownPhotoVariables==='object')
+        ? template.dropdownPhotoVariables
+        : (payload&&payload.dropdownPhotoVariables&&typeof payload.dropdownPhotoVariables==='object')
+          ? payload.dropdownPhotoVariables
+          : {},
+      (Array.isArray(payload&&payload.fields)?payload.fields:[])
+        .filter((field)=>normalizeFieldType(field&&field.type)==='dropdown')
+        .map((field)=>({
+          key: String(field&&field.key||'').trim(),
+          options: parseCommaSeparated(field&&field.options),
+        }))
+    );
+    const companyConfig={
+      folderNamingTemplate: String(template.folderPattern||payload.folderPattern||'').trim(),
+      fileNamingTemplate: String(template.fileNamePattern||payload.fileNamePattern||'').trim(),
+      fields: Array.isArray(payload.fields)?payload.fields:[],
+      photoVariables: (Array.isArray(template.captureSteps)?template.captureSteps:[])
+        .map((step)=>String(step&&step.label||'').trim())
+        .filter(Boolean),
+      dropdownPhotoVariables,
+      uploadTargets: Array.isArray(payload.storageTargets)?payload.storageTargets:[],
+    };
+
+    const btn=document.getElementById('btn-save-tenant'); btn.disabled=true;
+    try{
+      payload.tenantId=tenantId;
+
+      const result=await postJson(API_ONBOARDING_SAVE,{
+        companyId,
+        companyName,
+        primaryDomain,
+        extraDomains,
+        tenantId,
+        companyConfig,
+        tenantPayload: payload,
+      });
+
+      if(result&&result.routing){
+        currentRouting=result.routing;
+      }
+
+      onboardingCompanyId=companyId;
+      toast(editingTenantId?"Onboarding aktualisiert ✅":"Onboarding gespeichert ✅");
+      closeTenantModal();
+      await Promise.all([loadCompanies(),loadTenants(),loadDevices()]);
+    }catch(e){ toast(`Fehler: ${e.message} ❌`,false); }
+    finally{ btn.disabled=false; }
+  };
+  window.deleteTenant=async function(id){
+    if(!confirm(`Konfiguration "${id}" wirklich löschen?`)) return;
+    try{ await deleteJson(`${API_TENANTS}/${id}`); toast("Gelöscht ✅"); await loadTenants(); }
+    catch(e){ toast("Fehler ❌",false); }
+  };
+  window.exportTenantJson=function(id){
+    const t=allTenants.find(t=>t.tenantId===id); if(!t) return;
+    const blob=new Blob([JSON.stringify(t,null,2)],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download=`${id}.json`; a.click(); URL.revokeObjectURL(a.href);
+  };
+
+  // ===== ROUTING EDITOR =====
+  window.openRoutingEditor=function(options={}){
+    const opts=options&&typeof options==='object'?options:{};
+    const preferredTenantId=String(opts.tenantId||'').trim();
+    const presetDomain=normalizeDomain(opts.presetDomain||'');
+    const title=opts.title||'🗺️ Domain Routing bearbeiten';
+
+    document.getElementById('routing-modal-title').textContent=title;
+    document.getElementById('routing-default').value=currentRouting.defaultTenantId||'gravit_default';
+    document.getElementById('routing-manual').value=currentRouting.manualTenantId||'';
+    const c=document.getElementById('routing-editor-rows'); c.innerHTML='';
+    Object.entries(currentRouting.domainTenantMapping||{}).forEach(([domain,tid])=>c.appendChild(makeRoutingRow(domain,tid)));
+
+    if(preferredTenantId||presetDomain){
+      c.appendChild(makeRoutingRow(presetDomain,preferredTenantId));
+    }
+
+    document.getElementById('modal-routing').classList.add('active');
+  };
+  window.addDomainForCompany=function(companyId){
+    const company=allCompanies.find((item)=>item.id===companyId);
+    if(!company) return;
+    const tenantId=getCompanyTenantId(company);
+    openRoutingEditor({
+      tenantId,
+      title:`🗺️ Domain hinzufügen für ${company.name||company.id}`,
+    });
+  };
+  window.addDomainForTenant=function(tenantId){
+    const id=String(tenantId||'').trim();
+    if(!id) return;
+    openRoutingEditor({
+      tenantId:id,
+      title:`🗺️ Domain hinzufügen für Tenant ${id}`,
+    });
+  };
+  window.closeRoutingModal=function(){ document.getElementById('modal-routing').classList.remove('active'); };
+  function makeRoutingRow(domain,tid){
+    const div=document.createElement('div'); div.className='domain-item';
+    div.innerHTML=`
+      <div><div class="item-label">Domain</div><input class="item-input r-domain" placeholder="firma.de" value="${escAttr(domain)}" /></div>
+      <div class="arrow">→</div>
+      <div><div class="item-label">Tenant ID</div><input class="item-input r-tid" placeholder="gravit_default" value="${escAttr(tid)}" /></div>
+      <button class="remove-btn" onclick="this.closest('.domain-item').remove()">✕</button>`;
+    return div;
+  }
+  window.addRoutingRow=function(){
+    document.getElementById('routing-editor-rows').appendChild(makeRoutingRow('',''));
+  };
+  window.saveRouting=async function(){
+    const defaultTenantId=document.getElementById('routing-default').value.trim()||'gravit_default';
+    const manualTenantId=document.getElementById('routing-manual').value.trim();
+    const mapping={};
+    document.querySelectorAll('#routing-editor-rows .domain-item').forEach(row=>{
+      const d=normalizeDomain(row.querySelector('.r-domain').value);
+      const t=row.querySelector('.r-tid').value.trim();
+      if(d&&t) mapping[d]=t;
+    });
+    try{
+      await putJson(API_ROUTING,{defaultTenantId,manualTenantId,domainTenantMapping:mapping});
+      currentRouting={defaultTenantId,manualTenantId,domainTenantMapping:mapping};
+      toast("Routing gespeichert ✅"); closeRoutingModal(); renderTenants(); renderCompanies();
+    }catch(e){ toast("Fehler ❌",false); }
+  };
+
+  // ===== AUTO-REFRESH =====
+  function setAutoRefresh(){
+    if(refreshTimer) clearInterval(refreshTimer); refreshTimer=null;
+    const sec=parseInt(document.getElementById('refresh').value||"0",10);
+    if(sec>0&&currentView==='devices') refreshTimer=setInterval(loadDevices,sec*1000);
+  }
+
+  // ===== EVENT LISTENERS =====
+  document.getElementById('reload').addEventListener('click',()=>{
+    if(currentView==='devices') loadDevices();
+    else if(currentView==='companies') loadCompanies();
+    else if(currentView==='tenants') loadTenants();
+  });
+  document.getElementById('btnDebugMode').addEventListener('click',async()=>{
+    const next=!debugModeEnabled;
+    try{
+      const payload=await putJson(API_DEBUG_MODE,{debugMode:next});
+      debugModeEnabled=payload&&payload.debugMode===true;
+      updateDebugButton();
+      toast(`Debug ${debugModeEnabled?'aktiviert':'deaktiviert'} ✅`);
+    }catch(e){
+      toast(`Debug konnte nicht umgeschaltet werden ❌ (${e.message||'Fehler'})`,false);
+    }
+  });
+  document.getElementById('q').addEventListener('input',renderDevices);
+  document.getElementById('sort').addEventListener('change',renderDevices);
+  document.getElementById('filterCompany').addEventListener('change',renderDevices);
+  document.getElementById('refresh').addEventListener('change',setAutoRefresh);
+  document.getElementById('company-name').addEventListener('input',syncCompanyAutoFields);
+  document.getElementById('company-domain').addEventListener('input',syncCompanyAutoFields);
+  document.getElementById('company-id').addEventListener('input',()=>{
+    if(editingCompanyId) return;
+    const idInput=document.getElementById('company-id');
+    const suggested=getSuggestedCompanyId();
+    idInput.dataset.autoSync=idInput.value.trim()===suggested?'1':'0';
+    syncCompanyAutoFields();
+  });
+  document.getElementById('company-tenant-id').addEventListener('input',()=>{
+    if(editingCompanyId) return;
+    const tenantInput=document.getElementById('company-tenant-id');
+    const suggested=getSuggestedTenantId();
+    tenantInput.dataset.autoSync=tenantInput.value.trim()===suggested?'1':'0';
+    syncCompanyAutoFields();
+  });
+  document.getElementById('onb-company-name').addEventListener('input',syncOnboardingIdentityFields);
+  document.getElementById('onb-company-domain').addEventListener('input',syncOnboardingIdentityFields);
+  ['t-name','t-default-target','t-template-id','t-template-name','t-folder','t-file'].forEach((id)=>{
+    document.getElementById(id).addEventListener('input',()=>{
+      const input=document.getElementById(id);
+      input.dataset.autoSync='0';
+    });
+  });
+  document.getElementById('t-id').addEventListener('input',()=>{
+    const tenantInput=document.getElementById('t-id');
+    if(tenantInput.disabled) return;
+    const suggested=getOnboardingTenantIdSuggestion();
+    tenantInput.dataset.autoSync=tenantInput.value.trim()===suggested?'1':'0';
+    syncOnboardingIdentityFields();
+  });
+  document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m){ closeCompanyModal(); closeTenantModal(); closeRoutingModal(); closeAssignCompanyModal(); } }));
+
+  // ===== INIT =====
+  setAutoRefresh();
+  loadDebugMode();
+  loadDevices();
+  loadCompanies();
+</script>
+</body>
+</html>
