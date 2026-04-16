@@ -388,10 +388,10 @@ function applyTenantFileOverride(baseConfig, tenantId, opts = {}) {
   const override = loadTenantFileOverride(tenantId);
   if (!override) return baseConfig;
 
-  const merged = deepMerge(baseConfig && typeof baseConfig === 'object' ? baseConfig : {}, override);
+  const existingBase = baseConfig && typeof baseConfig === 'object' ? baseConfig : {};
+  const merged = deepMerge(existingBase, override);
   merged.tenantId = toStr(tenantId);
   if (!merged.createdAt) merged.createdAt = nowIso();
-  merged.updatedAt = nowIso();
 
   if (opts && opts.sourceCompanyId && !toStr(merged.sourceCompanyId)) {
     merged.sourceCompanyId = toStr(opts.sourceCompanyId);
@@ -399,6 +399,19 @@ function applyTenantFileOverride(baseConfig, tenantId, opts = {}) {
   if (opts && toStr(opts.managedBy)) {
     merged.managedBy = toStr(opts.managedBy);
   }
+
+  const previousUpdatedAt = toStr(existingBase.updatedAt);
+  const previousComparable = JSON.stringify({
+    ...existingBase,
+    updatedAt: null,
+  });
+  const nextComparable = JSON.stringify({
+    ...merged,
+    updatedAt: null,
+  });
+  merged.updatedAt = previousComparable === nextComparable
+    ? (previousUpdatedAt || merged.createdAt || nowIso())
+    : nowIso();
 
   return merged;
 }
@@ -469,8 +482,10 @@ function refreshTenantConfigFromOverride(tenantId, opts = {}) {
   const changed = JSON.stringify(existing) !== JSON.stringify(merged);
 
   if (changed || !existing) {
-    data.tenantConfigs[id] = merged;
-    if (opts.persist !== false) saveData();
+    if (opts.persist !== false) {
+      data.tenantConfigs[id] = merged;
+      saveData();
+    }
     return { config: merged, changed: true };
   }
 
@@ -691,6 +706,53 @@ function toStringList(value) {
     .split(',')
     .map((item) => toStr(item))
     .filter(Boolean))];
+}
+
+function normalizeDomainList(value) {
+  return [...new Set(toStringList(value)
+    .map((item) => toStr(item).toLowerCase())
+    .filter(Boolean))];
+}
+
+function collectKnownTenantIds(extraTenantIds = []) {
+  return new Set([
+    ...Object.keys(data.tenantConfigs || {}),
+    ...normalizeArray(extraTenantIds).map((item) => toStr(item)).filter(Boolean),
+  ]);
+}
+
+function validateRoutingTenantReferences({ defaultTenantId, manualTenantId, domainTenantMapping }, extraTenantIds = []) {
+  const errors = [];
+  const knownTenantIds = collectKnownTenantIds(extraTenantIds);
+
+  const normalizedDefaultTenantId = toStr(defaultTenantId);
+  if (normalizedDefaultTenantId && !knownTenantIds.has(normalizedDefaultTenantId)) {
+    errors.push({
+      path: 'defaultTenantId',
+      message: `Unknown tenantId '${normalizedDefaultTenantId}'`,
+    });
+  }
+
+  const normalizedManualTenantId = toStr(manualTenantId);
+  if (normalizedManualTenantId && !knownTenantIds.has(normalizedManualTenantId)) {
+    errors.push({
+      path: 'manualTenantId',
+      message: `Unknown tenantId '${normalizedManualTenantId}'`,
+    });
+  }
+
+  for (const [domain, tenantId] of Object.entries(domainTenantMapping || {})) {
+    const normalizedTenantId = toStr(tenantId);
+    if (!normalizedTenantId) continue;
+    if (!knownTenantIds.has(normalizedTenantId)) {
+      errors.push({
+        path: `domainTenantMapping.${domain}`,
+        message: `Unknown tenantId '${normalizedTenantId}' for domain '${domain}'`,
+      });
+    }
+  }
+
+  return errors;
 }
 
 function normalizeDropdownPhotoVariables(rawMap, fields) {
@@ -962,10 +1024,13 @@ function buildTenantConfigFromCompany(company, existingTenantConfig) {
 
 function normalizeCompany(raw) {
   const id = toStr(raw.id);
+  const domain = toStr(raw.domain).toLowerCase();
+  const domains = normalizeDomainList([domain, ...normalizeArray(raw.domains)]);
   return {
     id,
     name: toStr(raw.name),
-    domain: toStr(raw.domain).toLowerCase(),
+    domain,
+    domains,
     tenantId: toStr(raw.tenantId) || id,
     isActive: toBool(raw.isActive, true),
     config: normalizeCompanyConfig(raw && raw.config),
@@ -2025,9 +2090,6 @@ app.get('/v1/tenant-config/:tenantId', (req, res) => {
     managedBy: sourceCompany ? 'company-sync+file-override' : 'file-override',
     persist: false,
   });
-  if (refreshed.changed) {
-    saveData();
-  }
   if (refreshed.config) {
     config = refreshed.config;
   }
@@ -2627,7 +2689,9 @@ app.post('/admin/api/onboarding/save', (req, res) => {
   try {
     const existingCompany = data.companies[companyId] || null;
     const previousPrimaryDomain = toStr(existingCompany && existingCompany.domain).toLowerCase();
+    const previousDomains = normalizeDomainList(existingCompany && existingCompany.domains);
     const previousTenantId = toStr(existingCompany && existingCompany.tenantId) || companyId;
+    const nextDomains = [...new Set([primaryDomain, ...extraDomains].map((domain) => toStr(domain).toLowerCase()).filter(Boolean))];
 
     const baseCompany = existingCompany || {
       id: companyId,
@@ -2639,6 +2703,7 @@ app.post('/admin/api/onboarding/save', (req, res) => {
       id: companyId,
       name: companyName,
       domain: primaryDomain,
+      domains: nextDomains,
       tenantId,
       isActive: payload.isActive !== undefined ? payload.isActive : (baseCompany.isActive !== undefined ? baseCompany.isActive : true),
       config: companyConfig,
@@ -2651,9 +2716,14 @@ app.post('/admin/api/onboarding/save', (req, res) => {
     const routingMapping = {
       ...(data.domainTenantMapping && typeof data.domainTenantMapping === 'object' ? data.domainTenantMapping : {}),
     };
-    const domains = [...new Set([primaryDomain, ...extraDomains].map((domain) => toStr(domain).toLowerCase()).filter(Boolean))];
-    domains.forEach((domain) => {
+    nextDomains.forEach((domain) => {
       routingMapping[domain] = tenantId;
+    });
+
+    previousDomains.forEach((domain) => {
+      if (!nextDomains.includes(domain) && routingMapping[domain] === previousTenantId) {
+        delete routingMapping[domain];
+      }
     });
 
     if (
@@ -2755,6 +2825,15 @@ app.put('/admin/api/tenant-routing', (req, res) => {
   const defaultTenantId = toStr(req.body && req.body.defaultTenantId);
   const manualTenantId = toStr(req.body && req.body.manualTenantId);
   const domainTenantMapping = sanitizeDomainTenantMapping(req.body && req.body.domainTenantMapping);
+
+  const routingValidationErrors = validateRoutingTenantReferences({
+    defaultTenantId: defaultTenantId || data.defaultTenantId,
+    manualTenantId,
+    domainTenantMapping,
+  });
+  if (routingValidationErrors.length) {
+    return validationError(res, routingValidationErrors);
+  }
 
   if (defaultTenantId) {
     data.defaultTenantId = defaultTenantId;
