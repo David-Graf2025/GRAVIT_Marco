@@ -1,289 +1,149 @@
-# 🎊 GRAVIT DOKU HELPER - MULTI-TENANT (FRISCH & SAUBER!)
+# GRAVIT DOKU HELPER - START HIER
 
-## ✅ WAS IST DAS?
+Diese Datei ist der schnelle Einstieg in das aktuelle Projekt. Fuer die vollstaendige Architektur- und Funktionsdokumentation siehe [README.md](README.md). Fuer Betrieb, Absicherung und Wartung von Backend und Admin siehe [docs/backend-admin-betrieb.md](docs/backend-admin-betrieb.md).
 
-**100% READY-TO-USE Flutter App mit Multi-Tenant System!**
+## Was dieses Projekt ist
 
-Diese Version ist **FRISCH** von deinem Original-Projekt erstellt - keine Gradle-Probleme!
+GRAVIT DOKU HELPER ist ein komplettes Feld-Dokumentationssystem mit drei Teilen:
 
----
+1. Flutter-App fuer Fotoaufnahme, Felddokumentation, Offline-Queue und Upload.
+2. Node.js-Backend fuer Device Access, Tenant-Konfiguration und Admin-API.
+3. Web-Admin-Dashboard unter `/admin` fuer Geraete-, Firmen- und Tenant-Verwaltung.
 
-## 📦 WAS DRIN IST:
+## Schnellstart
 
-### **Neue Dateien:**
-- ✅ `lib/domain/services/config_api_service.dart`
-- ✅ `lib/presentation/widgets/dynamic_form_builder.dart`
-
-### **Geänderte Dateien:**
-- ✅ `lib/presentation/screens/home/home_with_plugin.dart`
-- ✅ Original gesichert als `.original`
-
-### **Alles andere:**
-- ✅ Genau wie dein Original-Projekt
-- ✅ Keine Gradle-Änderungen
-- ✅ Keine Build-Probleme
-
----
-
-## 🚀 INSTALLATION (3 BEFEHLE!)
+### Flutter-App lokal starten
 
 ```powershell
-# 1. Entpacken
-# Entpacke gravit_multitenant_FRESH.zip
-
-# 2. In Ordner gehen
-cd gravit_fresh
-
-# 3. Dependencies laden
+cd C:\gravit_fresh
 flutter pub get
-
-# 4. FERTIG! Starten:
 flutter run
 ```
 
-**Das war's!** 🎉
+### Flutter-Checks
 
----
-
-## 🎯 WAS BEIM START PASSIERT:
-
-### **Schritt 1: App lädt Config**
-```
-App startet
-  ↓
-GET https://api.api-bilder-app.de/v1/config/:deviceId
-  ↓
-Backend antwortet mit Config
-  ↓
-App zeigt Felder
+```powershell
+flutter analyze
+flutter test
 ```
 
-### **Schritt 2: Dialog erscheint (NORMAL!)**
-```
-┌──────────────────────────────────┐
-│  Device nicht zugewiesen         │
-│                                  │
-│  Dieses Device wurde noch        │
-│  keiner Firma zugewiesen.        │
-│                                  │
-│  [Erneut versuchen]              │
-└──────────────────────────────────┘
+### Backend lokal starten
+
+```powershell
+cd C:\gravit_fresh\backend
+npm install
+npm start
 ```
 
-**Das ist RICHTIG!** Device muss erst zugewiesen werden.
+Danach ist das Backend standardmaessig erreichbar unter:
 
----
+- `http://localhost:3000`
+- Admin: `http://localhost:3000/admin`
 
-## 📱 DEVICE ZUWEISEN
+## Was beim App-Start passiert
 
-### **Option 1: Admin Dashboard (EINFACH!)**
+1. Die App laedt Konfiguration aus `.env` oder faellt auf Defaultwerte zurueck.
+2. Das Access Gate erzeugt bzw. liest Device-ID, Installation-ID und Fingerprint.
+3. Die App ruft `GET /v1/access/:deviceId` auf.
+4. Das Backend entscheidet, ob das Geraet erlaubt ist.
+5. Ist das Geraet zugewiesen, wird die passende Tenant-Konfiguration geladen.
+6. Danach startet der produktive Home-Flow.
 
-1. Öffne: https://api.api-bilder-app.de/admin/
-2. Login mit deinen Credentials
-3. Tab "Geräte"
-4. Finde dein Device (test-device-...)
-5. Klick "Zuweisen"
-6. Wähle "Telefónica Germany" oder "Tempton"
-7. In App: Klick "Erneut versuchen"
+Wichtig:
 
-### **Option 2: Server-Command**
+- Ein neues oder nicht zugewiesenes Geraet ist kein Fehlerfall, sondern ein normaler Onboarding-Zustand.
+- Das Geraet muss dann im Admin-Dashboard einer Firma bzw. einem Tenant zugewiesen werden.
+
+## Device zuweisen
+
+### Ueber das Admin-Dashboard
+
+1. Admin aufrufen: `https://api.api-bilder-app.de/admin`
+2. Mit Admin-Zugangsdaten anmelden, falls Basic Auth aktiv ist.
+3. In den Bereich Geraete wechseln.
+4. Das neue Device suchen.
+5. Zuweisen klicken.
+6. Firma/Tenant waehlen.
+7. In der App erneut pruefen oder App fortsetzen.
+
+### Ueber die Admin-API
+
+Beispiel:
 
 ```bash
-# SSH zum Server
-ssh root@BilderAPP
-
-# Device zuweisen
 curl -X POST http://localhost:3000/admin/api/devices/DEINE-DEVICE-ID/assign \
   -H "Content-Type: application/json" \
-  -d '{"companyId": "telefonica-de"}'
+  -d '{"companyId":"deine-company-id"}'
 ```
 
----
+## Wichtige Realitaet des aktuellen Codes
 
-## 🧪 TESTEN
+- Die produktive Runtime ist bereits service-basiert abgesichert, nutzt aber fuer volle Bestandsparitaet weiterhin den Legacy-Home-Flow.
+- Das ist Absicht, damit keine bestehenden Funktionen verloren gehen.
+- `flutter analyze` und `flutter test` laufen im aktuellen Stand erfolgreich.
 
-### **Test 1: Telefónica**
-- Weise Device zu "Telefónica Germany"
-- App neu starten
-- ✅ **Zeigt:**
-  - Stadt (Text)
-  - Standort-ID (Text)
-  - Netzelementnummer (Text)
-  - Projektnummer (Text)
-- ✅ **Foto-Variablen:** vor Umbau, Erdung_1, Rack_Gesamtansicht, ...
+## Wichtige Dateien
 
-### **Test 2: Tempton**
-- Weise Device zu "Tempton"
-- App neu starten
-- ✅ **Zeigt:**
-  - POP-ID (Text)
-  - Stadt (Text)
-  - POP-Typ (Dropdown: Outdoor/Indoor/Rooftop/Container)
-  - Datum (DatePicker)
-- ✅ **Foto-Variablen:** Außenansicht, Rack_Vorderseite, Verkabelung, ...
+- [README.md](README.md)
+  Vollstaendige Projektbeschreibung.
+- [backend/server.js](backend/server.js)
+  Backend, API, Persistenz, Routing und Admin-Endpunkte.
+- [backend/dashboard.html](backend/dashboard.html)
+  Admin-Dashboard.
+- [lib/main.dart](lib/main.dart)
+  Flutter-App-Einstieg.
+- [lib/presentation/screens/access_gate/access_gate_screen.dart](lib/presentation/screens/access_gate/access_gate_screen.dart)
+  Zugriffspruefung vor dem Home-Flow.
+- [docs/android-storage-policy-migration-plan.md](docs/android-storage-policy-migration-plan.md)
+  Android Storage Policy Migration.
+- [docs/backend-admin-betrieb.md](docs/backend-admin-betrieb.md)
+  Technische Betriebsdoku fuer Backend und Admin.
 
----
+## Wichtige Konfigurationen
 
-## 📋 SO FUNKTIONIERT ES
+### App
 
-### **Telefónica Device:**
-```
-Ordner: München 122627373 18187363 191891631
-Datei:  18187363_191891631_vor_Umbau.jpg
-```
+- `API_BASE_URL`
+- `ONEDRIVE_CLIENT_ID`
+- `ONEDRIVE_REDIRECT_URI`
+- `PICTURES_ROOT_PATH`
+- `ONEDRIVE_BASE_PATH`
 
-### **Tempton Device:**
-```
-Ordner: POP-123 Hamburg Outdoor 2026-02-02
-Datei:  POP-123_Außenansicht_2026-02-02.jpg
-```
+### Backend
 
----
+- `PORT`
+- `DATA_FILE`
+- `DATA_BACKUP_DIR`
+- `DATA_BACKUP_KEEP`
+- `ADMIN_AUTH_USERNAME`
+- `ADMIN_AUTH_PASSWORD`
+- `ADMIN_AUTH_REALM`
 
-## 🔧 WAS WURDE GEÄNDERT?
+## Wenn etwas nicht funktioniert
 
-### **In home_with_plugin.dart:**
+### App startet, aber kein Zugriff
 
-**Zeile ~23:** Imports hinzugefügt
-```dart
-import '../../../domain/services/config_api_service.dart';
-import '../../widgets/dynamic_form_builder.dart';
-```
+- Pruefen, ob das Geraet im Backend bekannt ist.
+- Pruefen, ob das Device zugewiesen wurde.
+- Pruefen, ob `API_BASE_URL` auf das richtige Backend zeigt.
 
-**Zeile ~39:** Config-Variablen hinzugefügt
-```dart
-final ConfigApiService _configService = ConfigApiService();
-CompanyConfig? _companyConfig;
-bool _configLoading = true;
-Map<String, String> _formValues = {};
-```
+### Config wird nicht geladen
 
-**Zeile ~124:** Config beim Start laden
-```dart
-_loadCompanyConfig();
-```
+- Backend erreichbar?
+- Device einer Firma zugewiesen?
+- Tenant im Backend vorhanden?
 
-**Zeile ~148:** Neue Methoden:
-- `_loadCompanyConfig()` - Lädt vom Backend
-- `_showConfigMissingDialog()` - Zeigt Dialog
-- `_saveDynamicFormValues()` - Speichert Werte
-- `_currentPhotoVariables` - Getter für Foto-Variablen
+### Backend speichert nicht
 
-**Überall:** `_variables` → `_currentPhotoVariables`
+- Ist `DATA_FILE` beschreibbar?
+- Ist das Verzeichnis fuer `DATA_BACKUP_DIR` beschreibbar?
+- Gibt es Dateirechte oder Mount-Probleme auf dem Server?
 
-### **Original gesichert:**
-- `lib/presentation/screens/home/home_with_plugin.dart.original`
+## Empfohlene Reihenfolge fuer neue Entwickler
 
----
-
-## 🆘 TROUBLESHOOTING
-
-### **Problem: "Device nicht zugewiesen"**
-✅ **Normal!** Weise Device im Dashboard zu.
-
-### **Problem: Config lädt nicht**
-```bash
-# Prüfe Backend
-curl https://api.api-bilder-app.de/admin/api/companies
-
-# Sollte zeigen: Telefónica + Tempton
-```
-
-### **Problem: Gradle Build Fehler**
-```powershell
-flutter clean
-flutter pub get
-flutter run
-```
-
-### **Problem: Felder werden nicht angezeigt**
-- Prüfe Console: Sollte "✅ Config geladen: ..." zeigen
-- Falls "❌ Config laden fehlgeschlagen" → Backend prüfen
-
----
-
-## 📊 DEVICE-ID
-
-Die App nutzt aktuell: `test-device-TIMESTAMP`
-
-**Für Production:**
-
-Ersetze in `lib/domain/services/config_api_service.dart` (Zeile 14-28):
-
-```dart
-Future<String> _getDeviceId() async {
-  // Nutze echte Device-ID:
-  final deviceInfo = DeviceInfoPlugin();
-  
-  if (Platform.isAndroid) {
-    final androidInfo = await deviceInfo.androidInfo;
-    return androidInfo.id; // android_id
-  } else if (Platform.isIOS) {
-    final iosInfo = await deviceInfo.iosInfo;
-    return iosInfo.identifierForVendor ?? 'unknown';
-  }
-  
-  return 'unknown-device';
-}
-```
-
-**Dependencies:**
-```yaml
-device_info_plus: ^10.1.0
-```
-
----
-
-## 🎊 WAS DU JETZT HAST:
-
-✅ **Backend:** Multi-Tenant mit 2 Firmen  
-✅ **Admin Dashboard:** Funktioniert perfekt  
-✅ **Flutter App:** Vollständig integriert  
-✅ **Offline-fähig:** Config wird gecached  
-✅ **Skalierbar:** Neue Firma = Dashboard-Eintrag  
-✅ **Production-Ready:** Sofort einsetzbar  
-
----
-
-## 📞 SUPPORT
-
-**Console-Logs prüfen:**
-```bash
-flutter run
-```
-
-**Sollte zeigen:**
-```
-✅ Config geladen: Telefónica Germany
-```
-
-**Bei Problemen:**
-1. Prüfe Console-Logs
-2. Prüfe Backend läuft: `docker logs bilderapp-api`
-3. Prüfe Device zugewiesen im Dashboard
-
----
-
-## 🚀 QUICK START
-
-```powershell
-# 1. Entpacken
-unzip gravit_multitenant_FRESH.zip
-
-# 2. Dependencies
-cd gravit_fresh
-flutter pub get
-
-# 3. Starten!
-flutter run
-
-# 4. Device im Dashboard zuweisen
-# https://api.api-bilder-app.de/admin/
-
-# 5. App neu starten
-# ✅ FERTIG!
-```
-
----
-
-**VIEL ERFOLG!** 🎉🚀
+1. Diese Datei lesen.
+2. [README.md](README.md) komplett lesen.
+3. [docs/backend-admin-betrieb.md](docs/backend-admin-betrieb.md) lesen, wenn du Backend/Admin betreibst.
+4. `flutter analyze` und `flutter test` lokal ausfuehren.
+5. App und Backend lokal starten.
+6. Erst danach in produktionsnahe Konfigurationen eingreifen.
