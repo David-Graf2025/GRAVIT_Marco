@@ -1262,7 +1262,6 @@
   };
 
   // ===== 3-STEP COMPANY MODAL LOGIC =====
-  let editingCompanyId = null;
   let currentCompanyTemplates = [];
   let activeTemplateIndex = 0;
 
@@ -1526,6 +1525,7 @@
     document.getElementById('modal-tenant').classList.remove('active');
     editingCompanyId = null;
   };
+  window.closeCompanyModal = window.closeTenantModal;
 
   window.saveCompanyFromModal = async function(){
     syncActiveTemplateFromUI();
