@@ -59,6 +59,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - .env
     - assets/icon/icon.png
     - assets/arial.ttf
     - assets/config/tenant_routing.json

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path/path.dart' as path;
 import '../../core/config/app_config.dart';
@@ -160,6 +161,18 @@ class PhotoService implements IPhotoService {
       }
     }
 
+    // Platform-safe fallback: Application documents directory (works on iOS, Android, Windows, macOS)
+    try {
+      final docDir = await getApplicationDocumentsDirectory();
+      final appSiteDir = Directory(path.join(docDir.path, 'Pictures', 'BilderApp', siteKey));
+      if (!await appSiteDir.exists()) {
+        await appSiteDir.create(recursive: true);
+      }
+      return appSiteDir;
+    } catch (e) {
+      logger.e('Failed to create site directory in documents directory: $e');
+    }
+
     throw Exception('Kein beschreibbarer Speicherpfad für Site $siteKey verfügbar');
   }
 
@@ -243,6 +256,13 @@ class PhotoService implements IPhotoService {
       }
     }
 
+    try {
+      final fallbackDir = await getSiteDirectory(siteKey);
+      final filePath = path.join(fallbackDir.path, filename);
+      await xFile.saveTo(filePath);
+      return filePath;
+    } catch (_) {}
+
     throw Exception('Foto konnte nicht gespeichert werden: ${lastError ?? 'kein Schreibpfad verfuegbar'}');
   }
 
@@ -287,6 +307,17 @@ class PhotoService implements IPhotoService {
         );
       }
     }
+
+    try {
+      final fallbackDir = await getSiteDirectory(siteKey);
+      final targetPath = path.join(fallbackDir.path, fileName);
+      final targetFile = File(targetPath);
+      if (await targetFile.exists()) {
+        await targetFile.delete();
+      }
+      await File(sourcePhotoPath).copy(targetPath);
+      return targetPath;
+    } catch (_) {}
 
     throw Exception('Kein beschreibbarer Speicherpfad fuer Site $siteKey verfuegbar: ${lastError ?? 'unbekannter Fehler'}');
   }
@@ -359,6 +390,23 @@ class PhotoService implements IPhotoService {
       }
     }
 
+    try {
+      final docDir = await getApplicationDocumentsDirectory();
+      final appFallbackRoot = Directory(path.join(docDir.path, 'Pictures', 'BilderApp'));
+      if (await appFallbackRoot.exists()) {
+        await for (final entity in appFallbackRoot.list()) {
+          if (entity is Directory) {
+            final siteKey = path.basename(entity.path);
+            final files = await _loadFilesFromDirectory(entity);
+            if (files.isNotEmpty) {
+              sites.putIfAbsent(siteKey, () => []);
+              sites[siteKey]!.addAll(files);
+            }
+          }
+        }
+      }
+    } catch (_) {}
+
     for (final entry in sites.entries) {
       _sortAndDedupeFilesByPath(entry.value);
     }
@@ -376,6 +424,14 @@ class PhotoService implements IPhotoService {
         await directory.delete(recursive: true);
       }
     }
+
+    try {
+      final docDir = await getApplicationDocumentsDirectory();
+      final appSiteDir = Directory(path.join(docDir.path, 'Pictures', 'BilderApp', siteKey));
+      if (await appSiteDir.exists()) {
+        await appSiteDir.delete(recursive: true);
+      }
+    } catch (_) {}
   }
 
   /// Interface: Save photo to app directory

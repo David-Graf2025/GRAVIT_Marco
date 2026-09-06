@@ -234,4 +234,36 @@ class AppPreferencesService implements IAppPreferencesService {
     }
     await _repo.setString(StorageKeys.activeCapturePhotoPage, '1');
   }
+
+  @override
+  String get sharepointDriveId => _repo.sharepointDriveId;
+
+  @override
+  Future<void> setSharepointDriveId(String id) async {
+    await _repo.setSharepointDriveId(id.trim());
+  }
+
+  @override
+  String get sharepointSiteId => _repo.sharepointSiteId;
+
+  @override
+  Future<void> setSharepointSiteId(String id) async {
+    await _repo.setSharepointSiteId(id.trim());
+  }
+
+  @override
+  String get sharepointHostname => _repo.sharepointHostname;
+
+  @override
+  Future<void> setSharepointHostname(String hostname) async {
+    await _repo.setSharepointHostname(hostname.trim());
+  }
+
+  @override
+  String get sharepointAppFolder => _repo.sharepointAppFolder;
+
+  @override
+  Future<void> setSharepointAppFolder(String folder) async {
+    await _repo.setSharepointAppFolder(folder.trim());
+  }
 }

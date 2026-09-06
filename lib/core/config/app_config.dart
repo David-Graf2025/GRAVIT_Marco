@@ -36,9 +36,9 @@ class AppConfig {
       ConfigLoader.getString('PICTURES_ROOT_PATH',
           defaultValue: defaultPicturesRootPath);
   
-  /// Default OneDrive upload path
+  /// Default OneDrive upload path for TEMPTON
   static String get defaultOneDriveBasePath =>
-      ConfigLoader.getString('ONEDRIVE_BASE_PATH', defaultValue: '/test');
+      ConfigLoader.getString('ONEDRIVE_BASE_PATH', defaultValue: '/Tempton');
 
   // ==========================================
   // Backend API Configuration
@@ -48,6 +48,11 @@ class AppConfig {
   static String get apiBaseUrl =>
       ConfigLoader.getString('API_BASE_URL',
           defaultValue: 'https://api.api-bilder-app.de');
+
+  /// Shared API Key for authenticating with the backend API
+  static String get apiKey =>
+      ConfigLoader.getString('APP_API_KEY',
+          defaultValue: 'bilderapp_api_key_2026');
 
   // ==========================================
   // App Behavior Configuration
@@ -63,10 +68,18 @@ class AppConfig {
   static const bool graceScreenOncePerDay = true;
 
   // ==========================================
-  // Photo Variables (Default List)
+  // Photo Variables (GRAVIT Legacy — NOT for TEMPTON)
+  //
+  // TEMPTON Bildvariablen kommen ausschließlich aus dem Backend
+  // via GET /tempton/config → effectiveTenantConfig.templates[*].captureSteps.
+  // Diese Liste darf für TEMPTON-Geräte NICHT als Fallback verwendet werden,
+  // da sie GRAVIT-spezifische Variablen enthält.
+  // Retained here only for backward compatibility with legacy code paths.
   // ==========================================
-  
-  /// Default photo variables/categories for documentation
+
+  /// GRAVIT-spezifische Standard-Bildvariablen.
+  /// NICHT für TEMPTON verwenden — stattdessen TemptonConfig.offlineFallbackConfig nutzen.
+  @Deprecated('GRAVIT legacy list. For TEMPTON use TemptonConfig.offlineFallbackConfig instead.')
   static const List<String> defaultPhotoVariables = [
     "vor Umbau",
     "Erdung_1",

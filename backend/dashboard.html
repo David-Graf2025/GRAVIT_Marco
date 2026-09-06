@@ -215,6 +215,23 @@
     .modal-tab-content.active{display:block}
     .arrow{color:var(--muted);align-self:end;padding-bottom:8px;font-size:14px;}
 
+    .tpl-btn{
+      background:rgba(15,22,48,.6);
+      border:1px solid rgba(37,48,85,.7);
+      color:var(--text);
+      border-radius:8px;
+      padding:8px 10px;
+      font-size:12px;
+      font-weight:600;
+      text-align:left;
+      cursor:pointer;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .tpl-btn:hover{background:rgba(37,48,85,.8)}
+    .tpl-btn.active{background:rgba(45,212,191,.2);border-color:var(--ok);color:var(--ok)}
+
     @media (max-width: 980px){
       .grid{grid-template-columns:1fr 1fr}
       .input{min-width: 180px}
@@ -346,33 +363,6 @@
 
 <div id="toast" class="toast"></div>
 
-<!-- ========== COMPANY MODAL ========== -->
-<div id="modal-company" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2 id="modal-title">Neue Firma anlegen</h2>
-      <button class="close-modal" onclick="closeCompanyModal()">×</button>
-    </div>
-    <div class="form-group"><label>Firmenname *</label><input type="text" id="company-name" placeholder="z.B. Telefónica Germany" /></div>
-    <div class="form-group"><label>Primäre Domain *</label><input type="text" id="company-domain" placeholder="z.B. telefonica.de" /></div>
-    <div class="muted small" id="company-auto-preview" style="margin:-4px 0 10px 0">Automatisch: Firma ID – • Tenant ID –</div>
-    <div class="row2" style="margin-top:0">
-      <button class="mini" type="button" id="company-advanced-toggle" onclick="toggleCompanyAdvanced()">Erweitert anzeigen</button>
-    </div>
-    <div id="company-advanced-fields" style="display:none;margin-top:8px">
-      <div class="form-group"><label>Firma ID *</label><input type="text" id="company-id" placeholder="z.B. telefonica" /><div class="muted small">Wird automatisch aus Firmenname erzeugt.</div></div>
-      <div class="form-group"><label>Haupt-Tenant ID *</label><input type="text" id="company-tenant-id" placeholder="z.B. telefonica.de" /><div class="muted small">Wird automatisch aus der Domain erzeugt.</div></div>
-    </div>
-    <div class="form-group"><label>Weitere Domains (optional)</label><textarea id="company-domains-extra" placeholder="z.B. telefonica.com&#10;telefonica.net" style="min-height:90px"></textarea><div class="muted small">Eine Domain pro Zeile oder durch Komma getrennt. Wird automatisch dem Haupt-Tenant zugeordnet.</div></div>
-    <div class="form-group"><label>Folder Naming Template</label><input type="text" id="company-folder-template" placeholder="{city} {siteId} {netElement} {project}" /><div class="muted small">Variablen: {city}, {siteId}, {netElement}, {project}, {date}</div></div>
-    <div class="form-group"><label>Konfiguration (JSON)</label><textarea id="company-config" placeholder='{"fields": [], "photoVariables": [], "uploadTargets": []}'></textarea></div>
-    <div class="btn-row">
-      <button class="btn" onclick="closeCompanyModal()">Abbrechen</button>
-      <button class="btn primary" id="btn-save-company" onclick="saveCompany()">Speichern</button>
-    </div>
-  </div>
-</div>
-
 <!-- ========== ASSIGN COMPANY MODAL ========== -->
 <div id="modal-assign-company" class="modal">
   <div class="modal-content" style="max-width:520px">
@@ -398,174 +388,231 @@
   </div>
 </div>
 
-<!-- ========== TENANT CONFIG MODAL ========== -->
+<!-- ========== COMPANY & CONFIG MODAL (3 STEPS) ========== -->
 <div id="modal-tenant" class="modal">
-  <div class="modal-content" style="max-width:900px">
+  <div class="modal-content" style="max-width:920px">
     <div class="modal-header">
-      <h2 id="modal-tenant-title">Neue Konfiguration</h2>
+      <h2 id="modal-tenant-title">Firma konfigurieren</h2>
       <button class="close-modal" onclick="closeTenantModal()">×</button>
     </div>
 
-    <!-- Sub-tabs -->
+    <!-- 3 Simple Sequential Tabs -->
     <div class="modal-tabs">
-      <button class="modal-tab active" data-mtab="basics" onclick="switchModalTab('basics')">📋 Grunddaten</button>
-      <button class="modal-tab" data-mtab="upload-logic" onclick="switchModalTab('upload-logic')">🧭 Upload-Logik</button>
-      <button class="modal-tab" data-mtab="steps" onclick="switchModalTab('steps')">📸 Aufnahme-Schritte</button>
-      <button class="modal-tab" data-mtab="targets" onclick="switchModalTab('targets')">☁️ Upload-Ziele</button>
-      <button class="modal-tab" data-mtab="json" onclick="switchModalTab('json')">{ } JSON</button>
+      <button class="modal-tab active" data-mtab="step1" onclick="switchModalTab('step1')">🏢 1. Firma &amp; Autorisierung</button>
+      <button class="modal-tab" data-mtab="step2" onclick="switchModalTab('step2')">☁️ 2. Speicherort &amp; Upload-Logik</button>
+      <button class="modal-tab" data-mtab="step3" onclick="switchModalTab('step3')">📋 3. Templates (Vorlagen)</button>
     </div>
 
-    <!-- BASICS TAB -->
-    <div id="mtab-basics" class="modal-tab-content active">
-      <div class="section-header" style="margin-top:0"><h3>🏢 Firma</h3></div>
+    <!-- STEP 1: FIRMA & AUTORISIERUNG -->
+    <div id="mtab-step1" class="modal-tab-content active">
+      <div class="section-header" style="margin-top:0">
+        <h3>🏢 Firmendaten</h3>
+        <span class="muted small">Grunddaten der Firma</span>
+      </div>
+      <input type="hidden" id="c-id" />
       <div class="form-row">
         <div class="form-group">
           <label>Firmenname *</label>
-          <input type="text" id="onb-company-name" placeholder="z.B. Telefónica Germany" />
+          <input type="text" id="c-name" placeholder="z.B. Telefónica Germany" oninput="autoSuggestDomainAndId()" />
         </div>
         <div class="form-group">
           <label>Primäre Domain *</label>
-          <input type="text" id="onb-company-domain" placeholder="z.B. telefonica.de" />
+          <input type="text" id="c-domain" placeholder="z.B. telefonica.de" />
         </div>
       </div>
-      <div class="muted small" id="onb-auto-preview" style="margin-top:-4px">Automatisch: Firma ID – • Tenant ID –</div>
-      <div class="row2" style="margin-top:8px">
-        <button class="mini" type="button" id="onb-advanced-toggle" onclick="toggleOnboardingAdvanced()">Erweitert anzeigen</button>
-      </div>
-
-      <div id="onb-advanced-fields" style="display:none;margin-top:10px">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Firma ID</label>
-            <input type="text" id="onb-company-id" placeholder="wird automatisch erzeugt" readonly />
-            <div class="muted small">Wird beim Onboarding automatisch aus Name/Domain erzeugt.</div>
-          </div>
-          <div class="form-group">
-            <label>Weitere Domains (optional)</label>
-            <input type="text" id="onb-company-domains-extra" placeholder="z.B. telefonica.com, telefonica.net" />
-            <div class="muted small">Komma-getrennt. Wird automatisch dem Tenant zugeordnet.</div>
-          </div>
-        </div>
-
-        <div class="section-header" style="margin-top:8px"><h3>⚙️ Tenant</h3></div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Tenant ID *</label>
-            <input type="text" id="t-id" placeholder="z.B. gravit_default" />
-            <div class="muted small">Eindeutig, keine Leerzeichen</div>
-          </div>
-          <div class="form-group">
-            <label>Tenant Name</label>
-            <input type="text" id="t-name" placeholder="z.B. GRAVIT Standard" />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Standard Upload-Ziel ID</label>
-            <select id="t-default-target"></select>
-            <div class="muted small">Muss mit einer Upload-Ziel-ID aus dem Tab übereinstimmen</div>
-          </div>
-          <div class="form-group">
-            <label>Standard Template ID</label>
-            <input type="text" id="t-template-id" placeholder="z.B. standard_umbau" />
-            <div class="muted small">Interne ID des Standard-Templates (Aufgaben-Profil)</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- UPLOAD LOGIC TAB -->
-    <div id="mtab-upload-logic" class="modal-tab-content">
-      <div class="section-header" style="margin-top:0"><h3>📋 Template-Konfiguration</h3></div>
-      <div class="muted small" style="margin-bottom:10px">Dieser Editor bearbeitet das Standard-Template. Mehrere Templates bleiben weiterhin über den JSON-Reiter möglich.</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Template Anzeige-Name</label>
-          <input type="text" id="t-template-name" placeholder="z.B. Standard Umbau" />
-        </div>
-        <div class="form-group"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Ordner-Muster (folderPattern)</label>
-          <input type="text" id="t-folder" placeholder="{city} {siteId} {netElement} {project}" />
-          <div class="muted small">Token: {city} {siteId} {netElement} {project}</div>
-        </div>
-        <div class="form-group">
-          <label>Datei-Muster (fileNamePattern)</label>
-          <input type="text" id="t-file" placeholder="{netElement}_{project}_{photoVar}.jpg" />
-          <div class="muted small">Token: {netElement} {project} {photoVar}</div>
-        </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label>Weitere Domains (optional, Komma-getrennt)</label>
+        <input type="text" id="c-domains-extra" placeholder="z.B. o2.de, telefonica.com" />
       </div>
 
-      <div class="section-header" style="margin-top:8px"><h3>📍 Standort-Felder (fields)</h3></div>
-      <div style="margin-bottom:6px;display:grid;grid-template-columns:1.2fr .9fr .55fr 2fr auto;gap:8px;padding:0 4px">
-        <span class="muted small">Key</span>
-        <span class="muted small">Typ</span>
-        <span class="muted small">Pflicht</span>
-        <span class="muted small">Dropdown-Optionen (Komma-getrennt)</span>
-        <span></span>
-      </div>
-      <div id="fields-container"></div>
-      <button class="add-btn" onclick="addField()">+ Feld hinzufügen</button>
-    </div>
-
-    <!-- CAPTURE STEPS TAB -->
-    <div id="mtab-steps" class="modal-tab-content">
       <div class="section-header">
-        <h3>📸 Aufnahme-Schritte</h3>
-        <span class="muted small">Nur Bildnamen eingeben, ID/translationKey/order werden automatisch erzeugt</span>
+        <h3>👤 Ansprechpartner (optional)</h3>
       </div>
-      <div class="form-group" style="margin-bottom:10px">
-        <label>Bildnamen (ein Name pro Zeile)</label>
-        <textarea id="t-step-names" style="min-height:220px" placeholder="vor Umbau&#10;Erdung_1&#10;Rack_Gesamtansicht"></textarea>
-        <div class="muted small">Beispiel: <code>vor Umbau</code>. Daraus wird automatisch <code>id=vor_umbau</code> und <code>translationKey=photo_vor_umbau</code>.</div>
-      </div>
-      <div class="form-row" style="grid-template-columns:1fr 1fr;gap:10px">
-        <label style="display:flex;align-items:center;gap:8px;margin:0">
-          <input type="checkbox" id="t-steps-required" checked />
-          <span>Alle Schritte als Pflicht markieren</span>
-        </label>
+      <div class="form-row" style="grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="c-contact-name" placeholder="z.B. Max Mustermann" />
+        </div>
+        <div class="form-group">
+          <label>E-Mail</label>
+          <input type="email" id="c-contact-email" placeholder="z.B. max@firma.de" />
+        </div>
+        <div class="form-group">
+          <label>Telefon</label>
+          <input type="tel" id="c-contact-phone" placeholder="z.B. +49 170 1234567" />
+        </div>
       </div>
 
       <div class="section-header" style="margin-top:14px">
-        <h3>🧩 Bildvariablen je Dropdown-Menü</h3>
-        <span class="muted small">Optional: pro Dropdown-Option eigene Bildvariablen hinterlegen</span>
-      </div>
-      <div class="bar" style="margin-bottom:8px;gap:8px;justify-content:flex-start">
-        <button class="btn" onclick="autofillDropdownPhotoMappingsFromTemplates()">✨ Aus Templates für alle POP-Typen füllen</button>
-      </div>
-      <p id="dropdown-photo-map-hint" class="muted small dropdown-photo-hint">Keine Dropdown-Felder mit Optionen vorhanden.</p>
-      <div id="dropdown-photo-map-container"></div>
-    </div>
-
-    <!-- UPLOAD TARGETS TAB -->
-    <div id="mtab-targets" class="modal-tab-content">
-      <div class="section-header">
-        <h3>☁️ Upload-Ziele</h3>
-        <span class="muted small">Wohin sollen Fotos hochgeladen werden?</span>
-      </div>
-      <div id="targets-container"></div>
-      <button class="add-btn" onclick="addTarget()">+ Upload-Ziel hinzufügen</button>
-    </div>
-
-    <!-- JSON TAB -->
-    <div id="mtab-json" class="modal-tab-content">
-      <div class="bar" style="margin-bottom:12px;gap:8px">
-        <button class="btn" onclick="syncJsonFromForm()">🔄 Aus Formular aktualisieren</button>
-        <button class="btn" onclick="syncFormFromJson()">← In Formular laden</button>
-        <button class="btn primary" onclick="importJsonFile()">📂 JSON importieren</button>
-        <input type="file" id="json-file-input" accept=".json" style="display:none" onchange="handleJsonImport(event)" />
+        <h3>🔐 Autorisierte Techniker</h3>
+        <span class="muted small">E-Mail-Adressen der Techniker, die diese App nutzen dürfen</span>
       </div>
       <div class="form-group">
-        <label>Vollständige Tenant Config JSON</label>
-        <textarea id="t-json" style="min-height:380px;font-size:11px"></textarea>
+        <label>Autorisierte Techniker E-Mails (eine E-Mail pro Zeile oder Komma-getrennt)</label>
+        <textarea id="c-technicians" style="min-height:90px" placeholder="techniker1@firma.de&#10;techniker2@partner.de"></textarea>
+        <div class="muted small">💡 Techniker mit diesen Adressen werden beim Login in der App automatisch freigeschaltet.</div>
+      </div>
+      <div class="btn-row" style="margin-top:14px">
+        <span></span>
+        <button type="button" class="btn primary" onclick="switchModalTab('step2')">Weiter zu Schritt 2 ➔</button>
       </div>
     </div>
 
-    <div class="btn-row">
-      <button class="btn" onclick="closeTenantModal()">Abbrechen</button>
-      <button class="btn primary" id="btn-save-tenant" onclick="saveTenant()">💾 Speichern</button>
+    <!-- STEP 2: SPEICHERORT & UPLOAD-LOGIK -->
+    <div id="mtab-step2" class="modal-tab-content">
+      <div class="section-header" style="margin-top:0">
+        <h3>☁️ Wohin sollen die Bilder gespeichert werden?</h3>
+        <span class="muted small">Wähle das gebuchte Speichermodell</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(18,26,51,.7);border:1px solid rgba(37,48,85,.8);border-radius:10px;cursor:pointer">
+          <input type="radio" name="storage-type" value="local" onchange="onStorageTypeChanged()" checked />
+          <div>
+            <strong>📱 Nur Lokal auf Handy</strong>
+            <div class="muted small">Fotos verbleiben nur auf dem Gerät. In der App werden Cloud-Optionen ausgeblendet; Weiterleitung nur über System-Share.</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(18,26,51,.7);border:1px solid rgba(37,48,85,.8);border-radius:10px;cursor:pointer">
+          <input type="radio" name="storage-type" value="onedrive" onchange="onStorageTypeChanged()" />
+          <div>
+            <strong>☁️ Microsoft OneDrive</strong>
+            <div class="muted small">Upload in persönliches OneDrive des Technikers oder in geteilten Firmenordner.</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(18,26,51,.7);border:1px solid rgba(37,48,85,.8);border-radius:10px;cursor:pointer">
+          <input type="radio" name="storage-type" value="sharepoint" onchange="onStorageTypeChanged()" />
+          <div>
+            <strong>🏢 Microsoft SharePoint</strong>
+            <div class="muted small">Direkter Upload in eine SharePoint Document Library per Microsoft Graph API.</div>
+          </div>
+        </label>
+      </div>
+
+      <!-- ONEDRIVE CONFIG -->
+      <div id="section-onedrive" style="display:none;background:rgba(23,32,65,.5);padding:14px;border-radius:10px;margin-bottom:16px;border:1px solid rgba(45,212,191,.25)">
+        <h4 style="margin:0 0 10px;color:var(--ok)">OneDrive Einstellungen</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Typ</label>
+            <select id="od-type" class="item-input">
+              <option value="personal">Persönliches OneDrive des Technikers (MyDrive)</option>
+              <option value="shared">Geteilter Firmenordner</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Basispfad im OneDrive</label>
+            <input type="text" id="od-basepath" placeholder="z.B. /BilderApp oder /Tempton" value="/BilderApp" />
+          </div>
+        </div>
+      </div>
+
+      <!-- SHAREPOINT CONFIG -->
+      <div id="section-sharepoint" style="display:none;background:rgba(23,32,65,.5);padding:14px;border-radius:10px;margin-bottom:16px;border:1px solid rgba(45,212,191,.25)">
+        <h4 style="margin:0 0 10px;color:var(--ok)">SharePoint Einstellungen</h4>
+        <div class="form-group" style="margin-bottom:10px">
+          <label>SharePoint Ordner-Link oder Graph-URL einfügen</label>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="sp-url-input" placeholder="https://firma.sharepoint.com/sites/netzbau/Freigegebene%20Dokumente/BilderApp" style="flex:1" />
+            <button type="button" class="btn primary" onclick="parseSharepointUrlInput()">🔍 Erkennen</button>
+          </div>
+          <div class="muted small" id="sp-url-parse-hint">Füge hier den Weblink des Zielordners aus SharePoint ein, um Site-ID und Ordner automatisch zu ermitteln.</div>
+        </div>
+        <div class="form-row" style="grid-template-columns:1.5fr 1fr 1fr;gap:10px">
+          <div class="form-group">
+            <label>Drive-ID (Graph API)</label>
+            <input type="text" id="sp-drive-id" placeholder="z.B. b!37... oder leer lassen" />
+          </div>
+          <div class="form-group">
+            <label>Site-ID (optional)</label>
+            <input type="text" id="sp-site-id" placeholder="optional" />
+          </div>
+          <div class="form-group">
+            <label>App-Ordnername</label>
+            <input type="text" id="sp-app-folder" placeholder="z.B. BilderApp" value="BilderApp" />
+          </div>
+        </div>
+      </div>
+
+      <!-- UPLOAD & NAMING PATTERNS -->
+      <div class="section-header">
+        <h3>🧭 Upload- &amp; Namensmuster</h3>
+        <span class="muted small">Wie werden Ordner und Bilddateien benannt?</span>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ordner-Muster (folderPattern) *</label>
+          <input type="text" id="c-folder-pattern" placeholder="{city} {siteId} {netElement} {project}" value="{city} {siteId} {netElement} {project}" />
+          <div class="muted small">Token: <code>{city}</code> <code>{siteId}</code> <code>{netElement}</code> <code>{project}</code> oder <code>{popId}</code> <code>{popType}</code></div>
+        </div>
+        <div class="form-group">
+          <label>Datei-Muster (fileNamePattern) *</label>
+          <input type="text" id="c-file-pattern" placeholder="{netElement}_{project}_{photoVar}.jpg" value="{netElement}_{project}_{photoVar}.jpg" />
+          <div class="muted small">Token: <code>{netElement}</code> <code>{project}</code> <code>{photoVar}</code> oder <code>{popId}_{popType}_{photoVar}.jpg</code></div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;padding:10px 14px;background:rgba(18,26,51,.7);border:1px solid rgba(37,48,85,.8);border-radius:10px">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:0">
+          <input type="checkbox" id="c-burn-watermark" style="width:18px;height:18px" />
+          <div>
+            <strong>Datum- &amp; Standort-Stempel in Fotos einbrennen</strong>
+            <div class="muted small">Druckt Aufnahmezeitpunkt und Standort-ID dezent in die untere Bildecke ein.</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="btn-row" style="margin-top:14px">
+        <button type="button" class="btn" onclick="switchModalTab('step1')">⬅ Zurück</button>
+        <button type="button" class="btn primary" onclick="switchModalTab('step3')">Weiter zu Schritt 3 ➔</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: TEMPLATES (VORLAGEN) -->
+    <div id="mtab-step3" class="modal-tab-content">
+      <div class="section-header" style="margin-top:0">
+        <h3>📋 Vorgefertigte Dokumentations-Vorlagen (Templates)</h3>
+        <span class="muted small">Jede Vorlage enthält eine Liste vorgefertigter Bildnamen (Aufnahme-Schritte)</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:250px 1fr;gap:14px">
+        <!-- Template List Sidebar -->
+        <div style="background:rgba(18,26,51,.8);border:1px solid rgba(37,48,85,.8);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-size:11px;font-weight:700;color:var(--muted)">VORLAGEN</span>
+            <button type="button" class="mini good" onclick="addNewTemplateUI()">+ Neu</button>
+          </div>
+          <div id="template-list-container" style="display:flex;flex-direction:column;gap:4px;max-height:360px;overflow-y:auto"></div>
+        </div>
+
+        <!-- Template Editor Main -->
+        <div id="template-editor-panel" style="background:rgba(18,26,51,.8);border:1px solid rgba(37,48,85,.8);border-radius:10px;padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h4 id="active-template-title" style="margin:0;color:var(--text)">Vorlage bearbeiten</h4>
+            <button type="button" class="mini danger" id="btn-delete-template" onclick="deleteActiveTemplateUI()">Vorlage löschen</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Vorlagen-Name *</label>
+              <input type="text" id="tpl-name" placeholder="z.B. Standard Umbau oder FCP 1496" oninput="onActiveTemplateNameChanged()" />
+            </div>
+            <div class="form-group">
+              <label>Vorlagen-ID</label>
+              <input type="text" id="tpl-id" readonly style="opacity:0.7" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Bildnamen / Fotovariablen (ein Name pro Zeile)</label>
+            <textarea id="tpl-steps" style="min-height:200px" placeholder="vor Umbau&#10;Erdung_1&#10;Erdung_2&#10;Rack_Gesamtansicht&#10;Kabelweg"></textarea>
+            <div class="muted small">Gib einfach die Bildbezeichnungen untereinander ein. Sie werden in der App genau in dieser Reihenfolge als Checkliste angezeigt.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top:20px">
+        <button type="button" class="btn" onclick="switchModalTab('step2')">⬅ Zurück</button>
+        <button type="button" class="btn primary" id="btn-save-company-all" onclick="saveCompanyFromModal()" style="font-size:14px;padding:10px 24px">💾 Fertig &amp; Speichern</button>
+      </div>
     </div>
   </div>
 </div>
@@ -875,8 +922,8 @@
 
     const btnNew = document.getElementById('btnContextNew');
     if(view==='devices'){ btnNew.textContent=''; btnNew.style.display='none'; }
-    else if(view==='companies'){ btnNew.textContent='+ Neues Onboarding'; btnNew.style.display=''; btnNew.onclick=showNewCompanyOnboarding; }
-    else if(view==='tenants'){ btnNew.textContent='Domain-Routing'; btnNew.style.display=''; btnNew.onclick=()=>openRoutingEditor(); }
+    else if(view==='companies'){ btnNew.textContent='+ Neue Firma anlegen'; btnNew.style.display=''; btnNew.onclick=showNewCompanyModal; }
+    else if(view==='tenants'){ btnNew.textContent='+ Neue Firma anlegen'; btnNew.style.display=''; btnNew.onclick=showNewCompanyModal; }
 
     if(view==='companies') loadCompanies();
     if(view==='tenants') loadTenants();
@@ -1131,6 +1178,7 @@
       renderCompanies();
     }catch(e){ toast("Fehler beim Laden der Firmen ❌",false); }
   }
+
   function renderCompanies(){
     document.getElementById('k_companies_total').textContent=allCompanies.length;
     document.getElementById('k_companies_active').textContent=allCompanies.filter(c=>c.isActive).length;
@@ -1141,221 +1189,47 @@
     document.getElementById('k_companies_avg').textContent=allCompanies.length>0?Math.round(tot/allCompanies.length):0;
 
     const list=document.getElementById('companies-list');
-    if(!allCompanies.length){list.innerHTML='<p class="muted">Noch keine Firmen angelegt.</p>';return;}
+    if(!allCompanies.length){list.innerHTML='<p class="muted">Noch keine Firmen angelegt. Klicke oben auf "+ Neu" um die erste Firma anzulegen.</p>';return;}
     list.innerHTML=allCompanies.map(c=>{
       const dc=dpC[c.id]||0;
       const sc=c.isActive?'var(--ok)':'var(--muted)';
-      const tenantId=getCompanyTenantId(c);
-      const domains=getCompanyDomains(c);
+      const domains=Array.isArray(c.domains)?c.domains:[c.domain].filter(Boolean);
+      
+      const st = c.storageTarget || (c.config && c.config.storageTarget) || {};
+      let stBadge = '<span class="pill"><span class="dot" style="background:#a78bfa"></span> 📱 Nur lokal auf Handy</span>';
+      if(st.type==='onedrive'){
+        stBadge = `<span class="pill"><span class="dot ok"></span> ☁️ OneDrive (${escAttr(st.basePath||'/BilderApp')})</span>`;
+      } else if(st.type==='sharepoint'){
+        stBadge = `<span class="pill"><span class="dot ok"></span> 🏢 SharePoint (${escAttr(st.appFolder||'BilderApp')})</span>`;
+      }
+
+      const techCount = Array.isArray(c.authorizedEmails) ? c.authorizedEmails.length : 0;
+      const tplCount = Array.isArray(c.templates) ? c.templates.length : 1;
+
       return `<div class="company-card">
         <div style="display:flex;justify-content:space-between;align-items:start">
           <div>
-            <h3>${escAttr(c.name)}</h3>
-            <div class="muted small">ID: ${escAttr(c.id)} • Haupt-TenantID: <span class="mono">${escAttr(tenantId||'–')}</span></div>
-            <div class="muted small">Primäre Domain: ${escAttr(c.domain||'–')}</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+              <h3 style="margin:0">${escAttr(c.name)}</h3>
+              ${stBadge}
+              <span class="pill" style="border-color:${sc}"><span class="dot" style="background:${sc}"></span>${c.isActive?'Aktiv':'Inaktiv'}</span>
+            </div>
+            <div class="muted small">ID: <code>${escAttr(c.id)}</code> • Primäre Domain: <strong>${escAttr(c.domain||'–')}</strong></div>
+            <div class="muted small" style="margin-top:4px">
+              🔐 <strong>${techCount}</strong> autorisierte Techniker • 📋 <strong>${tplCount}</strong> Templates • 📱 <strong>${dc}</strong> Geräte
+            </div>
+            ${c.contactPerson && (c.contactPerson.name || c.contactPerson.email) ? `<div class="muted small" style="margin-top:2px">👤 Ansprechpartner: ${escAttr(c.contactPerson.name||'')} (${escAttr(c.contactPerson.email||'')})</div>` : ''}
             ${renderDomainPills(domains)}
-            <div class="muted small">Devices: ${dc} • Erstellt: ${fmtDate(c.createdAt)}</div>
           </div>
-          <span class="pill" style="border-color:${sc}"><span class="dot" style="background:${sc}"></span>${c.isActive?'Aktiv':'Inaktiv'}</span>
         </div>
-        <div class="actions" style="margin-top:12px">
-          <button class="mini warn" onclick="viewCompanyDevices('${escJsSingle(c.id)}')">Geräte</button>
-          <button class="mini good" onclick="openCompanyOnboarding('${escJsSingle(c.id)}')">Onboarding</button>
-          <button class="mini ${c.isActive?'danger':'good'}" onclick="toggleCompanyStatus('${escJsSingle(c.id)}',${!c.isActive})">${c.isActive?'Deaktivieren':'Aktivieren'}</button>
+        <div class="actions" style="margin-top:14px">
+          <button class="mini good" onclick="openCompanyModal('${escJsSingle(c.id)}')">⚙️ Konfigurieren (3 Schritte)</button>
+          <button class="mini warn" onclick="viewCompanyDevices('${escJsSingle(c.id)}')">📱 Geräte (${dc})</button>
+          <button class="mini danger" onclick="deleteCompany('${escJsSingle(c.id)}')">🗑️ Löschen</button>
         </div></div>`;
     }).join('');
   }
 
-  window.showNewCompanyOnboarding=function(){
-    onboardingCompanyId=null;
-    showNewTenantModal();
-    document.getElementById('modal-tenant-title').textContent='Neues Firmen-Onboarding';
-    document.getElementById('onb-company-id').value='';
-    document.getElementById('onb-company-name').value='';
-    document.getElementById('onb-company-domain').value='';
-    document.getElementById('onb-company-domains-extra').value='';
-    setOnboardingAutoSync(true);
-    setOnboardingAdvanced(false);
-    syncOnboardingIdentityFields();
-  };
-
-  window.openCompanyOnboarding=async function(companyId){
-    const company=allCompanies.find((item)=>item.id===companyId);
-    if(!company){
-      toast('Firma nicht gefunden ❌',false);
-      return;
-    }
-
-    try{
-      onboardingCompanyId=company.id;
-      if(!allTenants.length){
-        const response=await fetch(API_TENANTS,{cache:'no-store'});
-        if(response.ok){
-          const payload=await response.json();
-          allTenants=Array.isArray(payload)?payload:(payload.tenants||[]);
-        }
-      }
-
-      const tenantId=getCompanyTenantId(company)||company.id;
-      const existingTenant=allTenants.find((tenant)=>String(tenant&&tenant.tenantId||'').trim()===tenantId);
-
-      if(existingTenant){
-        editTenant(tenantId,company);
-        return;
-      }
-
-      showNewTenantModal();
-      onboardingCompanyId=company.id;
-      setOnboardingCompanyFields(company);
-      document.getElementById('onb-company-id').value=company.id;
-      setOnboardingAutoSync(false);
-      setOnboardingAdvanced(false);
-
-      const baseConfig=(company&&company.config&&typeof company.config==='object')?company.config:{};
-      const fields=Array.isArray(baseConfig.fields)?baseConfig.fields:[];
-      const photoVariables=Array.isArray(baseConfig.photoVariables)?baseConfig.photoVariables:[];
-      const dropdownPhotoVariables=(baseConfig.dropdownPhotoVariables&&typeof baseConfig.dropdownPhotoVariables==='object')
-        ? baseConfig.dropdownPhotoVariables
-        : {};
-      const uploadTargets=Array.isArray(baseConfig.uploadTargets)?baseConfig.uploadTargets:[];
-
-      const templateId=`${slugify(tenantId)||'tenant'}_default`;
-      const captureSteps=photoVariables.map((label,index)=>{
-        const stepId=slugify(label)||`step_${index+1}`;
-        return {
-          id: stepId,
-          label: String(label||''),
-          translationKey: `photo_${stepId}`,
-          required: false,
-          order: index+1,
-        };
-      });
-
-      document.getElementById('t-id').value=tenantId;
-      document.getElementById('t-name').value=company.name||tenantId;
-      document.getElementById('t-template-id').value=templateId;
-      document.getElementById('t-template-name').value=`${company.name||tenantId} Standard`;
-      document.getElementById('t-folder').value=baseConfig.folderNamingTemplate||'{city} {siteId} {netElement} {project}';
-      document.getElementById('t-file').value=baseConfig.fileNamingTemplate||'{netElement}_{project}_{photoVar}.jpg';
-
-      buildFieldsUI(fields,dropdownPhotoVariables);
-      buildStepsUI(captureSteps);
-      buildTargetsUI(uploadTargets);
-      syncDefaultTargetOptions(uploadTargets[0]&&uploadTargets[0].id?uploadTargets[0].id:'mydrive');
-      syncJsonFromForm();
-
-      toast('Onboarding aus Firmenprofil vorbereitet ✅');
-    }catch(e){
-      toast(`Onboarding konnte nicht geöffnet werden ❌ (${e.message||'Fehler'})`,false);
-    }
-  };
-
-  window.showNewCompanyModal=function(){
-    editingCompanyId=null;
-    document.getElementById('modal-title').textContent='Neue Firma anlegen';
-    ['company-id','company-tenant-id','company-name','company-domain','company-domains-extra','company-folder-template','company-config'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('company-id').dataset.autoSync='1';
-    document.getElementById('company-tenant-id').dataset.autoSync='1';
-    document.getElementById('company-id').disabled=false;
-    setCompanyAdvanced(false);
-    document.getElementById('company-config').value='{}';
-    syncCompanyAutoFields();
-    document.getElementById('modal-company').classList.add('active');
-  };
-  window.closeCompanyModal=function(){ document.getElementById('modal-company').classList.remove('active'); editingCompanyId=null; };
-  window.toggleCompanyAdvanced=function(){
-    const current=document.getElementById('company-advanced-fields').style.display==='block';
-    setCompanyAdvanced(!current);
-  };
-  window.editCompany=function(id){
-    editingCompanyId=id;
-    const c=allCompanies.find(c=>c.id===id); if(!c) return;
-    const tenantId=getCompanyTenantId(c);
-    const domains=getCompanyDomains(c);
-    const primaryDomain=normalizeDomain(c.domain);
-    const extraDomains=domains.filter((domain)=>domain!==primaryDomain);
-    document.getElementById('modal-title').textContent='Firma bearbeiten';
-    document.getElementById('company-id').value=c.id;
-    document.getElementById('company-id').disabled=true;
-    document.getElementById('company-id').dataset.autoSync='0';
-    document.getElementById('company-tenant-id').value=tenantId;
-    document.getElementById('company-tenant-id').dataset.autoSync='0';
-    document.getElementById('company-name').value=c.name;
-    document.getElementById('company-domain').value=c.domain;
-    document.getElementById('company-domains-extra').value=extraDomains.join('\n');
-    document.getElementById('company-folder-template').value=c.config?.folderNamingTemplate||'';
-    document.getElementById('company-config').value=JSON.stringify(c.config,null,2);
-    setCompanyAdvanced(false);
-    syncCompanyAutoFields();
-    document.getElementById('modal-company').classList.add('active');
-  };
-  window.saveCompany=async function(){
-    const id=document.getElementById('company-id').value.trim()||getSuggestedCompanyId();
-    const tenantId=document.getElementById('company-tenant-id').value.trim()||getSuggestedTenantId()||id;
-    const name=document.getElementById('company-name').value.trim();
-    const domain=normalizeDomain(document.getElementById('company-domain').value);
-    const extraDomains=parseDomainsText(document.getElementById('company-domains-extra').value);
-    const ft=document.getElementById('company-folder-template').value.trim();
-    const ct=document.getElementById('company-config').value.trim();
-    if(!id||!name||!domain||!tenantId){toast("Bitte alle Pflichtfelder ausfüllen ❌",false);return;}
-    let config={};
-    if(ct){try{config=JSON.parse(ct);}catch(e){toast("Ungültige JSON Config ❌",false);return;}}
-    if(ft) config.folderNamingTemplate=ft;
-
-    const previousCompany=editingCompanyId?allCompanies.find((company)=>company.id===id):null;
-    const previousPrimaryDomain=normalizeDomain(previousCompany&&previousCompany.domain);
-    const previousTenantId=getCompanyTenantId(previousCompany);
-
-    const btn=document.getElementById('btn-save-company'); btn.disabled=true;
-    try{
-      if(editingCompanyId) await putJson(`${API_COMPANIES}/${id}`,{name,domain,tenantId,config});
-      else await postJson(API_COMPANIES,{id,name,domain,tenantId,config});
-
-      const latestRoutingRes=await fetch('/v1/tenant-routing',{cache:'no-store'});
-      const latestRouting=latestRoutingRes.ok?await latestRoutingRes.json():currentRouting;
-      const routingBase={
-        defaultTenantId:(latestRouting&&latestRouting.defaultTenantId)||'gravit_default',
-        manualTenantId:(latestRouting&&latestRouting.manualTenantId)||'',
-        domainTenantMapping:{
-          ...((latestRouting&&latestRouting.domainTenantMapping&&typeof latestRouting.domainTenantMapping==='object')
-            ? latestRouting.domainTenantMapping
-            : {}),
-        },
-      };
-
-      const nextDomains=uniqueList([domain,...extraDomains].map((item)=>normalizeDomain(item)).filter(Boolean));
-      nextDomains.forEach((mappedDomain)=>{ routingBase.domainTenantMapping[mappedDomain]=tenantId; });
-
-      if(previousPrimaryDomain&&previousPrimaryDomain!==domain&&routingBase.domainTenantMapping[previousPrimaryDomain]===previousTenantId){
-        delete routingBase.domainTenantMapping[previousPrimaryDomain];
-      }
-
-      let routingUpdateFailed=false;
-      try{
-        await putJson(API_ROUTING,routingBase);
-        currentRouting=routingBase;
-      }catch(err){
-        routingUpdateFailed=true;
-      }
-
-      toast(routingUpdateFailed
-        ? 'Firma gespeichert, aber Domain-Routing konnte nicht aktualisiert werden ⚠️'
-        : (editingCompanyId?"Firma aktualisiert ✅":"Firma erstellt ✅"), !routingUpdateFailed);
-
-      if(!routingUpdateFailed){
-        closeCompanyModal();
-      }
-      await Promise.all([loadCompanies(),loadTenants()]);
-    }catch(e){ toast(`Fehler: ${e.message} ❌`,false); }
-    finally{ btn.disabled=false; }
-  };
-  window.viewCompanyConfig=function(id){
-    const c=allCompanies.find(c=>c.id===id); if(!c) return;
-    const tenantId=getCompanyTenantId(c);
-    const domains=getCompanyDomains(c);
-    const p=window.open('','Config','width=700,height=600');
-    p.document.write(`<html><head><title>Config: ${c.name}</title><style>body{font-family:monospace;background:#0b1020;color:#e8ecff;padding:20px}pre{background:#121a33;border:1px solid #253055;border-radius:8px;padding:16px;overflow:auto}h2{color:#2dd4bf}</style></head><body><h2>${c.name}</h2><p>ID: ${c.id} • TenantID: ${tenantId} • Primärdomain: ${c.domain}</p><p>Domains: ${domains.join(', ')||'–'}</p><pre>${JSON.stringify(c.config,null,2)}</pre></body></html>`);
-  };
   window.viewCompanyDevices=async function(companyId){
     const company=allCompanies.find((item)=>item.id===companyId);
     switchView('devices');
@@ -1374,7 +1248,360 @@
     renderDevices();
     toast(`Geräte für ${company?company.name:companyId} geladen ✅`);
   };
-  window.toggleCompanyStatus=async(id,status)=>{ try{ await putJson(`${API_COMPANIES}/${id}`,{isActive:status}); toast("Status geändert ✅"); await loadCompanies(); }catch(e){ toast("Fehler ❌",false); } };
+
+  window.deleteCompany=async function(companyId){
+    const company=allCompanies.find((c)=>c.id===companyId);
+    if(!confirm(`Firma "${company?company.name:companyId}" wirklich unwiderruflich löschen?`)) return;
+    try{
+      await deleteJson(`${API_COMPANIES}/${encodeURIComponent(companyId)}`);
+      toast("Firma gelöscht ✅");
+      await Promise.all([loadCompanies(),loadDevices(),loadTenants()]);
+    }catch(e){
+      toast(`Fehler beim Löschen ❌ (${e.message||'Fehler'})`,false);
+    }
+  };
+
+  // ===== 3-STEP COMPANY MODAL LOGIC =====
+  let editingCompanyId = null;
+  let currentCompanyTemplates = [];
+  let activeTemplateIndex = 0;
+
+  window.onStorageTypeChanged = function(){
+    const type = document.querySelector('input[name="storage-type"]:checked')?.value || 'local';
+    document.getElementById('section-onedrive').style.display = type === 'onedrive' ? 'block' : 'none';
+    document.getElementById('section-sharepoint').style.display = type === 'sharepoint' ? 'block' : 'none';
+  };
+
+  window.parseSharepointUrlInput = function(){
+    const input = document.getElementById('sp-url-input').value.trim();
+    const hintEl = document.getElementById('sp-url-parse-hint');
+    if (!input) {
+      hintEl.textContent = 'Bitte eine URL eingeben.';
+      return;
+    }
+    try {
+      const url = new URL(input);
+      const host = url.hostname;
+      const pathParts = url.pathname.split('/').filter(Boolean);
+      
+      const siteIdx = pathParts.indexOf('sites');
+      let siteName = '';
+      if (siteIdx >= 0 && siteIdx + 1 < pathParts.length) {
+        siteName = pathParts[siteIdx + 1];
+      }
+      
+      let folder = decodeURIComponent(pathParts[pathParts.length - 1] || 'BilderApp');
+      if (folder.endsWith('.aspx') || folder.endsWith('.html')) {
+        folder = decodeURIComponent(pathParts[pathParts.length - 2] || 'BilderApp');
+      }
+      
+      if (siteName) document.getElementById('sp-site-id').value = siteName;
+      if (folder) document.getElementById('sp-app-folder').value = folder;
+
+      hintEl.innerHTML = `✅ Erkannt: Host <code>${escAttr(host)}</code>, Site <code>${escAttr(siteName || 'root')}</code>, Ordner <code>${escAttr(folder)}</code>`;
+      toast('SharePoint URL analysiert ✅');
+    } catch (e) {
+      hintEl.textContent = '⚠️ Ungültiges URL-Format. Bitte manuelle Felder ausfüllen.';
+    }
+  };
+
+  window.autoSuggestDomainAndId = function(){
+    if (editingCompanyId) return;
+    const name = document.getElementById('c-name').value.trim();
+    const domainInput = document.getElementById('c-domain');
+    if (name && !domainInput.dataset.manual) {
+      const slug = slugify(name);
+      domainInput.placeholder = `z.B. ${slug}.de`;
+    }
+  };
+
+  function renderTemplateList(){
+    const container = document.getElementById('template-list-container');
+    container.innerHTML = '';
+    currentCompanyTemplates.forEach((tpl, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `tpl-btn ${idx === activeTemplateIndex ? 'active' : ''}`;
+      const stepsCount = Array.isArray(tpl.captureSteps) ? tpl.captureSteps.length : 0;
+      btn.innerHTML = `<span>${escAttr(tpl.name || 'Vorlage')}</span><span class="muted small">${stepsCount} Schritte</span>`;
+      btn.onclick = () => selectActiveTemplate(idx);
+      container.appendChild(btn);
+    });
+    
+    const delBtn = document.getElementById('btn-delete-template');
+    if (delBtn) delBtn.style.display = currentCompanyTemplates.length > 1 ? 'inline-block' : 'none';
+  }
+
+  function selectActiveTemplate(idx){
+    syncActiveTemplateFromUI();
+    if (idx < 0 || idx >= currentCompanyTemplates.length) return;
+    activeTemplateIndex = idx;
+    loadActiveTemplateIntoUI();
+    renderTemplateList();
+  }
+
+  function loadActiveTemplateIntoUI(){
+    const tpl = currentCompanyTemplates[activeTemplateIndex] || {
+      templateId: 'standard',
+      name: 'Standard Dokumentation',
+      captureSteps: [],
+    };
+    document.getElementById('tpl-name').value = tpl.name || '';
+    document.getElementById('tpl-id').value = tpl.templateId || '';
+    document.getElementById('active-template-title').textContent = `Vorlage: ${tpl.name || 'Standard'}`;
+    
+    const stepsText = (Array.isArray(tpl.captureSteps) ? tpl.captureSteps : [])
+      .map((s) => (typeof s === 'string' ? s : s.label || s.id || ''))
+      .filter(Boolean)
+      .join('\n');
+    document.getElementById('tpl-steps').value = stepsText;
+  }
+
+  function syncActiveTemplateFromUI(){
+    if (!currentCompanyTemplates[activeTemplateIndex]) return;
+    const name = document.getElementById('tpl-name').value.trim() || 'Vorlage';
+    const rawSteps = document.getElementById('tpl-steps').value
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+    
+    const steps = rawSteps.map((label, sIdx) => ({
+      id: slugify(label) || `step_${sIdx + 1}`,
+      label,
+      translationKey: `photo_${slugify(label) || sIdx + 1}`,
+      required: sIdx < 3,
+      order: sIdx + 1,
+    }));
+
+    currentCompanyTemplates[activeTemplateIndex].name = name;
+    currentCompanyTemplates[activeTemplateIndex].captureSteps = steps;
+  }
+
+  window.addNewTemplateUI = function(){
+    syncActiveTemplateFromUI();
+    const nextNum = currentCompanyTemplates.length + 1;
+    const newTpl = {
+      templateId: `vorlage_${nextNum}_${Date.now() % 10000}`,
+      name: `Vorlage ${nextNum}`,
+      captureSteps: [
+        { id: 'vor_umbau', label: 'vor Umbau', translationKey: 'photo_vor_umbau', required: true, order: 1 },
+        { id: 'rack_gesamt', label: 'Rack_Gesamtansicht', translationKey: 'photo_rack_gesamt', required: true, order: 2 },
+      ],
+    };
+    currentCompanyTemplates.push(newTpl);
+    activeTemplateIndex = currentCompanyTemplates.length - 1;
+    renderTemplateList();
+    loadActiveTemplateIntoUI();
+  };
+
+  window.deleteActiveTemplateUI = function(){
+    if (currentCompanyTemplates.length <= 1) {
+      toast('Mindestens eine Vorlage muss erhalten bleiben ⚠️', false);
+      return;
+    }
+    currentCompanyTemplates.splice(activeTemplateIndex, 1);
+    if (activeTemplateIndex >= currentCompanyTemplates.length) {
+      activeTemplateIndex = currentCompanyTemplates.length - 1;
+    }
+    renderTemplateList();
+    loadActiveTemplateIntoUI();
+  };
+
+  window.onActiveTemplateNameChanged = function(){
+    const name = document.getElementById('tpl-name').value.trim();
+    document.getElementById('active-template-title').textContent = `Vorlage: ${name || 'Unbenannt'}`;
+  };
+
+  window.showNewCompanyModal = function(){
+    editingCompanyId = null;
+    document.getElementById('modal-tenant-title').textContent = '🏢 Neue Firma anlegen';
+    document.getElementById('c-id').value = '';
+    document.getElementById('c-name').value = '';
+    document.getElementById('c-domain').value = '';
+    document.getElementById('c-domain').dataset.manual = '';
+    document.getElementById('c-domains-extra').value = '';
+    document.getElementById('c-contact-name').value = '';
+    document.getElementById('c-contact-email').value = '';
+    document.getElementById('c-contact-phone').value = '';
+    document.getElementById('c-technicians').value = '';
+    
+    document.querySelector('input[name="storage-type"][value="local"]').checked = true;
+    onStorageTypeChanged();
+    document.getElementById('od-type').value = 'personal';
+    document.getElementById('od-basepath').value = '/BilderApp';
+    document.getElementById('sp-url-input').value = '';
+    document.getElementById('sp-drive-id').value = '';
+    document.getElementById('sp-site-id').value = '';
+    document.getElementById('sp-app-folder').value = 'BilderApp';
+    document.getElementById('sp-url-parse-hint').textContent = 'Füge hier den Weblink des Zielordners aus SharePoint ein, um Site-ID und Ordner automatisch zu ermitteln.';
+    
+    document.getElementById('c-folder-pattern').value = '{city} {siteId} {netElement} {project}';
+    document.getElementById('c-file-pattern').value = '{netElement}_{project}_{photoVar}.jpg';
+    document.getElementById('c-burn-watermark').checked = false;
+
+    currentCompanyTemplates = [
+      {
+        templateId: 'standard',
+        name: 'Standard Dokumentation',
+        captureSteps: [
+          { id: 'vor_umbau', label: 'vor Umbau', translationKey: 'photo_vor_umbau', required: true, order: 1 },
+          { id: 'erdung_1', label: 'Erdung_1', translationKey: 'photo_erdung_1', required: true, order: 2 },
+          { id: 'erdung_2', label: 'Erdung_2', translationKey: 'photo_erdung_2', required: true, order: 3 },
+          { id: 'rack_gesamt', label: 'Rack_Gesamtansicht', translationKey: 'photo_rack_gesamt', required: false, order: 4 },
+        ],
+      },
+    ];
+    activeTemplateIndex = 0;
+    renderTemplateList();
+    loadActiveTemplateIntoUI();
+
+    switchModalTab('step1');
+    document.getElementById('modal-tenant').classList.add('active');
+  };
+
+  window.openCompanyModal = function(companyId){
+    const company = allCompanies.find((c) => c.id === companyId);
+    if (!company) {
+      toast('Firma nicht gefunden ❌', false);
+      return;
+    }
+    editingCompanyId = company.id;
+    document.getElementById('modal-tenant-title').textContent = `🏢 Firma bearbeiten: ${company.name}`;
+    document.getElementById('c-id').value = company.id;
+    document.getElementById('c-name').value = company.name || '';
+    document.getElementById('c-domain').value = company.domain || '';
+    document.getElementById('c-domain').dataset.manual = '1';
+    document.getElementById('c-domains-extra').value = Array.isArray(company.domains)
+      ? company.domains.filter((d) => d !== company.domain).join(', ')
+      : '';
+
+    const cp = company.contactPerson || {};
+    document.getElementById('c-contact-name').value = cp.name || '';
+    document.getElementById('c-contact-email').value = cp.email || '';
+    document.getElementById('c-contact-phone').value = cp.phone || '';
+    document.getElementById('c-technicians').value = Array.isArray(company.authorizedEmails)
+      ? company.authorizedEmails.join('\n')
+      : '';
+
+    const st = company.storageTarget || (company.config && company.config.storageTarget) || {};
+    const stType = st.type || 'local';
+    const radio = document.querySelector(`input[name="storage-type"][value="${stType}"]`) || document.querySelector('input[name="storage-type"][value="local"]');
+    if (radio) radio.checked = true;
+    onStorageTypeChanged();
+
+    document.getElementById('od-type').value = st.oneDriveType === 'shared' ? 'shared' : 'personal';
+    document.getElementById('od-basepath').value = st.basePath || '/BilderApp';
+    document.getElementById('sp-url-input').value = st.sharepointUrl || '';
+    document.getElementById('sp-drive-id').value = st.driveId || '';
+    document.getElementById('sp-site-id').value = st.siteId || '';
+    document.getElementById('sp-app-folder').value = st.appFolder || 'BilderApp';
+
+    document.getElementById('c-folder-pattern').value = company.folderNamingTemplate || (company.config && company.config.folderNamingTemplate) || '{city} {siteId} {netElement} {project}';
+    document.getElementById('c-file-pattern').value = company.fileNamingTemplate || (company.config && company.config.fileNamingTemplate) || '{netElement}_{project}_{photoVar}.jpg';
+    document.getElementById('c-burn-watermark').checked = company.burnWatermark === true || (company.config && company.config.burnWatermark === true);
+
+    currentCompanyTemplates = Array.isArray(company.templates) && company.templates.length
+      ? JSON.parse(JSON.stringify(company.templates))
+      : (Array.isArray(company.config && company.config.templates) && company.config.templates.length
+        ? JSON.parse(JSON.stringify(company.config.templates))
+        : [
+            {
+              templateId: 'standard',
+              name: 'Standard Dokumentation',
+              captureSteps: [
+                { id: 'vor_umbau', label: 'vor Umbau', translationKey: 'photo_vor_umbau', required: true, order: 1 },
+                { id: 'erdung_1', label: 'Erdung_1', translationKey: 'photo_erdung_1', required: true, order: 2 },
+              ],
+            },
+          ]);
+    activeTemplateIndex = 0;
+    renderTemplateList();
+    loadActiveTemplateIntoUI();
+
+    switchModalTab('step1');
+    document.getElementById('modal-tenant').classList.add('active');
+  };
+
+  window.closeTenantModal = function(){
+    document.getElementById('modal-tenant').classList.remove('active');
+    editingCompanyId = null;
+  };
+
+  window.saveCompanyFromModal = async function(){
+    syncActiveTemplateFromUI();
+    const name = document.getElementById('c-name').value.trim();
+    const domain = document.getElementById('c-domain').value.trim().toLowerCase();
+    if (!name || !domain) {
+      toast('Firmenname und Primäre Domain sind Pflichtfelder ❌', false);
+      switchModalTab('step1');
+      return;
+    }
+
+    const id = editingCompanyId || slugify(name);
+    const extraDomains = document.getElementById('c-domains-extra').value
+      .split(',')
+      .map((d) => d.trim().toLowerCase())
+      .filter((d) => d && d !== domain);
+
+    const contactPerson = {
+      name: document.getElementById('c-contact-name').value.trim(),
+      email: document.getElementById('c-contact-email').value.trim(),
+      phone: document.getElementById('c-contact-phone').value.trim(),
+    };
+
+    const technicians = document.getElementById('c-technicians').value
+      .split(/[\n,]/)
+      .map((e) => e.trim().toLowerCase())
+      .filter((e) => e.includes('@'));
+
+    const storageType = document.querySelector('input[name="storage-type"]:checked')?.value || 'local';
+    const storageTarget = {
+      type: storageType,
+      sharepointUrl: document.getElementById('sp-url-input').value.trim(),
+      driveId: document.getElementById('sp-drive-id').value.trim(),
+      siteId: document.getElementById('sp-site-id').value.trim(),
+      appFolder: document.getElementById('sp-app-folder').value.trim() || 'BilderApp',
+      oneDriveType: document.getElementById('od-type').value,
+      basePath: document.getElementById('od-basepath').value.trim() || '/BilderApp',
+    };
+
+    const folderNamingTemplate = document.getElementById('c-folder-pattern').value.trim() || '{city} {siteId} {netElement} {project}';
+    const fileNamingTemplate = document.getElementById('c-file-pattern').value.trim() || '{netElement}_{project}_{photoVar}.jpg';
+    const burnWatermark = document.getElementById('c-burn-watermark').checked;
+
+    const payload = {
+      id,
+      name,
+      domain,
+      domains: [domain, ...extraDomains],
+      contactPerson,
+      authorizedEmails: technicians,
+      storageTarget,
+      burnWatermark,
+      folderNamingTemplate,
+      fileNamingTemplate,
+      templates: currentCompanyTemplates,
+      isActive: true,
+    };
+
+    const btn = document.getElementById('btn-save-company-all');
+    btn.disabled = true;
+    try {
+      if (editingCompanyId) {
+        await putJson(`${API_COMPANIES}/${encodeURIComponent(id)}`, payload);
+        toast('Firma erfolgreich aktualisiert ✅');
+      } else {
+        await postJson(API_COMPANIES, payload);
+        toast('Neue Firma erfolgreich angelegt ✅');
+      }
+      closeTenantModal();
+      await Promise.all([loadCompanies(), loadDevices(), loadTenants()]);
+    } catch (e) {
+      toast(`Fehler beim Speichern: ${e.message} ❌`, false);
+    } finally {
+      btn.disabled = false;
+    }
+  };
 
   // ===== TENANTS =====
   async function loadTenants(){
@@ -1390,788 +1617,21 @@
     }catch(e){ toast("Fehler beim Laden der Configs ❌",false); }
   }
   function renderTenants(){
-    document.getElementById('k_tenants_total').textContent=allTenants.length;
+    document.getElementById('k_tenants_total').textContent=allCompanies.length;
     const dm=currentRouting.domainTenantMapping||{};
     document.getElementById('k_tenants_domains').textContent=Object.keys(dm).length;
     document.getElementById('k_tenants_default').textContent=currentRouting.defaultTenantId||'–';
 
-    // Routing table
     const rows=document.getElementById('routing-rows');
     const entries=Object.entries(dm);
-    rows.innerHTML=entries.length===0?`<tr><td colspan="3" class="muted">Keine Mappings</td></tr>`:
+    rows.innerHTML=entries.length===0?'<tr><td colspan="3" class="muted">Keine Mappings</td></tr>':
       entries.map(([domain,tid])=>`<tr><td class="mono">${escAttr(domain)}</td><td class="muted">→</td><td class="mono">${escAttr(tid)}</td></tr>`).join('');
 
     const note=document.getElementById('tenants-onboarding-note');
     if(note){
-      note.textContent=allTenants.length
-        ? `Es gibt ${allTenants.length} Tenant-Konfigurationen. Bearbeite sie pro Firma über den Button "Onboarding" im Reiter Firmen.`
-        : 'Noch keine Tenant-Konfigurationen vorhanden. Lege zuerst eine Firma an und öffne dann dort den Button "Onboarding".';
+      note.textContent=`Es gibt ${allCompanies.length} Firmen-Konfigurationen. Jede Firma ist 1:1 ihr eigener Tenant und wird über das 3-Schritte-Modal gepflegt.`;
     }
   }
-
-  // ===== TENANT EDITOR HELPERS =====
-  function getPrimaryTemplate(tenant){
-    const templates=Array.isArray(tenant&&tenant.templates)?tenant.templates:[];
-    const defaultTemplateId=String((tenant&&tenant.defaultTemplateId)||'').trim();
-
-    return templates.find((tpl)=>String((tpl&&tpl.templateId)||'').trim()===defaultTemplateId)
-      || templates[0]
-      || {
-        templateId: defaultTemplateId || 'standard',
-        name: '',
-        folderPattern: (tenant&&tenant.folderPattern) || '',
-        fileNamePattern: (tenant&&tenant.fileNamePattern) || '',
-        captureSteps: Array.isArray(tenant&&tenant.captureSteps) ? tenant.captureSteps : [],
-        dropdownPhotoVariables: (tenant&&tenant.dropdownPhotoVariables&&typeof tenant.dropdownPhotoVariables==='object')
-          ? tenant.dropdownPhotoVariables
-          : {},
-      };
-  }
-
-  function buildStepsUI(steps){
-    const namesInput=document.getElementById('t-step-names');
-    const requiredInput=document.getElementById('t-steps-required');
-    if(!namesInput) return;
-
-    const safeSteps=Array.isArray(steps)?steps:[];
-    const names=safeSteps
-      .map((step)=>String((step&&step.label)||step&&step.id||'').trim())
-      .filter(Boolean);
-
-    namesInput.value=names.join('\n');
-
-    if(requiredInput){
-      requiredInput.checked=safeSteps.length===0
-        ? true
-        : safeSteps.every((step)=>step&&step.required!==false);
-    }
-  }
-
-  function sanitizeStepIdFromName(name,index){
-    const raw=norm(name)
-      .replace(/[^a-z0-9]+/g,'_')
-      .replace(/^_+|_+$/g,'')
-      .replace(/_{2,}/g,'_');
-    return raw||`step_${index+1}`;
-  }
-
-  function parseStepNames(rawText){
-    return String(rawText||'')
-      .replaceAll('\r','')
-      .split('\n')
-      .map((line)=>line.trim())
-      .filter(Boolean);
-  }
-
-  function getStepsFromUI(){
-    const namesInput=document.getElementById('t-step-names');
-    const requiredInput=document.getElementById('t-steps-required');
-    const names=parseStepNames(namesInput?namesInput.value:'');
-    const requiredDefault=requiredInput?requiredInput.checked:true;
-
-    return names.map((name,index)=>{
-      const id=sanitizeStepIdFromName(name,index);
-      return {
-        id,
-        label:name,
-        translationKey:`photo_${id}`,
-        required:requiredDefault,
-        order:index+1,
-      };
-    });
-  }
-
-  function normalizeFieldType(type){
-    const normalized=String(type||'').trim().toLowerCase();
-    if(normalized==='dropdown'||normalized==='date'||normalized==='text') return normalized;
-    return 'text';
-  }
-
-  function parseCommaSeparated(value){
-    if(Array.isArray(value)){
-      return value.map((item)=>String(item||'').trim()).filter(Boolean);
-    }
-    return String(value||'')
-      .split(',')
-      .map((item)=>item.trim())
-      .filter(Boolean);
-  }
-
-  function normalizePatternFieldKey(key){
-    return String(key||'').trim().replace(/[{}]/g,'');
-  }
-
-  function getPatternFieldKeys(fields){
-    return [...new Set((Array.isArray(fields)?fields:[])
-      .map((field)=>normalizePatternFieldKey(field&&field.key))
-      .filter(Boolean))];
-  }
-
-  function buildAutoFolderPatternFromFields(fields){
-    const keys=getPatternFieldKeys(fields);
-    if(!keys.length) return '{city} {siteId} {netElement} {project}';
-    return keys.map((key)=>`{${key}}`).join(' ');
-  }
-
-  function buildAutoFilePatternFromFields(fields){
-    const keys=getPatternFieldKeys(fields);
-    if(!keys.length) return '{netElement}_{project}_{photoVar}.jpg';
-    return `${keys.map((key)=>`{${key}}`).join('_')}_{photoVar}.jpg`;
-  }
-
-  function syncNamingPatternsFromFields(){
-    const folderInput=document.getElementById('t-folder');
-    const fileInput=document.getElementById('t-file');
-    if(!folderInput||!fileInput) return;
-
-    const fields=getFieldsFromUI();
-    folderInput.value=buildAutoFolderPatternFromFields(fields);
-    fileInput.value=buildAutoFilePatternFromFields(fields);
-  }
-
-  function getDropdownFieldsFromUI(){
-    return getFieldsFromUI()
-      .filter((field)=>field.type==='dropdown'&&Array.isArray(field.options)&&field.options.length)
-      .map((field)=>({
-        key: String(field.key||'').trim(),
-        options: [...new Set(parseCommaSeparated(field.options))],
-      }))
-      .filter((field)=>field.key&&field.options.length);
-  }
-
-  function normalizeDropdownPhotoVariablesMap(rawMap,dropdownFields){
-    const out={};
-    const source=(rawMap&&typeof rawMap==='object'&&!Array.isArray(rawMap))?rawMap:{};
-    const fields=Array.isArray(dropdownFields)?dropdownFields:[];
-
-    fields.forEach((field)=>{
-      const key=String(field&&field.key||'').trim();
-      if(!key) return;
-
-      const options=[...new Set(parseCommaSeparated(field.options))];
-      if(!options.length) return;
-
-      const fieldMap=source[key];
-      if(!fieldMap||typeof fieldMap!=='object'||Array.isArray(fieldMap)) return;
-
-      const normalizedFieldMap={};
-      options.forEach((option)=>{
-        const values=parseCommaSeparated(fieldMap[option]);
-        if(values.length) normalizedFieldMap[option]=values;
-      });
-
-      if(Object.keys(normalizedFieldMap).length){
-        out[key]=normalizedFieldMap;
-      }
-    });
-
-    return out;
-  }
-
-  function normalizeLookupKey(value){
-    return String(value||'')
-      .toLowerCase()
-      .replaceAll('ä','ae')
-      .replaceAll('ö','oe')
-      .replaceAll('ü','ue')
-      .replaceAll('ß','ss')
-      .replace(/[^a-z0-9]+/g,'')
-      .trim();
-  }
-
-  function buildDropdownPhotoVariablesFromTemplates(tenant){
-    const out={};
-    if(!tenant||typeof tenant!=='object') return out;
-
-    const fields=Array.isArray(tenant.fields)?tenant.fields:[];
-    const templates=Array.isArray(tenant.templates)?tenant.templates:[];
-
-    fields
-      .filter((field)=>normalizeFieldType(field&&field.type)==='dropdown')
-      .forEach((field)=>{
-        const fieldKey=String(field&&field.key||'').trim();
-        const options=parseCommaSeparated(field&&field.options);
-        if(!fieldKey||options.length===0) return;
-
-        const optionMap={};
-        options.forEach((option)=>{
-          const optionNorm=normalizeLookupKey(option);
-          if(!optionNorm) return;
-
-          const template=templates.find((tpl)=>{
-            const nameNorm=normalizeLookupKey(tpl&&tpl.name);
-            const idNorm=normalizeLookupKey(tpl&&tpl.templateId);
-            return nameNorm===optionNorm||idNorm===optionNorm||idNorm.endsWith(optionNorm);
-          });
-
-          const captureSteps=Array.isArray(template&&template.captureSteps)?template.captureSteps:[];
-          const vars=captureSteps
-            .map((step)=>String(step&&step.label||'').trim())
-            .filter(Boolean);
-
-          if(vars.length){
-            optionMap[option]=vars;
-          }
-        });
-
-        if(Object.keys(optionMap).length){
-          out[fieldKey]=optionMap;
-        }
-      });
-
-    return out;
-  }
-
-  function mergeDropdownPhotoMappings(primaryMap, fallbackMap){
-    const out={};
-    const first=(primaryMap&&typeof primaryMap==='object'&&!Array.isArray(primaryMap))?primaryMap:{};
-    const second=(fallbackMap&&typeof fallbackMap==='object'&&!Array.isArray(fallbackMap))?fallbackMap:{};
-
-    [...new Set([...Object.keys(second),...Object.keys(first)])].forEach((fieldKey)=>{
-      const merged={
-        ...((second[fieldKey]&&typeof second[fieldKey]==='object'&&!Array.isArray(second[fieldKey]))?second[fieldKey]:{}),
-        ...((first[fieldKey]&&typeof first[fieldKey]==='object'&&!Array.isArray(first[fieldKey]))?first[fieldKey]:{}),
-      };
-      if(Object.keys(merged).length){
-        out[fieldKey]=merged;
-      }
-    });
-
-    return out;
-  }
-
-  function buildDropdownPhotoMappingUI(rawMap){
-    const container=document.getElementById('dropdown-photo-map-container');
-    const hint=document.getElementById('dropdown-photo-map-hint');
-    if(!container||!hint) return;
-
-    const dropdownFields=getDropdownFieldsFromUI();
-    const normalizedMap=normalizeDropdownPhotoVariablesMap(rawMap,dropdownFields);
-    container.innerHTML='';
-
-    if(!dropdownFields.length){
-      hint.textContent='Keine Dropdown-Felder mit Optionen vorhanden.';
-      hint.style.display='block';
-      return;
-    }
-
-    hint.textContent='Passe hier die Bildvariablen je Dropdown-Option an (Komma-getrennt).';
-    hint.style.display='block';
-
-    dropdownFields.forEach((field)=>{
-      const group=document.createElement('div');
-      group.className='dropdown-photo-group';
-      group.dataset.fieldKey=field.key;
-
-      const heading=document.createElement('h4');
-      heading.textContent=`Dropdown: ${field.key}`;
-      group.appendChild(heading);
-
-      field.options.forEach((option)=>{
-        const row=document.createElement('div');
-        row.className='dropdown-photo-row';
-        row.dataset.optionValue=option;
-
-        const optionLabel=document.createElement('div');
-        optionLabel.className='dropdown-photo-option';
-        optionLabel.textContent=option;
-
-        const input=document.createElement('input');
-        input.type='text';
-        input.className='item-input dpm-vars';
-        input.placeholder='z.B. vor_umbau, erdung_1';
-        input.value=(normalizedMap[field.key]&&normalizedMap[field.key][option])
-          ? normalizedMap[field.key][option].join(', ')
-          : '';
-
-        row.appendChild(optionLabel);
-        row.appendChild(input);
-        group.appendChild(row);
-      });
-
-      container.appendChild(group);
-    });
-  }
-
-  function getDropdownPhotoVariablesFromUI(){
-    const container=document.getElementById('dropdown-photo-map-container');
-    if(!container) return {};
-
-    const out={};
-    [...container.querySelectorAll('.dropdown-photo-group')].forEach((group)=>{
-      const fieldKey=String(group.dataset.fieldKey||'').trim();
-      if(!fieldKey) return;
-
-      const fieldMap={};
-      [...group.querySelectorAll('.dropdown-photo-row')].forEach((row)=>{
-        const option=String(row.dataset.optionValue||'').trim();
-        if(!option) return;
-        const values=parseCommaSeparated(row.querySelector('.dpm-vars').value);
-        if(values.length){
-          fieldMap[option]=values;
-        }
-      });
-
-      if(Object.keys(fieldMap).length){
-        out[fieldKey]=fieldMap;
-      }
-    });
-
-    return out;
-  }
-
-  window.refreshDropdownPhotoMappings=function(){
-    const current=getDropdownPhotoVariablesFromUI();
-    buildDropdownPhotoMappingUI(current);
-    syncNamingPatternsFromFields();
-  };
-
-  window.autofillDropdownPhotoMappingsFromTemplates=function(){
-    try{
-      const tenant=JSON.parse(document.getElementById('t-json').value||'{}');
-      const current=getDropdownPhotoVariablesFromUI();
-      const fromTemplates=buildDropdownPhotoVariablesFromTemplates(tenant);
-      const merged=mergeDropdownPhotoMappings(current,fromTemplates);
-      buildDropdownPhotoMappingUI(merged);
-      syncJsonFromForm();
-      toast('Dropdown-Bildvariablen aus Templates übernommen ✅');
-    }catch(e){
-      toast(`Auto-Fill fehlgeschlagen ❌ (${e.message||'Fehler'})`,false);
-    }
-  };
-
-  function buildFieldsUI(fields,dropdownPhotoVariables=null){
-    const container=document.getElementById('fields-container');
-    if(!container) return;
-    const currentMap=dropdownPhotoVariables===null
-      ? getDropdownPhotoVariablesFromUI()
-      : dropdownPhotoVariables;
-    container.innerHTML='';
-    (fields||[]).forEach((field,index)=>container.appendChild(makeFieldRow(field,index)));
-    buildDropdownPhotoMappingUI(currentMap);
-  }
-
-  function makeFieldRow(field,index){
-    const safeField=field||{};
-    const type=normalizeFieldType(safeField.type);
-    const optionsRaw=Array.isArray(safeField.options)?safeField.options.join(', '):'';
-    const div=document.createElement('div');
-    div.className='field-item';
-    div.innerHTML=`
-      <div>
-        <div class="item-label">Key</div>
-        <input class="item-input f-key" placeholder="popType" value="${escAttr(safeField.key||'')}" oninput="refreshDropdownPhotoMappings()" />
-      </div>
-      <div>
-        <div class="item-label">Typ</div>
-        <select class="item-input f-type" onchange="refreshDropdownPhotoMappings()">
-          <option value="text" ${type==='text'?'selected':''}>Text</option>
-          <option value="dropdown" ${type==='dropdown'?'selected':''}>Dropdown</option>
-          <option value="date" ${type==='date'?'selected':''}>Datum</option>
-        </select>
-      </div>
-      <div style="text-align:center">
-        <div class="item-label">Pflicht</div>
-        <input type="checkbox" class="f-required" ${safeField.required?'checked':''} style="width:20px;height:20px;margin-top:6px;cursor:pointer" />
-      </div>
-      <div>
-        <div class="item-label">Dropdown-Optionen</div>
-        <input class="item-input f-options" placeholder="FCP 1496, FCP 3696" value="${escAttr(optionsRaw)}" oninput="refreshDropdownPhotoMappings()" />
-      </div>
-      <button class="remove-btn" onclick="removeField(${index})">✕</button>`;
-    return div;
-  }
-
-  window.addField=function(){
-    const container=document.getElementById('fields-container');
-    if(!container) return;
-    const index=container.children.length;
-    container.appendChild(makeFieldRow({key:'',type:'text',required:false,options:[]},index));
-    refreshDropdownPhotoMappings();
-  };
-
-  window.removeField=function(index){
-    const fields=getFieldsFromUI();
-    fields.splice(index,1);
-    buildFieldsUI(fields);
-    refreshDropdownPhotoMappings();
-  };
-
-  function getFieldsFromUI(){
-    const container=document.getElementById('fields-container');
-    if(!container) return [];
-
-    return [...container.children]
-      .map((row)=>{
-        const key=row.querySelector('.f-key').value.trim();
-        const type=normalizeFieldType(row.querySelector('.f-type').value);
-        const required=row.querySelector('.f-required').checked;
-        const optionsValue=row.querySelector('.f-options').value.trim();
-        if(!key) return null;
-
-        const out={key,type,required};
-        if(type==='dropdown'){
-          out.options=parseCommaSeparated(optionsValue);
-        }
-        return out;
-      })
-      .filter(Boolean);
-  }
-
-  function buildTargetsUI(targets){
-    const container=document.getElementById('targets-container');
-    container.innerHTML='';
-    (targets||[]).forEach((target,index)=>container.appendChild(makeTargetRow(target,index)));
-    syncDefaultTargetOptions();
-  }
-
-  function syncDefaultTargetOptions(preferredId=''){
-    const select=document.getElementById('t-default-target');
-    if(!select) return;
-
-    const currentValue=String(preferredId||select.value||'').trim();
-    const targets=getTargetsFromUI().filter((target)=>String(target&&target.id||'').trim());
-
-    select.innerHTML='';
-
-    if(!targets.length){
-      const placeholder=document.createElement('option');
-      placeholder.value='mydrive';
-      placeholder.textContent='mydrive (Fallback)';
-      select.appendChild(placeholder);
-      select.value='mydrive';
-      return;
-    }
-
-    targets.forEach((target)=>{
-      const option=document.createElement('option');
-      option.value=target.id;
-      option.textContent=`${target.id}${target.label?` - ${target.label}`:''}`;
-      select.appendChild(option);
-    });
-
-    const nextValue=targets.some((target)=>target.id===currentValue)
-      ? currentValue
-      : targets[0].id;
-    select.value=nextValue;
-  }
-
-  function makeTargetRow(target,index){
-    const safeTarget=target||{};
-    const basePath=safeTarget.basePath||(safeTarget.configurable&&safeTarget.configurable.basePath)||'';
-    const div=document.createElement('div');
-    div.className='target-item';
-    div.innerHTML=`
-      <div>
-        <div class="item-label">ID</div>
-        <input class="item-input t-tid" placeholder="sharepoint" value="${escAttr(safeTarget.id||'')}" />
-      </div>
-      <div>
-        <div class="item-label">Typ</div>
-        <select class="item-input t-type">
-          <option value="sharepoint" ${safeTarget.type==='sharepoint'?'selected':''}>SharePoint</option>
-          <option value="onedrive_shared" ${safeTarget.type==='onedrive_shared'?'selected':''}>OneDrive Shared</option>
-          <option value="onedrive_personal" ${safeTarget.type==='onedrive_personal'?'selected':''}>OneDrive Personal</option>
-        </select>
-      </div>
-      <div>
-        <div class="item-label">Label</div>
-        <input class="item-input t-label" placeholder="Firmen-SharePoint" value="${escAttr(safeTarget.label||'')}" />
-      </div>
-      <button class="remove-btn" onclick="removeTarget(${index})">✕</button>
-      <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 60px;gap:8px">
-        <div>
-          <div class="item-label">Untertitel</div>
-          <input class="item-input t-subtitle" placeholder="z.B. GRAVIT_UPLOADS auf SharePoint" value="${escAttr(safeTarget.subtitle||'')}" />
-        </div>
-        <div>
-          <div class="item-label">Icon</div>
-          <input class="item-input t-icon" placeholder="🏢" value="${escAttr(safeTarget.icon||'')}" />
-        </div>
-      </div>
-      <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-        <div>
-          <div class="item-label">Base Path (onedrive_personal)</div>
-          <input class="item-input t-basepath" placeholder="/Dokumentation/Gravit" value="${escAttr(basePath)}" />
-        </div>
-        <div>
-          <div class="item-label">Drive ID (shared/sharepoint)</div>
-          <input class="item-input t-driveid" placeholder="1d7bf7cb..." value="${escAttr(safeTarget.driveId||'')}" />
-        </div>
-        <div>
-          <div class="item-label">Item ID (onedrive_shared)</div>
-          <input class="item-input t-itemid" placeholder="..." value="${escAttr(safeTarget.itemId||'')}" />
-        </div>
-        <div>
-          <div class="item-label">Sub Path (onedrive_shared)</div>
-          <input class="item-input t-subpath" placeholder="" value="${escAttr(safeTarget.subPath||'')}" />
-        </div>
-        <div>
-          <div class="item-label">App Folder (sharepoint)</div>
-          <input class="item-input t-appfolder" placeholder="GRAVIT_UPLOADS" value="${escAttr(safeTarget.appFolder||'')}" />
-        </div>
-      </div>`;
-    return div;
-  }
-
-  window.addTarget=function(){
-    const container=document.getElementById('targets-container');
-    container.appendChild(makeTargetRow({id:'',type:'sharepoint',label:'',subtitle:'',icon:'☁️'},container.children.length));
-    syncDefaultTargetOptions();
-  };
-
-  window.removeTarget=function(index){
-    const targets=getTargetsFromUI();
-    targets.splice(index,1);
-    buildTargetsUI(targets);
-    syncDefaultTargetOptions();
-  };
-
-  function getTargetsFromUI(){
-    return [...document.getElementById('targets-container').children].map((row)=>{
-      const type=row.querySelector('.t-type').value;
-      const out={
-        id: row.querySelector('.t-tid').value.trim(),
-        type,
-        label: row.querySelector('.t-label').value.trim(),
-        subtitle: row.querySelector('.t-subtitle').value.trim(),
-        icon: row.querySelector('.t-icon').value.trim(),
-      };
-
-      const basePath=row.querySelector('.t-basepath').value.trim();
-      const driveId=row.querySelector('.t-driveid').value.trim();
-      const itemId=row.querySelector('.t-itemid').value.trim();
-      const subPath=row.querySelector('.t-subpath').value.trim();
-      const appFolder=row.querySelector('.t-appfolder').value.trim();
-
-      if(type==='onedrive_personal'&&basePath) out.configurable={basePath};
-      if(type==='onedrive_shared'){
-        if(driveId) out.driveId=driveId;
-        if(itemId) out.itemId=itemId;
-        if(subPath) out.subPath=subPath;
-      }
-      if(type==='sharepoint'){
-        if(driveId) out.driveId=driveId;
-        if(appFolder) out.appFolder=appFolder;
-      }
-
-      return out;
-    });
-  }
-
-  function buildJsonFromForm(){
-    const tenantId=document.getElementById('t-id').value.trim();
-    const tenantName=document.getElementById('t-name').value.trim();
-    const templateId=document.getElementById('t-template-id').value.trim()||'standard';
-    const dropdownPhotoVariables=getDropdownPhotoVariablesFromUI();
-    const template={
-      templateId,
-      name: document.getElementById('t-template-name').value.trim()||templateId,
-      folderPattern: document.getElementById('t-folder').value.trim(),
-      fileNamePattern: document.getElementById('t-file').value.trim(),
-      captureSteps: getStepsFromUI(),
-      dropdownPhotoVariables,
-    };
-
-    return {
-      tenantId,
-      tenantName,
-      name: tenantName,
-      fields: getFieldsFromUI(),
-      defaultStorageTargetId: document.getElementById('t-default-target').value.trim(),
-      defaultTemplateId: templateId,
-      folderPattern: template.folderPattern,
-      fileNamePattern: template.fileNamePattern,
-      captureSteps: template.captureSteps,
-      dropdownPhotoVariables,
-      storageTargets: getTargetsFromUI(),
-      templates: [template],
-    };
-  }
-
-  window.syncJsonFromForm=function(){
-    document.getElementById('t-json').value=JSON.stringify(buildJsonFromForm(),null,2);
-    toast("JSON aktualisiert ✅");
-  };
-
-  window.syncFormFromJson=function(){
-    try{
-      const obj=JSON.parse(document.getElementById('t-json').value);
-      loadTenantIntoForm(obj);
-      toast("Formular befüllt ✅");
-    }catch(e){ toast("Ungültiges JSON ❌",false); }
-  };
-
-  window.importJsonFile=function(){ document.getElementById('json-file-input').click(); };
-
-  window.handleJsonImport=function(e){
-    const file=e.target.files[0];
-    if(!file) return;
-    const reader=new FileReader();
-    reader.onload=(event)=>{
-      document.getElementById('t-json').value=event.target.result;
-      syncFormFromJson();
-      switchModalTab('basics');
-    };
-    reader.readAsText(file);
-    e.target.value='';
-  };
-
-  function loadTenantIntoForm(tenant){
-    const primaryTemplate=getPrimaryTemplate(tenant);
-    document.getElementById('t-id').value=tenant.tenantId||'';
-    document.getElementById('t-name').value=tenant.name||tenant.tenantName||'';
-    document.getElementById('t-template-id').value=tenant.defaultTemplateId||primaryTemplate.templateId||'';
-    document.getElementById('t-template-name').value=primaryTemplate.name||'';
-    document.getElementById('t-folder').value=primaryTemplate.folderPattern||tenant.folderPattern||'';
-    document.getElementById('t-file').value=primaryTemplate.fileNamePattern||tenant.fileNamePattern||'';
-    const mappedFromTenant=(primaryTemplate.dropdownPhotoVariables&&typeof primaryTemplate.dropdownPhotoVariables==='object')
-      ? primaryTemplate.dropdownPhotoVariables
-      : (tenant.dropdownPhotoVariables&&typeof tenant.dropdownPhotoVariables==='object')
-        ? tenant.dropdownPhotoVariables
-        : {};
-    const mappedFromTemplates=buildDropdownPhotoVariablesFromTemplates(tenant);
-
-    buildFieldsUI(
-      tenant.fields||[],
-      mergeDropdownPhotoMappings(mappedFromTenant,mappedFromTemplates)
-    );
-    buildStepsUI(primaryTemplate.captureSteps||tenant.captureSteps||[]);
-    buildTargetsUI(tenant.storageTargets||[]);
-    syncDefaultTargetOptions(tenant.defaultStorageTargetId||'');
-    syncJsonFromForm();
-  }
-
-  // ===== TENANT MODAL =====
-  window.showNewTenantModal=function(){
-    editingTenantId=null;
-    onboardingCompanyId=null;
-    document.getElementById('modal-tenant-title').textContent='Neue Konfiguration';
-    document.getElementById('t-id').disabled=false;
-    setOnboardingAutoSync(true);
-    ['t-id','t-name','t-folder','t-file','t-default-target','t-template-id','t-template-name','t-json'].forEach((id)=>{
-      document.getElementById(id).value='';
-    });
-    ['onb-company-id','onb-company-name','onb-company-domain','onb-company-domains-extra'].forEach((id)=>{
-      document.getElementById(id).value='';
-    });
-    buildFieldsUI([],{}); 
-    buildStepsUI([]);
-    buildTargetsUI([]);
-    syncDefaultTargetOptions('mydrive');
-    setOnboardingAdvanced(false);
-    syncOnboardingIdentityFields();
-    switchModalTab('basics');
-    document.getElementById('modal-tenant').classList.add('active');
-  };
-
-  window.closeTenantModal=function(){
-    document.getElementById('modal-tenant').classList.remove('active');
-    editingTenantId=null;
-    onboardingCompanyId=null;
-  };
-
-  window.editTenant=function(id,companyContext=null){
-    editingTenantId=id;
-    const tenant=allTenants.find((item)=>item.tenantId===id);
-    if(!tenant) return;
-    const company=companyContext||allCompanies.find((item)=>getCompanyTenantId(item)===id)||null;
-    onboardingCompanyId=company?company.id:null;
-    document.getElementById('modal-tenant-title').textContent=`Bearbeiten: ${tenant.name||tenant.tenantName||tenant.tenantId}`;
-    document.getElementById('t-id').disabled=true;
-    setOnboardingAutoSync(false);
-    loadTenantIntoForm(tenant);
-    if(company){
-      setOnboardingCompanyFields(company);
-      document.getElementById('onb-company-id').value=company.id;
-    }
-    setOnboardingAdvanced(false);
-    switchModalTab('basics');
-    document.getElementById('modal-tenant').classList.add('active');
-  };
-  window.saveTenant=async function(){
-    syncOnboardingIdentityFields();
-    // Always sync JSON from form before saving
-    syncJsonFromForm();
-    let payload;
-    try{ payload=JSON.parse(document.getElementById('t-json').value); }
-    catch(e){ toast("Ungültiges JSON ❌",false); return; }
-    const tenantId=String(payload.tenantId||'').trim();
-    if(!tenantId){ toast("Tenant ID darf nicht leer sein ❌",false); return; }
-
-    const companyName=document.getElementById('onb-company-name').value.trim();
-    const primaryDomain=normalizeDomain(document.getElementById('onb-company-domain').value);
-    const extraDomains=parseDomainsText(document.getElementById('onb-company-domains-extra').value);
-    const suggestedCompanyId=getOnboardingCompanyIdSuggestion();
-    const companyId=String(document.getElementById('onb-company-id').value.trim()||onboardingCompanyId||suggestedCompanyId||slugifyCompanyId(tenantId));
-
-    if(!companyId||!companyName||!primaryDomain){
-      toast("Firma: Name und Primäre Domain sind Pflicht ❌",false);
-      switchModalTab('basics');
-      return;
-    }
-
-    const template=getPrimaryTemplate(payload);
-    const dropdownPhotoVariables=normalizeDropdownPhotoVariablesMap(
-      (template&&template.dropdownPhotoVariables&&typeof template.dropdownPhotoVariables==='object')
-        ? template.dropdownPhotoVariables
-        : (payload&&payload.dropdownPhotoVariables&&typeof payload.dropdownPhotoVariables==='object')
-          ? payload.dropdownPhotoVariables
-          : {},
-      (Array.isArray(payload&&payload.fields)?payload.fields:[])
-        .filter((field)=>normalizeFieldType(field&&field.type)==='dropdown')
-        .map((field)=>({
-          key: String(field&&field.key||'').trim(),
-          options: parseCommaSeparated(field&&field.options),
-        }))
-    );
-    const companyConfig={
-      folderNamingTemplate: String(template.folderPattern||payload.folderPattern||'').trim(),
-      fileNamingTemplate: String(template.fileNamePattern||payload.fileNamePattern||'').trim(),
-      fields: Array.isArray(payload.fields)?payload.fields:[],
-      photoVariables: (Array.isArray(template.captureSteps)?template.captureSteps:[])
-        .map((step)=>String(step&&step.label||'').trim())
-        .filter(Boolean),
-      dropdownPhotoVariables,
-      uploadTargets: Array.isArray(payload.storageTargets)?payload.storageTargets:[],
-    };
-
-    const btn=document.getElementById('btn-save-tenant'); btn.disabled=true;
-    try{
-      payload.tenantId=tenantId;
-
-      const result=await postJson(API_ONBOARDING_SAVE,{
-        companyId,
-        companyName,
-        primaryDomain,
-        extraDomains,
-        tenantId,
-        companyConfig,
-        tenantPayload: payload,
-      });
-
-      if(result&&result.routing){
-        currentRouting=result.routing;
-      }
-
-      onboardingCompanyId=companyId;
-      toast(editingTenantId?"Onboarding aktualisiert ✅":"Onboarding gespeichert ✅");
-      closeTenantModal();
-      await Promise.all([loadCompanies(),loadTenants(),loadDevices()]);
-    }catch(e){ toast(`Fehler: ${e.message} ❌`,false); }
-    finally{ btn.disabled=false; }
-  };
-  window.deleteTenant=async function(id){
-    if(!confirm(`Konfiguration "${id}" wirklich löschen?`)) return;
-    try{ await deleteJson(`${API_TENANTS}/${id}`); toast("Gelöscht ✅"); await loadTenants(); }
-    catch(e){ toast(`Fehler ❌${e&&e.message?` (${e.message})`:''}`,false); }
-  };
-  window.exportTenantJson=function(id){
-    const t=allTenants.find(t=>t.tenantId===id); if(!t) return;
-    const blob=new Blob([JSON.stringify(t,null,2)],{type:'application/json'});
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-    a.download=`${id}.json`; a.click(); URL.revokeObjectURL(a.href);
-  };
 
   // ===== ROUTING EDITOR =====
   window.openRoutingEditor=function(options={}){
@@ -2266,42 +1726,6 @@
   document.getElementById('sort').addEventListener('change',renderDevices);
   document.getElementById('filterCompany').addEventListener('change',renderDevices);
   document.getElementById('refresh').addEventListener('change',setAutoRefresh);
-  document.getElementById('company-name').addEventListener('input',syncCompanyAutoFields);
-  document.getElementById('company-domain').addEventListener('input',syncCompanyAutoFields);
-  document.getElementById('company-id').addEventListener('input',()=>{
-    if(editingCompanyId) return;
-    const idInput=document.getElementById('company-id');
-    const suggested=getSuggestedCompanyId();
-    idInput.dataset.autoSync=idInput.value.trim()===suggested?'1':'0';
-    syncCompanyAutoFields();
-  });
-  document.getElementById('company-tenant-id').addEventListener('input',()=>{
-    if(editingCompanyId) return;
-    const tenantInput=document.getElementById('company-tenant-id');
-    const suggested=getSuggestedTenantId();
-    tenantInput.dataset.autoSync=tenantInput.value.trim()===suggested?'1':'0';
-    syncCompanyAutoFields();
-  });
-  document.getElementById('onb-company-name').addEventListener('input',syncOnboardingIdentityFields);
-  document.getElementById('onb-company-domain').addEventListener('input',syncOnboardingIdentityFields);
-  document.getElementById('targets-container').addEventListener('input',()=>syncDefaultTargetOptions());
-  document.getElementById('targets-container').addEventListener('change',()=>syncDefaultTargetOptions());
-  ['t-name','t-default-target','t-template-id','t-template-name','t-folder','t-file'].forEach((id)=>{
-    document.getElementById(id).addEventListener('input',()=>{
-      const input=document.getElementById(id);
-      input.dataset.autoSync='0';
-    });
-  });
-  document.getElementById('t-default-target').addEventListener('change',()=>{
-    document.getElementById('t-default-target').dataset.autoSync='0';
-  });
-  document.getElementById('t-id').addEventListener('input',()=>{
-    const tenantInput=document.getElementById('t-id');
-    if(tenantInput.disabled) return;
-    const suggested=getOnboardingTenantIdSuggestion();
-    tenantInput.dataset.autoSync=tenantInput.value.trim()===suggested?'1':'0';
-    syncOnboardingIdentityFields();
-  });
   document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m){ closeCompanyModal(); closeTenantModal(); closeRoutingModal(); closeAssignCompanyModal(); } }));
 
   // ===== INIT =====

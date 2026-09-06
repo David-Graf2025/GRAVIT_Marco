@@ -2,12 +2,38 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
+function toStr(value) {
+  if (value === undefined || value === null) return '';
+  return String(value).trim();
+}
+
+function toLowerEmail(value) {
+  return toStr(value).toLowerCase();
+}
+
+function toBool(value, fallback = false) {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value === 'string') {
+    const v = value.trim().toLowerCase();
+    if (v === 'true' || v === '1' || v === 'yes') return true;
+    if (v === 'false' || v === '0' || v === 'no') return false;
+  }
+  return fallback;
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
-const DATA_FILE = process.env.DATA_FILE || '/data/devices.json';
+const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data', 'devices.json');
 const DASHBOARD_FILE = path.join(__dirname, 'dashboard.html');
-const ADMIN_AUTH_USERNAME = toStr(process.env.ADMIN_AUTH_USERNAME);
-const ADMIN_AUTH_PASSWORD = toStr(process.env.ADMIN_AUTH_PASSWORD);
+const TEMPTON_DASHBOARD_FILE = path.join(__dirname, 'tempton-dashboard.html');
+const APP_API_KEY = toStr(process.env.APP_API_KEY) || 'bilderapp_api_key_2026';
+const ADMIN_AUTH_USERNAME = toStr(process.env.ADMIN_AUTH_USERNAME) || (process.env.NODE_ENV === 'production' ? '' : 'admin');
+const ADMIN_AUTH_PASSWORD = toStr(process.env.ADMIN_AUTH_PASSWORD) || (process.env.NODE_ENV === 'production' ? '' : 'admin123');
 const ADMIN_AUTH_REALM = toStr(process.env.ADMIN_AUTH_REALM) || 'BilderApp Admin';
 const ADMIN_AUTH_ENABLED = ADMIN_AUTH_USERNAME.length > 0 && ADMIN_AUTH_PASSWORD.length > 0;
 const DATA_BACKUP_DIR = process.env.DATA_BACKUP_DIR || path.join(path.dirname(DATA_FILE), 'backups');
@@ -35,7 +61,11 @@ function parseBasicAuthHeader(headerValue) {
 }
 
 function requireAdminAuth(req, res, next) {
-  if (!ADMIN_AUTH_ENABLED) return next();
+  if (!ADMIN_AUTH_USERNAME || !ADMIN_AUTH_PASSWORD) {
+    return res.status(503).json({
+      error: 'Admin authentication is not configured on this server. Set ADMIN_AUTH_USERNAME and ADMIN_AUTH_PASSWORD.',
+    });
+  }
 
   const credentials = parseBasicAuthHeader(req.headers && req.headers.authorization);
   const isValid =
@@ -51,31 +81,29 @@ function requireAdminAuth(req, res, next) {
   return next();
 }
 
-app.use('/admin', requireAdminAuth);
-
-function nowIso() {
-  return new Date().toISOString();
-}
-
-function toStr(value) {
-  if (value === undefined || value === null) return '';
-  return String(value).trim();
-}
-
-function toLowerEmail(value) {
-  return toStr(value).toLowerCase();
-}
-
-function toBool(value, fallback = false) {
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'number') return value !== 0;
-  if (typeof value === 'string') {
-    const v = value.trim().toLowerCase();
-    if (v === 'true' || v === '1' || v === 'yes') return true;
-    if (v === 'false' || v === '0' || v === 'no') return false;
+function requireAppApiKey(req, res, next) {
+  if (req.path === '/health' || req.path === '/tempton/health') {
+    return next();
   }
-  return fallback;
+  const apiKey = req.headers['x-api-key'] || req.query.apiKey;
+  if (!apiKey || apiKey !== APP_API_KEY) {
+    return res.status(401).json({
+      error: 'Unauthorized: Invalid or missing API key',
+      code: 'INVALID_API_KEY',
+    });
+  }
+  return next();
 }
+
+app.use('/admin', requireAdminAuth);
+app.use('/tempton/admin', requireAdminAuth);
+app.use('/v1', requireAppApiKey);
+app.use('/tempton', (req, res, next) => {
+  if (req.path.startsWith('/admin')) {
+    return next();
+  }
+  return requireAppApiKey(req, res, next);
+});
 
 function cloneDataState(source) {
   return JSON.parse(JSON.stringify(source));
@@ -975,63 +1003,223 @@ function toCaptureSteps(photoVariables) {
   });
 }
 
+function normalizeCompanyTemplates(rawTemplates) {
+  const list = normalizeArray(rawTemplates);
+  if (!list.length) {
+    return [
+      {
+        templateId: 'standard',
+        name: 'Standard Dokumentation',
+        folderPattern: PLATFORM_DEFAULTS.defaultFolderNamingTemplate,
+        fileNamePattern: PLATFORM_DEFAULTS.defaultFileNamingTemplate,
+        captureSteps: PLATFORM_DEFAULTS.defaultPhotoVariables.map((label, idx) => ({
+          id: slugify(label) || `step_${idx + 1}`,
+          label,
+          translationKey: `photo_${slugify(label) || idx + 1}`,
+          required: idx < 3,
+          order: idx + 1,
+        })),
+      },
+    ];
+  }
+  return list.map((t, idx) => {
+    const name = toStr(t.name) || `Vorlage ${idx + 1}`;
+    const templateId = toStr(t.templateId) || slugify(name) || `tpl_${idx + 1}`;
+    const rawSteps = normalizeArray(t.captureSteps);
+    const steps = rawSteps
+      .map((step, sIdx) => {
+        if (typeof step === 'string') {
+          const label = step.trim();
+          const id = slugify(label) || `step_${sIdx + 1}`;
+          return {
+            id,
+            label,
+            translationKey: `photo_${id}`,
+            required: false,
+            order: sIdx + 1,
+          };
+        }
+        const label = toStr(step && (step.label || step.id)) || `Schritt ${sIdx + 1}`;
+        const id = toStr(step && step.id) || slugify(label) || `step_${sIdx + 1}`;
+        return {
+          id,
+          label,
+          translationKey: `photo_${id}`,
+          required: toBool(step && step.required, false),
+          order: Number(step && step.order) || sIdx + 1,
+        };
+      })
+      .filter((s) => s.label.length > 0);
+
+    return {
+      templateId,
+      name,
+      folderPattern: toStr(t.folderPattern) || PLATFORM_DEFAULTS.defaultFolderNamingTemplate,
+      fileNamePattern: toStr(t.fileNamePattern) || PLATFORM_DEFAULTS.defaultFileNamingTemplate,
+      captureSteps: steps.length ? steps : toCaptureSteps(PLATFORM_DEFAULTS.defaultPhotoVariables),
+    };
+  });
+}
+
 function buildTenantConfigFromCompany(company, existingTenantConfig) {
-  const companyConfig = normalizeCompanyConfig(company.config);
   const tenantId = toStr(company.tenantId) || company.id;
-  const templateId = `${company.id}_default`;
+  const storageTargets = [];
+  const targetConfig = company.storageTarget || (company.config && company.config.storageTarget) || {};
+  let targetType = toStr(targetConfig.type).toLowerCase();
+  if (!['local', 'onedrive', 'sharepoint'].includes(targetType)) {
+    if (targetType.includes('onedrive') || targetType === 'mydrive') targetType = 'onedrive';
+    else if (targetType.includes('sharepoint')) targetType = 'sharepoint';
+    else targetType = 'local';
+  }
 
-  const tenantStorageTargets = normalizeArray(companyConfig.uploadTargets)
-    .map(toTenantStorageTarget)
-    .filter((item) => item && item.id);
+  if (targetType === 'sharepoint') {
+    storageTargets.push({
+      id: 'sharepoint',
+      type: 'sharepoint',
+      label: 'Firmen-SharePoint',
+      icon: '🏢',
+      subtitle: toStr(targetConfig.appFolder) || 'SharePoint Upload',
+      driveId: toStr(targetConfig.driveId),
+      siteId: toStr(targetConfig.siteId),
+      appFolder: toStr(targetConfig.appFolder) || 'BilderApp',
+    });
+  } else if (targetType === 'onedrive') {
+    const isShared = targetConfig.oneDriveType === 'shared';
+    storageTargets.push({
+      id: 'onedrive',
+      type: isShared ? 'onedrive_shared' : 'onedrive_personal',
+      label: 'Firmen-OneDrive',
+      icon: '☁️',
+      subtitle: toStr(targetConfig.basePath) || '/BilderApp',
+      configurable: { basePath: toStr(targetConfig.basePath) || '/BilderApp' },
+      driveId: toStr(targetConfig.driveId),
+      itemId: toStr(targetConfig.itemId),
+    });
+  } else {
+    storageTargets.push({
+      id: 'local',
+      type: 'local',
+      label: 'Nur lokal auf dem Handy',
+      icon: '📱',
+      subtitle: 'Fotos verbleiben auf dem Gerät',
+    });
+  }
 
-  const storageTargets = tenantStorageTargets.length
-    ? tenantStorageTargets
-    : normalizeArray(existingTenantConfig && existingTenantConfig.storageTargets).length
-      ? normalizeArray(existingTenantConfig.storageTargets)
-      : [...PLATFORM_DEFAULTS.defaultStorageTargets];
+  const defaultStorageTargetId = storageTargets[0]?.id || 'local';
 
-  const generatedTemplate = {
-    templateId,
-    name: `${company.name} Standard`,
-    folderPattern: companyConfig.folderNamingTemplate,
-    fileNamePattern: companyConfig.fileNamingTemplate,
-    captureSteps: toCaptureSteps(companyConfig.photoVariables),
-    dropdownPhotoVariables: normalizeDropdownPhotoVariables(
-      companyConfig.dropdownPhotoVariables,
-      companyConfig.fields
-    ),
-  };
+  let templates = [];
+  if (Array.isArray(company.templates) && company.templates.length) {
+    templates = company.templates;
+  } else if (existingTenantConfig && Array.isArray(existingTenantConfig.templates) && existingTenantConfig.templates.length) {
+    templates = existingTenantConfig.templates;
+  } else {
+    templates = normalizeCompanyTemplates([]);
+  }
 
-  const templates = normalizeArray(existingTenantConfig && existingTenantConfig.templates)
-    .filter((tpl) => toStr(tpl && tpl.templateId) !== templateId);
-  templates.unshift(generatedTemplate);
+  const defaultTemplateId = toStr(company.defaultTemplateId) || templates[0]?.templateId || 'standard';
+
+  const fields = normalizeArray(company.fields).length
+    ? company.fields
+    : (existingTenantConfig && normalizeArray(existingTenantConfig.fields).length
+      ? existingTenantConfig.fields
+      : PLATFORM_DEFAULTS.defaultFields);
+
+  const folderPattern = toStr(
+    company.folderNamingTemplate ||
+    templates[0]?.folderPattern ||
+    PLATFORM_DEFAULTS.defaultFolderNamingTemplate
+  );
+  const fileNamePattern = toStr(
+    company.fileNamingTemplate ||
+    templates[0]?.fileNamePattern ||
+    PLATFORM_DEFAULTS.defaultFileNamingTemplate
+  );
 
   return {
-    ...(existingTenantConfig && typeof existingTenantConfig === 'object' ? existingTenantConfig : {}),
     tenantId,
     name: toStr(company.name) || tenantId,
     sourceCompanyId: company.id,
-    managedBy: 'company-sync',
-    fields: normalizeArray(companyConfig.fields),
-    defaultStorageTargetId: toStr(existingTenantConfig && existingTenantConfig.defaultStorageTargetId) || storageTargets[0].id || PLATFORM_DEFAULTS.defaultStorageTargetId,
+    managedBy: 'company-unified',
+    storageType: targetType,
+    burnWatermark: toBool(company.burnWatermark, false),
+    fields,
+    defaultStorageTargetId,
     storageTargets,
-    defaultTemplateId: templateId,
+    defaultTemplateId,
     templates,
+    folderPattern,
+    fileNamePattern,
     updatedAt: nowIso(),
     createdAt: (existingTenantConfig && existingTenantConfig.createdAt) || nowIso(),
   };
 }
 
 function normalizeCompany(raw) {
-  const id = toStr(raw.id);
+  const id = toStr(raw.id || raw.companyId);
   const domain = toStr(raw.domain).toLowerCase();
   const domains = normalizeDomainList([domain, ...normalizeArray(raw.domains)]);
+  const contactPerson = {
+    name: toStr(raw.contactPerson && raw.contactPerson.name),
+    email: toLowerEmail(raw.contactPerson && raw.contactPerson.email),
+    phone: toStr(raw.contactPerson && raw.contactPerson.phone),
+  };
+  const authorizedEmails = normalizeArray(raw.authorizedEmails)
+    .map(toLowerEmail)
+    .filter(Boolean);
+
+  const rawStorage = raw.storageTarget || (raw.config && raw.config.storageTarget) || {};
+  let storageType = toStr(rawStorage.type).toLowerCase();
+  if (!['local', 'onedrive', 'sharepoint'].includes(storageType)) {
+    if (storageType.includes('onedrive') || storageType === 'mydrive') storageType = 'onedrive';
+    else if (storageType.includes('sharepoint')) storageType = 'sharepoint';
+    else {
+      const legacyTargets = normalizeArray(raw && raw.config && raw.config.uploadTargets);
+      const sp = legacyTargets.find((t) => toStr(t && t.type).includes('sharepoint'));
+      const od = legacyTargets.find((t) => toStr(t && t.type).includes('onedrive'));
+      if (sp) {
+        storageType = 'sharepoint';
+        rawStorage.driveId = rawStorage.driveId || sp.driveId || (sp.config && sp.config.driveId);
+        rawStorage.appFolder = rawStorage.appFolder || sp.appFolder || (sp.config && sp.config.appFolder);
+      } else if (od) {
+        storageType = 'onedrive';
+        rawStorage.basePath = rawStorage.basePath || (od.configurable && od.configurable.basePath) || (od.config && od.config.basePath) || '/BilderApp';
+      } else {
+        storageType = 'local';
+      }
+    }
+  }
+
+  const storageTarget = {
+    type: storageType,
+    sharepointUrl: toStr(rawStorage.sharepointUrl),
+    driveId: toStr(rawStorage.driveId),
+    siteId: toStr(rawStorage.siteId),
+    appFolder: toStr(rawStorage.appFolder) || 'BilderApp',
+    oneDriveType: rawStorage.oneDriveType === 'shared' ? 'shared' : 'personal',
+    basePath: toStr(rawStorage.basePath) || '/BilderApp',
+    itemId: toStr(rawStorage.itemId),
+  };
+
+  const burnWatermark = toBool(raw.burnWatermark !== undefined ? raw.burnWatermark : (raw.config && raw.config.burnWatermark), false);
+  const folderNamingTemplate = toStr(raw.folderNamingTemplate || (raw.config && raw.config.folderNamingTemplate) || raw.folderPattern) || PLATFORM_DEFAULTS.defaultFolderNamingTemplate;
+  const fileNamingTemplate = toStr(raw.fileNamingTemplate || (raw.config && raw.config.fileNamingTemplate) || raw.fileNamePattern) || PLATFORM_DEFAULTS.defaultFileNamingTemplate;
+  const templates = normalizeCompanyTemplates(raw.templates || (raw.config && raw.config.templates));
+  const fields = normalizeArray(raw.fields).length ? raw.fields : PLATFORM_DEFAULTS.defaultFields;
+
   return {
     id,
     name: toStr(raw.name),
     domain,
     domains,
-    tenantId: toStr(raw.tenantId) || id,
+    tenantId: id,
+    contactPerson,
+    authorizedEmails,
+    storageTarget,
+    burnWatermark,
+    folderNamingTemplate,
+    fileNamingTemplate,
+    fields,
+    templates,
     isActive: toBool(raw.isActive, true),
     config: normalizeCompanyConfig(raw && raw.config),
     createdAt: raw.createdAt || nowIso(),
@@ -1057,7 +1245,7 @@ function normalizeDevice(raw, deviceId, companies) {
   const tenantId = toStr(raw.tenantId) || (companyId && companies[companyId] ? companies[companyId].tenantId : null);
   return {
     deviceId,
-    allowed: toBool(raw.allowed, true),
+    allowed: toBool(raw.allowed, false),
     message: toStr(raw.message),
     graceUntil: raw.graceUntil || null,
     createdAt: raw.createdAt || nowIso(),
@@ -1336,21 +1524,28 @@ function cleanupDeviceAliases({ dryRun = true } = {}) {
   };
 }
 
+let lastSavedSnapshot = null;
+
 function loadData() {
   try {
     if (!fs.existsSync(DATA_FILE)) {
       ensureDirForFile(DATA_FILE);
       const seed = defaultData();
       fs.writeFileSync(DATA_FILE, JSON.stringify(seed, null, 2));
+      lastSavedSnapshot = JSON.stringify(seed, null, 2);
       return seed;
     }
 
     const raw = fs.readFileSync(DATA_FILE, 'utf-8');
     const parsed = JSON.parse(raw);
-    return normalizeData(parsed);
+    const normalized = normalizeData(parsed);
+    lastSavedSnapshot = JSON.stringify(normalized, null, 2);
+    return normalized;
   } catch (err) {
     console.error('Error loading data:', err.message);
-    return defaultData();
+    const fallback = defaultData();
+    lastSavedSnapshot = JSON.stringify(fallback, null, 2);
+    return fallback;
   }
 }
 
@@ -1363,11 +1558,22 @@ function saveData() {
     ensureDirForFile(DATA_FILE);
     const tempFile = `${DATA_FILE}.tmp`;
     createDataBackupSnapshot();
-    fs.writeFileSync(tempFile, JSON.stringify(data, null, 2));
+    const serialized = JSON.stringify(data, null, 2);
+    fs.writeFileSync(tempFile, serialized);
     fs.renameSync(tempFile, DATA_FILE);
+    lastSavedSnapshot = serialized;
     return true;
   } catch (err) {
     console.error('Error saving data:', err.message);
+    if (lastSavedSnapshot) {
+      try {
+        data = normalizeData(JSON.parse(lastSavedSnapshot));
+        ensureModelConsistency();
+        console.warn('Rolled back in-memory data to last saved snapshot due to save failure.');
+      } catch (rollbackErr) {
+        console.error('Failed to rollback in-memory state:', rollbackErr.message);
+      }
+    }
     return false;
   }
 }
@@ -1471,7 +1677,7 @@ function getOrCreateDevice(deviceId, req) {
     device = normalizeDevice(
       {
         deviceId: requestedId,
-        allowed: true,
+        allowed: false,
         companyId: null,
         tenantId: null,
         userEmail: null,
@@ -1483,7 +1689,7 @@ function getOrCreateDevice(deviceId, req) {
     device.createdAt = now;
     device.lastSeen = now;
     data.devices[requestedId] = device;
-    console.log(`New device registered: ${requestedId}`);
+    console.log(`New device registered (pending approval): ${requestedId}`);
   } else if (requestedId && requestedId !== device.deviceId) {
     setDeviceAlias(requestedId, device.deviceId);
   }
@@ -1573,36 +1779,36 @@ function getOrCreateDevice(deviceId, req) {
     device.lastSeenEmail = effectiveUserEmail;
     device.userEmail = effectiveUserEmail;
 
-    const existingUser = data.users[effectiveUserEmail];
-    if (existingUser && existingUser.companyId) {
-      device.companyId = existingUser.companyId;
-      device.tenantId = resolveCompanyTenantId(existingUser.companyId);
+    // 1. Direct match on authorized technician email list
+    const matchedCompany = Object.values(data.companies).find(
+      (c) => Array.isArray(c.authorizedEmails) && c.authorizedEmails.map(toLowerEmail).includes(effectiveUserEmail),
+    );
+
+    if (matchedCompany) {
+      device.companyId = matchedCompany.id;
+      device.tenantId = matchedCompany.id;
       device.assignmentStatus = 'assigned';
+      device.allowed = true; // Authorized technician!
+      debugLog('Device auto-authorized via company authorizedEmails', { deviceId: device.deviceId, companyId: matchedCompany.id });
     } else {
+      // 2. Domain matching
       const domain = effectiveUserEmail.includes('@')
-        ? effectiveUserEmail.split('@').pop()
+        ? effectiveUserEmail.split('@').pop().toLowerCase()
         : '';
-      const matchedCompany = Object.values(data.companies).find(
-        (company) => company.domain && company.domain === domain,
+      const domainCompany = Object.values(data.companies).find(
+        (c) => c.domain === domain || (Array.isArray(c.domains) && c.domains.includes(domain)),
       );
 
-      if (matchedCompany) {
-        if (!existingUser) {
-          data.users[effectiveUserEmail] = normalizeUser({
-            email: effectiveUserEmail,
-            name: '',
-            role: 'user',
-            isActive: true,
-            companyId: matchedCompany.id,
-          });
+      if (domainCompany) {
+        device.companyId = domainCompany.id;
+        device.tenantId = domainCompany.id;
+        if (Array.isArray(domainCompany.authorizedEmails) && domainCompany.authorizedEmails.length > 0) {
+          device.assignmentStatus = 'pending';
+          device.allowed = false; // Requires approval because company has specific authorized emails
         } else {
-          existingUser.companyId = matchedCompany.id;
-          existingUser.updatedAt = nowIso();
+          device.assignmentStatus = 'assigned';
+          device.allowed = true;
         }
-
-        device.companyId = matchedCompany.id;
-        device.tenantId = resolveCompanyTenantId(matchedCompany.id);
-        device.assignmentStatus = 'assigned';
       }
     }
   }
@@ -1657,6 +1863,7 @@ function toDeviceResponse(device) {
     userRole: user ? user.role : 'user',
     userActive: user ? user.isActive : false,
     companyName: company ? company.name : null,
+    storageType: company && company.storageTarget ? company.storageTarget.type : 'local',
     effectiveAllowed,
     graceActive,
   };
@@ -1916,6 +2123,7 @@ app.get('/v1/access/:deviceId', (req, res) => {
     minVersion: 0,
     companyId: device.companyId || null,
     tenantId: device.tenantId || null,
+    storageType: device.companyId && data.companies[device.companyId] && data.companies[device.companyId].storageTarget ? data.companies[device.companyId].storageTarget.type : 'local',
     assignmentStatus: device.assignmentStatus || (device.companyId ? 'assigned' : 'unassigned'),
     assignmentUpdatedAt: device.assignmentUpdatedAt || null,
     assignmentStateVersion,
@@ -2052,13 +2260,10 @@ app.get('/v1/config-version/:deviceId', (req, res) => {
 app.get('/v1/tenant-routing', (_req, res) => {
   setNoStoreHeaders(res);
 
-  const emailTenantMapping = buildEmailTenantMapping();
-
   res.json({
-    defaultTenantId: data.defaultTenantId || 'gravit_default',
+    defaultTenantId: data.defaultTenantId || 'tempton',
     manualTenantId: data.manualTenantId || '',
     domainTenantMapping: data.domainTenantMapping || {},
-    emailTenantMapping,
   });
 });
 
@@ -2098,7 +2303,6 @@ app.get('/v1/tenant-config/:tenantId', (req, res) => {
     return res.status(404).json({
       error: 'Tenant config not found',
       tenantId,
-      available: Object.keys(data.tenantConfigs || {}),
     });
   }
 
@@ -2409,10 +2613,10 @@ app.get('/admin/api/companies', (_req, res) => {
 });
 
 app.post('/admin/api/companies', (req, res) => {
-  const id = toStr(req.body && req.body.id);
-  const name = toStr(req.body && req.body.name);
-  const domain = toStr(req.body && req.body.domain).toLowerCase();
-  const tenantId = toStr(req.body && req.body.tenantId) || id;
+  const payload = req.body || {};
+  const id = toStr(payload.id || payload.companyId || slugify(payload.name));
+  const name = toStr(payload.name);
+  const domain = toStr(payload.domain).toLowerCase();
 
   if (!id || !name || !domain) {
     return res.status(400).json({ error: 'Missing required fields: id, name, domain' });
@@ -2422,57 +2626,76 @@ app.post('/admin/api/companies', (req, res) => {
     return res.status(409).json({ error: 'Company with this ID already exists' });
   }
 
-  const configPayload = req.body && typeof req.body.config === 'object' ? req.body.config : {};
-  const configValidationErrors = validateCompanyConfigInput(configPayload);
-  if (configValidationErrors.length) {
-    return validationError(res, configValidationErrors);
-  }
-
-  data.companies[id] = normalizeCompany({
+  const company = normalizeCompany({
+    ...payload,
     id,
     name,
     domain,
-    tenantId,
-    isActive: req.body && req.body.isActive !== undefined ? req.body.isActive : true,
-    config: configPayload,
-    createdAt: nowIso(),
-    updatedAt: nowIso(),
   });
 
-  syncCompanyDerivedState(data.companies[id]);
-
-  if (!saveData()) return res.status(500).json({ error: 'Failed to save' });
-  return res.json({ success: true, company: data.companies[id] });
-});
-
-app.put('/admin/api/companies/:id', (req, res) => {
-  const id = toStr(req.params.id);
-  const company = data.companies[id];
-  if (!company) return res.status(404).json({ error: 'Company not found' });
-
-  const nextName = toStr(req.body && req.body.name);
-  const nextDomain = toStr(req.body && req.body.domain).toLowerCase();
-  const nextTenantId = toStr(req.body && req.body.tenantId);
-
-  if (nextName) company.name = nextName;
-  if (nextDomain) company.domain = nextDomain;
-  if (nextTenantId) company.tenantId = nextTenantId;
-  if (req.body && req.body.isActive !== undefined) {
-    company.isActive = toBool(req.body.isActive, company.isActive);
-  }
-  if (req.body && req.body.config && typeof req.body.config === 'object') {
-    const configValidationErrors = validateCompanyConfigInput(req.body.config);
-    if (configValidationErrors.length) {
-      return validationError(res, configValidationErrors);
-    }
-    company.config = normalizeCompanyConfig(req.body.config);
-  }
-  company.updatedAt = nowIso();
-
+  data.companies[id] = company;
   syncCompanyDerivedState(company);
 
   if (!saveData()) return res.status(500).json({ error: 'Failed to save' });
   return res.json({ success: true, company });
+});
+
+app.put('/admin/api/companies/:id', (req, res) => {
+  const id = toStr(req.params.id);
+  const existing = data.companies[id];
+  if (!existing) return res.status(404).json({ error: 'Company not found' });
+
+  const payload = req.body || {};
+  const company = normalizeCompany({
+    ...existing,
+    ...payload,
+    id,
+    createdAt: existing.createdAt,
+    updatedAt: nowIso(),
+  });
+
+  data.companies[id] = company;
+  syncCompanyDerivedState(company);
+
+  if (!saveData()) return res.status(500).json({ error: 'Failed to save' });
+  return res.json({ success: true, company });
+});
+
+app.delete('/admin/api/companies/:id', (req, res) => {
+  const id = toStr(req.params.id);
+  if (!data.companies[id]) {
+    return res.status(404).json({ error: 'Company not found' });
+  }
+
+  delete data.companies[id];
+  delete data.tenantConfigs[id];
+
+  // Unassign linked devices
+  for (const device of Object.values(data.devices || {})) {
+    if (device.companyId === id) {
+      device.companyId = null;
+      device.tenantId = null;
+      device.assignmentStatus = 'unassigned';
+      device.allowed = false;
+      device.updatedAt = nowIso();
+    }
+  }
+
+  const cleanedMapping = {};
+  for (const [domain, tenantId] of Object.entries(data.domainTenantMapping || {})) {
+    if (tenantId !== id) cleanedMapping[domain] = tenantId;
+  }
+  data.domainTenantMapping = cleanedMapping;
+
+  if (data.defaultTenantId === id) {
+    data.defaultTenantId = Object.keys(data.companies)[0] || '';
+  }
+  if (data.manualTenantId === id) {
+    data.manualTenantId = '';
+  }
+
+  if (!saveData()) return res.status(500).json({ error: 'Failed to save' });
+  return res.json({ success: true });
 });
 
 app.get('/admin/api/companies/:id/devices', (req, res) => {
@@ -2659,119 +2882,43 @@ app.put('/admin/api/tenants/:id', (req, res) => {
 
 app.post('/admin/api/onboarding/save', (req, res) => {
   const payload = req.body && typeof req.body === 'object' ? req.body : {};
+  const companyId = toStr(payload.companyId || payload.id || slugify(payload.companyName || payload.name));
+  const companyName = toStr(payload.companyName || payload.name);
+  const primaryDomain = toStr(payload.primaryDomain || payload.domain).toLowerCase();
+  const extraDomains = toStringList(payload.extraDomains || payload.domains).map((d) => toStr(d).toLowerCase());
 
-  const companyId = toStr(payload.companyId);
-  const companyName = toStr(payload.companyName);
-  const primaryDomain = toStr(payload.primaryDomain).toLowerCase();
-  const tenantId = toStr(payload.tenantId);
-  const extraDomains = toStringList(payload.extraDomains).map((domain) => toStr(domain).toLowerCase());
-  const companyConfig = payload.companyConfig && typeof payload.companyConfig === 'object'
-    ? payload.companyConfig
-    : {};
-  const tenantPayload = payload.tenantPayload && typeof payload.tenantPayload === 'object'
-    ? payload.tenantPayload
-    : {};
-
-  if (!companyId || !companyName || !primaryDomain || !tenantId) {
-    return res.status(400).json({ error: 'Missing required fields: companyId, companyName, primaryDomain, tenantId' });
+  if (!companyId || !companyName || !primaryDomain) {
+    return res.status(400).json({ error: 'Missing required fields: companyName, primaryDomain' });
   }
 
-  const errors = [
-    ...validateCompanyConfigInput(companyConfig),
-    ...validateTenantPayloadInput({ ...tenantPayload, tenantId }, data.tenantConfigs[tenantId] || {}),
-  ];
-  if (errors.length) {
-    return validationError(res, errors);
+  const existingCompany = data.companies[companyId] || {};
+  const company = normalizeCompany({
+    ...existingCompany,
+    ...payload,
+    id: companyId,
+    name: companyName,
+    domain: primaryDomain,
+    domains: [...new Set([primaryDomain, ...extraDomains].filter(Boolean))],
+    updatedAt: nowIso(),
+  });
+
+  data.companies[companyId] = company;
+  syncCompanyDerivedState(company);
+
+  if (!saveData()) {
+    return res.status(500).json({ error: 'Failed to save onboarding payload' });
   }
 
-  const snapshot = cloneDataState(data);
-
-  try {
-    const existingCompany = data.companies[companyId] || null;
-    const previousPrimaryDomain = toStr(existingCompany && existingCompany.domain).toLowerCase();
-    const previousDomains = normalizeDomainList(existingCompany && existingCompany.domains);
-    const previousTenantId = toStr(existingCompany && existingCompany.tenantId) || companyId;
-    const nextDomains = [...new Set([primaryDomain, ...extraDomains].map((domain) => toStr(domain).toLowerCase()).filter(Boolean))];
-
-    const baseCompany = existingCompany || {
-      id: companyId,
-      createdAt: nowIso(),
-    };
-
-    const nextCompany = normalizeCompany({
-      ...baseCompany,
-      id: companyId,
-      name: companyName,
-      domain: primaryDomain,
-      domains: nextDomains,
-      tenantId,
-      isActive: payload.isActive !== undefined ? payload.isActive : (baseCompany.isActive !== undefined ? baseCompany.isActive : true),
-      config: companyConfig,
-      updatedAt: nowIso(),
-    });
-
-    data.companies[companyId] = nextCompany;
-    syncCompanyDerivedState(nextCompany);
-
-    const routingMapping = {
-      ...(data.domainTenantMapping && typeof data.domainTenantMapping === 'object' ? data.domainTenantMapping : {}),
-    };
-    nextDomains.forEach((domain) => {
-      routingMapping[domain] = tenantId;
-    });
-
-    previousDomains.forEach((domain) => {
-      if (!nextDomains.includes(domain) && routingMapping[domain] === previousTenantId) {
-        delete routingMapping[domain];
-      }
-    });
-
-    if (
-      previousPrimaryDomain &&
-      previousPrimaryDomain !== primaryDomain &&
-      routingMapping[previousPrimaryDomain] === previousTenantId
-    ) {
-      delete routingMapping[previousPrimaryDomain];
-    }
-
-    data.domainTenantMapping = sanitizeDomainTenantMapping(routingMapping);
-
-    const existingTenant = data.tenantConfigs[tenantId] || null;
-    const normalizedTenantPayload = normalizeTenantConfigForResponse({
-      ...(existingTenant || {}),
-      ...tenantPayload,
-      tenantId,
-    }) || {
-      ...(existingTenant || {}),
-      ...tenantPayload,
-      tenantId,
-    };
-
-    data.tenantConfigs[tenantId] = {
-      ...normalizedTenantPayload,
-      tenantId,
-      createdAt: (existingTenant && existingTenant.createdAt) || nowIso(),
-      updatedAt: nowIso(),
-    };
-
-    if (!saveData()) {
-      throw new Error('Failed to save onboarding payload');
-    }
-
-    return res.json({
-      success: true,
-      company: data.companies[companyId],
-      tenant: data.tenantConfigs[tenantId],
-      routing: {
-        defaultTenantId: data.defaultTenantId,
-        manualTenantId: data.manualTenantId,
-        domainTenantMapping: data.domainTenantMapping,
-      },
-    });
-  } catch (err) {
-    restoreDataState(snapshot);
-    return res.status(500).json({ error: err.message || 'Failed to save onboarding data' });
-  }
+  return res.json({
+    success: true,
+    company: data.companies[companyId],
+    tenant: data.tenantConfigs[companyId],
+    routing: {
+      defaultTenantId: data.defaultTenantId,
+      manualTenantId: data.manualTenantId,
+      domainTenantMapping: data.domainTenantMapping,
+    },
+  });
 });
 
 app.delete('/admin/api/tenants/:id', (req, res) => {
@@ -2780,35 +2927,17 @@ app.delete('/admin/api/tenants/:id', (req, res) => {
     return res.status(404).json({ error: 'Tenant config not found' });
   }
 
-  const linkedCompanies = Object.values(data.companies || {})
-    .filter((company) => toStr(company && company.tenantId) === id)
-    .map((company) => ({
-      id: company.id,
-      name: company.name,
-    }));
-
-  const linkedDevices = Object.values(data.devices || {})
-    .filter((device) => toStr(device && device.tenantId) === id)
-    .map((device) => ({
-      deviceId: device.deviceId,
-      companyId: device.companyId || null,
-      userEmail: device.userEmail || device.lastSeenEmail || null,
-    }));
-
-  if (linkedCompanies.length || linkedDevices.length) {
-    return res.status(409).json({
-      error: 'Tenant is still referenced',
-      tenantId: id,
-      linkedCompanies,
-      linkedDevices,
-    });
+  delete data.tenantConfigs[id];
+  if (data.companies[id]) {
+    delete data.companies[id];
   }
 
-  delete data.tenantConfigs[id];
-
   if (data.defaultTenantId === id) {
-    const fallback = Object.keys(data.tenantConfigs)[0] || 'gravit_default';
+    const fallback = Object.keys(data.tenantConfigs)[0] || '';
     data.defaultTenantId = fallback;
+  }
+  if (data.manualTenantId === id) {
+    data.manualTenantId = '';
   }
 
   const cleanedMapping = {};
@@ -2877,6 +3006,335 @@ app.get('/admin/api/effective-config', (req, res) => {
     tenantId: resolved.tenantId,
     effectiveConfig: resolved.effective,
     layers: resolved.layers,
+  });
+});
+
+// ============================================================================
+// TEMPTON EXCLUSIVE API
+//
+// These routes serve the TEMPTON-exclusive Flutter app.
+// All routes are read-only (no auth required) and load configuration
+// directly from the tempton-tenant.json override file.
+// The device access check (/tempton/access/:deviceId) reuses the
+// existing access-control logic so that the admin dashboard and
+// kill-switch continue to work unchanged.
+// ============================================================================
+
+// Helper: load and normalise the TEMPTON tenant config from the override file.
+function loadTemptonTenantConfig() {
+  return loadTenantFileOverride('tempton') || null;
+}
+
+// ============================================================================
+// TEMPTON ADMIN PANEL
+// ============================================================================
+
+function sendTemptonDashboard(res) {
+  setNoStoreHeaders(res);
+  res.set('Content-Type', 'text/html; charset=utf-8');
+  return res.sendFile(TEMPTON_DASHBOARD_FILE);
+}
+
+app.get('/tempton/admin', (_req, res) => {
+  return sendTemptonDashboard(res);
+});
+
+app.get('/tempton/admin/dashboard', (_req, res) => {
+  return sendTemptonDashboard(res);
+});
+
+// GET /tempton/admin/api/devices — TEMPTON devices only
+app.get('/tempton/admin/api/devices', (_req, res) => {
+  const devices = Object.values(data.devices)
+    .filter(d => toStr(d.tenantId) === 'tempton' || !d.tenantId)
+    .map(toDeviceResponse)
+    .sort((a, b) => String(b.lastSeen || '').localeCompare(String(a.lastSeen || '')));
+  res.json({ devices });
+});
+
+// GET /tempton/admin/api/companies — TEMPTON companies only
+app.get('/tempton/admin/api/companies', (_req, res) => {
+  const companies = Object.values(data.companies)
+    .filter(c => toStr(c.tenantId) === 'tempton' || !c.tenantId)
+    .sort((a, b) => a.name.localeCompare(b.name));
+  res.json({ companies });
+});
+
+// PUT /tempton/admin/api/config — save tempton-tenant.json and reload in-memory config
+app.put('/tempton/admin/api/config', (req, res) => {
+  const payload = req.body && typeof req.body === 'object' ? req.body : {};
+  payload.tenantId = 'tempton';
+
+  const validationErrors = validateTenantPayloadInput(payload, {});
+  if (validationErrors.length) {
+    return validationError(res, validationErrors);
+  }
+
+  const configPath = path.join(__dirname, 'tempton-tenant.json');
+  try {
+    fs.writeFileSync(configPath, JSON.stringify(payload, null, 2));
+  } catch (err) {
+    return res.status(500).json({ error: 'Fehler beim Schreiben der Config-Datei: ' + err.message });
+  }
+
+  const refreshed = refreshTenantConfigFromOverride('tempton', { persist: true });
+  return res.json({
+    success: true,
+    message: 'Konfiguration gespeichert und neu geladen',
+    config: refreshed.config,
+  });
+});
+
+// GET /tempton
+// TEMPTON backend root — lists all available endpoints.
+app.get('/tempton', (_req, res) => {
+  res.json({
+    tenant: 'tempton',
+    description: 'TEMPTON Backend API',
+    version: '1.0.0',
+    endpoints: {
+      health:        'GET /tempton/health',
+      config:        'GET /tempton/config',
+      templates:     'GET /tempton/templates',
+      uploadConfig:  'GET /tempton/upload-config',
+      access:        'GET /tempton/access/:deviceId',
+      device:        'GET /tempton/device/:deviceId',
+    },
+  });
+});
+
+// GET /tempton/health
+// TEMPTON-specific health endpoint with tenant metadata.
+app.get('/tempton/health', (_req, res) => {
+  const tenantConfig = loadTemptonTenantConfig();
+  const templateCount = tenantConfig
+    ? normalizeArray(tenantConfig.templates).length
+    : 0;
+
+  res.json({
+    status: 'ok',
+    tenant: 'tempton',
+    timestamp: nowIso(),
+    dataFile: DATA_FILE,
+    tenantConfigLoaded: !!tenantConfig,
+    templateCount,
+    stats: {
+      devices: Object.keys(data.devices || {}).length,
+      companies: Object.keys(data.companies || {}).length,
+    },
+  });
+});
+
+// GET /tempton/config
+// Returns the complete TEMPTON configuration (tenant config + storage targets).
+// No deviceId required — every TEMPTON device uses the same config.
+// The device-specific assignment and access is handled by /tempton/access.
+app.get('/tempton/config', (req, res) => {
+  setNoStoreHeaders(res);
+
+  const rawConfig = loadTemptonTenantConfig();
+  if (!rawConfig) {
+    return res.status(503).json({
+      error: 'TEMPTON configuration not available',
+      hint: 'Ensure tempton-tenant.json exists in the backend directory',
+    });
+  }
+
+  const effectiveTenantConfig = normalizeTenantConfigForResponse(rawConfig);
+
+  const templates = normalizeArray(rawConfig.templates);
+  const defaultTemplateId = toStr(rawConfig.defaultTemplateId) || 'tempton_fcp_1496';
+  const defaultTemplate =
+    templates.find((t) => toStr(t && t.templateId) === defaultTemplateId) ||
+    templates[0] ||
+    null;
+
+  const captureSteps = defaultTemplate
+    ? normalizeArray(defaultTemplate.captureSteps)
+    : [];
+  const photoVariables = captureSteps
+    .map((step) => toStr(step && step.label))
+    .filter(Boolean);
+
+  const storageTargets = normalizeArray(rawConfig.storageTargets).map((target) => {
+    const configurable =
+      target.configurable && typeof target.configurable === 'object'
+        ? target.configurable
+        : {};
+    return {
+      ...target,
+      name: target.name || target.label || '',
+      config: { ...configurable },
+    };
+  });
+
+  const folderPattern = toStr(
+    (defaultTemplate && defaultTemplate.folderPattern) || rawConfig.folderPattern || '{popId} {popType}',
+  );
+  const filePattern = toStr(
+    (defaultTemplate && defaultTemplate.fileNamePattern) || rawConfig.fileNamePattern || '{popId}_{popType}_{photoVar}.jpg',
+  );
+
+  const configVersion = toStr(rawConfig.updatedAt || nowIso());
+  res.set('x-config-version', configVersion);
+  res.set('x-config-state-version', configVersion);
+
+  return res.json({
+    companyId: 'tempton',
+    companyName: 'TEMPTON',
+    tenantId: 'tempton',
+    version: '1.0.0',
+    config: {
+      folderNamingTemplate: folderPattern,
+      fileNamingTemplate: filePattern,
+      fields: normalizeArray(rawConfig.fields),
+      photoVariables,
+      dropdownPhotoVariables: {},
+      uploadTargets: storageTargets,
+    },
+    effectiveTenantConfig,
+    resolution: {
+      sources: ['tempton-tenant.json'],
+      usedTenantId: 'tempton',
+      usedCompanyId: 'tempton',
+      fallbackApplied: false,
+    },
+    configStateVersion: configVersion,
+  });
+});
+
+// GET /tempton/access/:deviceId
+// Device access check for TEMPTON devices.
+// Reuses the full existing access-control logic (kill-switch, grace period, etc.)
+// and hard-sets tenantId = 'tempton' in the response for clarity.
+app.get('/tempton/access/:deviceId', (req, res) => {
+  setNoStoreHeaders(res);
+
+  const deviceId = toStr(req.params.deviceId);
+  if (!deviceId) {
+    return res.status(400).json({ error: 'deviceId required' });
+  }
+
+  const device = getOrCreateDevice(deviceId, req);
+  if (!saveData()) {
+    return res.status(500).json({ error: 'Failed to save' });
+  }
+
+  const meta = readDeviceMeta(req);
+  const effectiveAllowed = computeEffectiveAllowed(device);
+  const graceActive = computeGraceActive(device);
+  const assignmentStateVersion = computeAssignmentStateVersion(device);
+  const assignmentChanged =
+    !!meta.assignmentStateVersion &&
+    meta.assignmentStateVersion !== assignmentStateVersion;
+
+  res.set('x-assignment-state-version', assignmentStateVersion);
+
+  return res.json({
+    deviceId: device.deviceId,
+    allowed: effectiveAllowed,
+    effectiveAllowed,
+    graceActive,
+    graceUntil: device.graceUntil,
+    message: device.message || '',
+    minVersion: 0,
+    companyId: device.companyId || 'tempton',
+    tenantId: 'tempton',
+    assignmentStatus: device.assignmentStatus || (device.companyId ? 'assigned' : 'unassigned'),
+    assignmentUpdatedAt: device.assignmentUpdatedAt || null,
+    assignmentStateVersion,
+    assignmentChanged,
+  });
+});
+
+// GET /tempton/templates
+// Returns only the TEMPTON template list (without full captureSteps to keep response small).
+// Clients can fetch the full config via /tempton/config.
+app.get('/tempton/templates', (_req, res) => {
+  setNoStoreHeaders(res);
+
+  const rawConfig = loadTemptonTenantConfig();
+  if (!rawConfig) {
+    return res.status(503).json({ error: 'TEMPTON configuration not available' });
+  }
+
+  const templates = normalizeArray(rawConfig.templates).map((t) => ({
+    templateId: toStr(t.templateId),
+    name: toStr(t.name),
+    folderPattern: toStr(t.folderPattern),
+    fileNamePattern: toStr(t.fileNamePattern),
+    captureStepCount: normalizeArray(t.captureSteps).length,
+  }));
+
+  return res.json({
+    tenantId: 'tempton',
+    defaultTemplateId: toStr(rawConfig.defaultTemplateId) || 'tempton_fcp_1496',
+    templates,
+  });
+});
+
+// GET /tempton/upload-config
+// Returns TEMPTON storage targets and naming patterns.
+app.get('/tempton/upload-config', (_req, res) => {
+  setNoStoreHeaders(res);
+
+  const rawConfig = loadTemptonTenantConfig();
+  if (!rawConfig) {
+    return res.status(503).json({ error: 'TEMPTON configuration not available' });
+  }
+
+  const storageTargets = normalizeArray(rawConfig.storageTargets).map((target) => {
+    const configurable =
+      target.configurable && typeof target.configurable === 'object'
+        ? target.configurable
+        : {};
+    return {
+      ...target,
+      name: target.name || target.label || '',
+      config: { ...configurable },
+    };
+  });
+
+  return res.json({
+    tenantId: 'tempton',
+    defaultStorageTargetId: toStr(rawConfig.defaultStorageTargetId) || 'mydrive',
+    storageTargets,
+    defaultOneDriveBasePath: '/Tempton',
+  });
+});
+
+// GET /tempton/device/:deviceId
+// Returns the TEMPTON device status for debugging/diagnostics.
+// No sensitive admin operations — read-only.
+app.get('/tempton/device/:deviceId', (req, res) => {
+  setNoStoreHeaders(res);
+
+  const deviceId = toStr(req.params.deviceId);
+  if (!deviceId) {
+    return res.status(400).json({ error: 'deviceId required' });
+  }
+
+  const canonical = resolveCanonicalDeviceId(deviceId);
+  const device = (canonical && data.devices[canonical]) || data.devices[deviceId] || null;
+
+  if (!device) {
+    return res.status(404).json({ error: 'Device not found', deviceId });
+  }
+
+  const effectiveAllowed = computeEffectiveAllowed(device);
+  const graceActive = computeGraceActive(device);
+
+  return res.json({
+    deviceId: device.deviceId,
+    tenantId: 'tempton',
+    companyId: device.companyId || null,
+    allowed: effectiveAllowed,
+    graceActive,
+    graceUntil: device.graceUntil || null,
+    assignmentStatus: device.assignmentStatus || 'unassigned',
+    platform: device.platform || null,
+    appVersion: device.appVersion || null,
+    lastSeen: device.lastSeen || null,
   });
 });
 

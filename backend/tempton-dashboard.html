@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TEMPTON Admin</title>
+  <style>
+    :root {
+      --bg: #0b1020; --panel: #121a33; --panel2: #0f1630;
+      --text: #e8ecff; --muted: #a7b0d6;
+      --ok: #2dd4bf; --bad: #fb7185; --warn: #fbbf24;
+      --line: #253055; --btn: #1f2a52; --btn2: #2a3870;
+      --accent: #f97316; --radius: 12px;
+      --shadow: 0 4px 24px rgba(0,0,0,.45);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; min-height: 100vh; }
+    a { color: var(--ok); text-decoration: none; }
+
+    /* HEADER */
+    .header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+    .header-logo { font-size: 22px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+    .header-sub { color: var(--muted); font-size: 12px; }
+    .header-stats { margin-left: auto; display: flex; gap: 20px; }
+    .stat { text-align: right; }
+    .stat-val { font-size: 20px; font-weight: 700; color: var(--ok); }
+    .stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+
+    /* LAYOUT */
+    .container { max-width: 1300px; margin: 0 auto; padding: 20px 24px; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+    .tab { background: transparent; border: none; color: var(--muted); padding: 12px 20px; cursor: pointer; border-bottom: 2px solid transparent; font-size: 14px; font-weight: 600; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* CARDS */
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+    .card-title { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 14px; }
+
+    /* TOOLBAR */
+    .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+    .search { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; color: var(--text); padding: 8px 12px; font-size: 13px; min-width: 220px; outline: none; }
+    .search:focus { border-color: var(--accent); }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-ok { background: rgba(45,212,191,.15); color: var(--ok); }
+    .badge-bad { background: rgba(251,113,133,.15); color: var(--bad); }
+    .badge-warn { background: rgba(251,191,36,.15); color: var(--warn); }
+    .badge-muted { background: rgba(167,176,214,.1); color: var(--muted); }
+
+    /* TABLE */
+    .table-wrap { background: rgba(18,26,51,.65); border: 1px solid rgba(37,48,85,.65); border-radius: var(--radius); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { background: rgba(15,22,48,.8); color: var(--muted); padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; border-bottom: 1px solid var(--line); }
+    td { padding: 10px 12px; border-bottom: 1px solid rgba(37,48,85,.4); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+    .mono { font-family: monospace; font-size: 11px; color: var(--muted); }
+
+    /* BUTTONS */
+    .btn { border: none; border-radius: 7px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity .15s; }
+    .btn:hover { opacity: .85; }
+    .btn:disabled { opacity: .4; cursor: default; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-ok { background: rgba(45,212,191,.2); color: var(--ok); border: 1px solid rgba(45,212,191,.3); }
+    .btn-bad { background: rgba(251,113,133,.2); color: var(--bad); border: 1px solid rgba(251,113,133,.3); }
+    .btn-muted { background: var(--btn); color: var(--muted); border: 1px solid var(--line); }
+    .btn-warn { background: rgba(251,191,36,.15); color: var(--warn); border: 1px solid rgba(251,191,36,.3); }
+
+    /* ACTIONS ROW */
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* MODAL */
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 100; align-items: center; justify-content: center; }
+    .modal-bg.open { display: flex; }
+    .modal { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 28px; width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow); }
+    .modal h2 { font-size: 17px; font-weight: 700; margin-bottom: 20px; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .close-btn { float: right; background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; margin-top: -6px; }
+    .close-btn:hover { color: var(--text); }
+
+    /* FORM */
+    .form-row { margin-bottom: 14px; }
+    .form-row label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+    .form-row input, .form-row select, .form-row textarea {
+      width: 100%; background: var(--panel2); border: 1px solid var(--line);
+      border-radius: 8px; color: var(--text); padding: 9px 12px; font-size: 13px; outline: none; font-family: inherit;
+    }
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--accent); }
+    .form-row textarea { resize: vertical; font-family: monospace; font-size: 12px; }
+
+    /* CONFIG EDITOR */
+    .json-editor { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 14px; font-family: monospace; font-size: 12px; color: var(--text); width: 100%; min-height: 380px; resize: vertical; outline: none; line-height: 1.5; }
+    .json-editor:focus { border-color: var(--accent); }
+
+    /* TEMPLATE CARD */
+    .tpl-card { background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+    .tpl-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .tpl-card-name { font-weight: 700; font-size: 15px; }
+    .tpl-card-id { font-family: monospace; font-size: 11px; color: var(--muted); }
+    .tpl-card-meta { font-size: 12px; color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 20px; color: var(--text); font-size: 13px; font-weight: 600; z-index: 200; opacity: 0; transform: translateY(10px); transition: opacity .2s, transform .2s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.ok { border-left: 3px solid var(--ok); }
+    .toast.err { border-left: 3px solid var(--bad); }
+
+    /* EMPTY STATE */
+    .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+    .empty-icon { font-size: 36px; margin-bottom: 10px; }
+
+    /* GRID STATS */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .stat-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+    .stat-card-val { font-size: 28px; font-weight: 800; color: var(--ok); }
+    .stat-card-lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ASSIGN SELECT */
+    select.company-select { background: var(--panel2); border: 1px solid var(--line); border-radius: 7px; color: var(--text); padding: 6px 10px; font-size: 12px; cursor: pointer; outline: none; }
+    select.company-select:focus { border-color: var(--accent); }
+
+    /* SPINNER */
+    .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--line); border-top-color: var(--ok); border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-logo">TEMPTON Admin</div>
+    <div class="header-sub" id="header-sub">Backend-Administration</div>
+  </div>
+  <div class="header-stats" id="header-stats">
+    <div class="stat"><div class="stat-val" id="hs-devices">—</div><div class="stat-lbl">Geräte</div></div>
+    <div class="stat"><div class="stat-val" id="hs-companies">—</div><div class="stat-lbl">Firmen</div></div>
+    <div class="stat"><div class="stat-val" id="hs-templates">—</div><div class="stat-lbl">Templates</div></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" data-tab="devices">📱 Geräte</button>
+    <button class="tab" data-tab="companies">🏢 Firmen</button>
+    <button class="tab" data-tab="config">⚙️ Konfiguration</button>
+  </div>
+
+  <!-- ═══════════════════════════ DEVICES ═══════════════════════════ -->
+  <div id="tab-devices" class="tab-content active">
+    <div class="toolbar">
+      <input class="search" id="device-search" type="text" placeholder="Suche nach Gerät-ID, User, Firma…" oninput="filterDevices()" />
+      <select id="device-filter-status" class="company-select" onchange="filterDevices()">
+        <option value="">Alle Status</option>
+        <option value="allowed">✅ Erlaubt</option>
+        <option value="blocked">🚫 Gesperrt</option>
+        <option value="unassigned">— Nicht zugewiesen</option>
+      </select>
+      <button class="btn btn-muted" onclick="loadAll()">🔄 Aktualisieren</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Gerät-ID</th>
+            <th>Status</th>
+            <th>Firma</th>
+            <th>User / E-Mail</th>
+            <th>Plattform</th>
+            <th>Letzte Aktivität</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody id="device-tbody">
+          <tr><td colspan="7" class="empty"><span class="spin"></span> Lade Geräte…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ COMPANIES ═══════════════════════════ -->
+  <div id="tab-companies" class="tab-content">
+    <div class="toolbar">
+      <input class="search" id="company-search" type="text" placeholder="Suche nach Firma, Domain…" oninput="filterCompanies()" />
+      <button class="btn btn-primary" onclick="openCompanyModal(null)">+ Neue Firma</button>
+      <button class="btn btn-muted" onclick="loadAll()">🔄 Aktualisieren</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Domain(s)</th>
+            <th>Status</th>
+            <th>Geräte</th>
+            <th>Aktionen</th>
+          </tr>
+        </thead>
+        <tbody id="company-tbody">
+          <tr><td colspan="6" class="empty"><span class="spin"></span> Lade Firmen…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ CONFIG ═══════════════════════════ -->
+  <div id="tab-config" class="tab-content">
+    <div style="display:flex;gap:14px;margin-bottom:16px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="saveConfig()">💾 Konfiguration speichern</button>
+      <button class="btn btn-muted" onclick="loadConfig()">🔄 Neu laden</button>
+      <button class="btn btn-warn" onclick="formatJson()">{ } JSON formatieren</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div>
+        <div class="card-title" style="margin-bottom:10px">Raw JSON Editor</div>
+        <textarea class="json-editor" id="config-editor" spellcheck="false"></textarea>
+        <div id="json-error" style="color:var(--bad);font-size:12px;margin-top:8px;display:none;"></div>
+      </div>
+      <div>
+        <div class="card-title" style="margin-bottom:10px">Templates Vorschau</div>
+        <div id="templates-preview">
+          <div class="empty"><div class="empty-icon">📋</div>Lade Templates…</div>
+        </div>
+        <div style="margin-top:20px">
+          <div class="card-title" style="margin-bottom:10px">Formularfelder</div>
+          <div id="fields-preview"></div>
+        </div>
+        <div style="margin-top:20px">
+          <div class="card-title" style="margin-bottom:10px">Upload-Ziele</div>
+          <div id="targets-preview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL: ASSIGN DEVICE -->
+<div class="modal-bg" id="modal-assign">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal('modal-assign')">×</button>
+    <h2>Gerät zuweisen</h2>
+    <div class="form-row">
+      <label>Gerät-ID</label>
+      <input type="text" id="assign-device-id" readonly />
+    </div>
+    <div class="form-row">
+      <label>Firma auswählen</label>
+      <select id="assign-company-select"></select>
+    </div>
+    <div class="form-row">
+      <label>User-E-Mail (optional)</label>
+      <input type="email" id="assign-user-email" placeholder="user@tempton.de" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-muted" onclick="closeModal('modal-assign')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="confirmAssign()">Zuweisen</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: BLOCK DEVICE -->
+<div class="modal-bg" id="modal-block">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal('modal-block')">×</button>
+    <h2>Gerät sperren</h2>
+    <div class="form-row">
+      <label>Gerät-ID</label>
+      <input type="text" id="block-device-id" readonly />
+    </div>
+    <div class="form-row">
+      <label>Nachricht (optional)</label>
+      <input type="text" id="block-message" placeholder="Gerät gesperrt." />
+    </div>
+    <div class="form-row">
+      <label>Gnadenfrist in Stunden (0 = sofort)</label>
+      <input type="number" id="block-grace" value="0" min="0" max="720" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-muted" onclick="closeModal('modal-block')">Abbrechen</button>
+      <button class="btn btn-bad" onclick="confirmBlock()">Sperren</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: COMPANY -->
+<div class="modal-bg" id="modal-company">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal('modal-company')">×</button>
+    <h2 id="modal-company-title">Neue Firma</h2>
+    <input type="hidden" id="company-edit-id" />
+    <div class="form-row">
+      <label>Firmen-ID (einmalig, kein Leerzeichen)</label>
+      <input type="text" id="company-id" placeholder="z.B. tempton_berlin" />
+    </div>
+    <div class="form-row">
+      <label>Firmenname</label>
+      <input type="text" id="company-name" placeholder="Tempton Berlin GmbH" />
+    </div>
+    <div class="form-row">
+      <label>Primäre Domain</label>
+      <input type="text" id="company-domain" placeholder="berlin.tempton.de" />
+    </div>
+    <div class="form-row">
+      <label>Aktiv</label>
+      <select id="company-active">
+        <option value="true">✅ Ja</option>
+        <option value="false">🔴 Nein</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-muted" onclick="closeModal('modal-company')">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveCompany()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════ STATE ═══════════════════════════
+let allDevices = [];
+let allCompanies = [];
+let configRaw = null;
+
+// ═══════════════════════════ INIT ═══════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  loadAll();
+  loadConfig();
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+});
+
+async function loadAll() {
+  await Promise.all([loadDevices(), loadCompanies(), loadHealth()]);
+}
+
+// ═══════════════════════════ HEALTH ═══════════════════════════
+async function loadHealth() {
+  try {
+    const r = await api('/tempton/health', 'GET');
+    document.getElementById('hs-devices').textContent = r.stats?.devices ?? '—';
+    document.getElementById('hs-templates').textContent = r.templateCount ?? '—';
+    document.getElementById('hs-companies').textContent = r.stats?.companies ?? '—';
+    document.getElementById('header-sub').textContent =
+      'Backend: ' + (r.status === 'ok' ? '✅ OK' : '❌ ' + r.status) +
+      ' · ' + fmtDate(r.timestamp);
+  } catch (e) {
+    document.getElementById('header-sub').textContent = '❌ Backend nicht erreichbar';
+  }
+}
+
+// ═══════════════════════════ DEVICES ═══════════════════════════
+async function loadDevices() {
+  try {
+    const r = await api('/admin/api/devices', 'GET');
+    allDevices = (r.devices || []).filter(d => d.tenantId === 'tempton' || !d.tenantId);
+    renderDevices();
+  } catch (e) {
+    setTbody('device-tbody', `<tr><td colspan="7" class="empty">Fehler: ${e.message}</td></tr>`);
+  }
+}
+
+function filterDevices() {
+  renderDevices();
+}
+
+function renderDevices() {
+  const q = document.getElementById('device-search').value.toLowerCase();
+  const sf = document.getElementById('device-filter-status').value;
+  const filtered = allDevices.filter(d => {
+    const match = !q ||
+      (d.deviceId || '').toLowerCase().includes(q) ||
+      (d.primaryEmail || d.userEmail || '').toLowerCase().includes(q) ||
+      (d.companyName || '').toLowerCase().includes(q);
+    let statusMatch = true;
+    if (sf === 'allowed') statusMatch = d.effectiveAllowed === true;
+    if (sf === 'blocked') statusMatch = d.effectiveAllowed === false;
+    if (sf === 'unassigned') statusMatch = !d.companyId;
+    return match && statusMatch;
+  });
+
+  if (!filtered.length) {
+    setTbody('device-tbody', '<tr><td colspan="7" class="empty"><div class="empty-icon">📱</div>Keine Geräte gefunden</td></tr>');
+    return;
+  }
+
+  const rows = filtered.map(d => {
+    const statusBadge = d.effectiveAllowed
+      ? '<span class="badge badge-ok">✅ Erlaubt</span>'
+      : d.graceActive
+        ? '<span class="badge badge-warn">⏳ Grace</span>'
+        : '<span class="badge badge-bad">🚫 Gesperrt</span>';
+
+    const assignBadge = d.companyId
+      ? `<span class="badge badge-muted">${esc(d.companyName || d.companyId)}</span>`
+      : '<span class="badge badge-muted">— nicht zugewiesen</span>';
+
+    const allowBtn = d.effectiveAllowed
+      ? `<button class="btn btn-bad" onclick="blockDevice('${esc(d.deviceId)}')">🚫 Sperren</button>`
+      : `<button class="btn btn-ok" onclick="allowDevice('${esc(d.deviceId)}')">✅ Erlauben</button>`;
+
+    const assignBtn = d.companyId
+      ? `<button class="btn btn-warn" onclick="unassignDevice('${esc(d.deviceId)}')">↩ Entfernen</button>`
+      : `<button class="btn btn-muted" onclick="openAssignModal('${esc(d.deviceId)}')">🏢 Zuweisen</button>`;
+
+    return `<tr>
+      <td><span class="mono">${esc(d.deviceId)}</span></td>
+      <td>${statusBadge}</td>
+      <td>${assignBadge}</td>
+      <td class="mono">${esc(d.primaryEmail || d.userEmail || '—')}</td>
+      <td><span class="badge badge-muted">${esc(d.platform || 'unknown')}</span></td>
+      <td class="mono">${fmtDate(d.lastSeen)}</td>
+      <td><div class="actions">${allowBtn}${assignBtn}</div></td>
+    </tr>`;
+  }).join('');
+
+  setTbody('device-tbody', rows);
+}
+
+async function allowDevice(deviceId) {
+  try {
+    await api('/admin/api/allow', 'POST', { deviceId });
+    toast('Gerät erlaubt', true);
+    await loadAll();
+  } catch (e) { toast(e.message, false); }
+}
+
+function blockDevice(deviceId) {
+  document.getElementById('block-device-id').value = deviceId;
+  document.getElementById('block-message').value = '';
+  document.getElementById('block-grace').value = '0';
+  openModal('modal-block');
+}
+
+async function confirmBlock() {
+  const deviceId = document.getElementById('block-device-id').value;
+  const message = document.getElementById('block-message').value;
+  const graceHours = Number(document.getElementById('block-grace').value) || 0;
+  try {
+    await api('/admin/api/block', 'POST', { deviceId, message, graceHours });
+    closeModal('modal-block');
+    toast('Gerät gesperrt', true);
+    await loadAll();
+  } catch (e) { toast(e.message, false); }
+}
+
+async function unassignDevice(deviceId) {
+  if (!confirm('Zuweisung für ' + deviceId + ' aufheben?')) return;
+  try {
+    await api(`/admin/api/devices/${deviceId}/unassign`, 'POST', { actor: 'tempton-admin' });
+    toast('Zuweisung aufgehoben', true);
+    await loadAll();
+  } catch (e) { toast(e.message, false); }
+}
+
+function openAssignModal(deviceId) {
+  document.getElementById('assign-device-id').value = deviceId;
+  document.getElementById('assign-user-email').value = '';
+  const sel = document.getElementById('assign-company-select');
+  sel.innerHTML = allCompanies.map(c =>
+    `<option value="${esc(c.id)}">${esc(c.name)} (${esc(c.id)})</option>`
+  ).join('');
+  openModal('modal-assign');
+}
+
+async function confirmAssign() {
+  const deviceId = document.getElementById('assign-device-id').value;
+  const companyId = document.getElementById('assign-company-select').value;
+  const userEmail = document.getElementById('assign-user-email').value.trim();
+  try {
+    const body = { companyId, actor: 'tempton-admin' };
+    if (userEmail) body.userEmail = userEmail;
+    await api(`/admin/api/devices/${deviceId}/assign`, 'POST', body);
+    closeModal('modal-assign');
+    toast('Gerät zugewiesen', true);
+    await loadAll();
+  } catch (e) { toast(e.message, false); }
+}
+
+// ═══════════════════════════ COMPANIES ═══════════════════════════
+async function loadCompanies() {
+  try {
+    const r = await api('/admin/api/companies', 'GET');
+    allCompanies = (r.companies || []).filter(c => c.tenantId === 'tempton' || !c.tenantId);
+    renderCompanies();
+  } catch (e) {
+    setTbody('company-tbody', `<tr><td colspan="6" class="empty">Fehler: ${e.message}</td></tr>`);
+  }
+}
+
+function filterCompanies() {
+  renderCompanies();
+}
+
+function renderCompanies() {
+  const q = document.getElementById('company-search').value.toLowerCase();
+  const filtered = allCompanies.filter(c =>
+    !q ||
+    (c.id || '').toLowerCase().includes(q) ||
+    (c.name || '').toLowerCase().includes(q) ||
+    (c.domain || '').toLowerCase().includes(q)
+  );
+
+  if (!filtered.length) {
+    setTbody('company-tbody', '<tr><td colspan="6" class="empty"><div class="empty-icon">🏢</div>Keine Firmen gefunden</td></tr>');
+    return;
+  }
+
+  const devicesByCompany = {};
+  allDevices.forEach(d => {
+    if (d.companyId) devicesByCompany[d.companyId] = (devicesByCompany[d.companyId] || 0) + 1;
+  });
+
+  const rows = filtered.map(c => {
+    const statusBadge = c.isActive
+      ? '<span class="badge badge-ok">Aktiv</span>'
+      : '<span class="badge badge-bad">Inaktiv</span>';
+    const deviceCount = devicesByCompany[c.id] || 0;
+    const domains = [c.domain, ...(c.domains || [])].filter((v, i, a) => v && a.indexOf(v) === i).join(', ');
+
+    return `<tr>
+      <td><span class="mono">${esc(c.id)}</span></td>
+      <td><strong>${esc(c.name)}</strong></td>
+      <td class="mono">${esc(domains || '—')}</td>
+      <td>${statusBadge}</td>
+      <td><span class="badge badge-muted">${deviceCount}</span></td>
+      <td><div class="actions">
+        <button class="btn btn-muted" onclick="openCompanyModal('${esc(c.id)}')">✏️ Bearbeiten</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  setTbody('company-tbody', rows);
+}
+
+function openCompanyModal(id) {
+  const c = id ? allCompanies.find(x => x.id === id) : null;
+  document.getElementById('modal-company-title').textContent = c ? 'Firma bearbeiten' : 'Neue Firma';
+  document.getElementById('company-edit-id').value = id || '';
+  document.getElementById('company-id').value = c ? c.id : '';
+  document.getElementById('company-id').readOnly = !!c;
+  document.getElementById('company-name').value = c ? c.name : '';
+  document.getElementById('company-domain').value = c ? c.domain : '';
+  document.getElementById('company-active').value = c ? String(c.isActive !== false) : 'true';
+  openModal('modal-company');
+}
+
+async function saveCompany() {
+  const id = document.getElementById('company-edit-id').value;
+  const isEdit = !!id;
+  const payload = {
+    id: document.getElementById('company-id').value.trim(),
+    name: document.getElementById('company-name').value.trim(),
+    domain: document.getElementById('company-domain').value.trim().toLowerCase(),
+    tenantId: 'tempton',
+    isActive: document.getElementById('company-active').value === 'true',
+  };
+  if (!payload.id || !payload.name || !payload.domain) {
+    toast('Bitte alle Pflichtfelder ausfüllen', false); return;
+  }
+  try {
+    if (isEdit) {
+      await api(`/admin/api/companies/${id}`, 'PUT', payload);
+    } else {
+      await api('/admin/api/companies', 'POST', payload);
+    }
+    closeModal('modal-company');
+    toast(isEdit ? 'Firma aktualisiert' : 'Firma erstellt', true);
+    await loadAll();
+  } catch (e) { toast(e.message, false); }
+}
+
+// ═══════════════════════════ CONFIG ═══════════════════════════
+async function loadConfig() {
+  try {
+    const r = await api('/tempton/config', 'GET');
+    configRaw = r;
+    document.getElementById('config-editor').value = JSON.stringify(r, null, 2);
+    renderConfigPreview(r);
+    document.getElementById('json-error').style.display = 'none';
+  } catch (e) {
+    toast('Config-Ladefehler: ' + e.message, false);
+  }
+}
+
+function renderConfigPreview(cfg) {
+  // Templates
+  const tplContainer = document.getElementById('templates-preview');
+  const templates = cfg.templates || cfg.effectiveTenantConfig?.templates || [];
+  if (templates.length) {
+    tplContainer.innerHTML = templates.map(t => `
+      <div class="tpl-card">
+        <div class="tpl-card-header">
+          <span class="tpl-card-name">${esc(t.name)}</span>
+          <span class="tpl-card-id">${esc(t.templateId)}</span>
+          ${cfg.defaultTemplateId === t.templateId ? '<span class="badge badge-ok">Standard</span>' : ''}
+        </div>
+        <div class="tpl-card-meta">
+          <span>📁 ${esc(t.folderPattern || '—')}</span>
+          <span>📄 ${esc(t.fileNamePattern || '—')}</span>
+          <span>📸 ${(t.captureSteps || t.captureStepCount || 0)} Schritte</span>
+        </div>
+      </div>
+    `).join('');
+  } else {
+    tplContainer.innerHTML = '<div class="empty">Keine Templates</div>';
+  }
+
+  // Fields
+  const fields = cfg.fields || cfg.config?.fields || [];
+  const fieldsContainer = document.getElementById('fields-preview');
+  if (fields.length) {
+    fieldsContainer.innerHTML = `<div style="display:flex;gap:8px;flex-wrap:wrap;">` +
+      fields.map(f => `<span class="badge badge-muted">${esc(f.label || f.key)} (${esc(f.type)}${f.required ? ' *' : ''})</span>`).join('') +
+      `</div>`;
+  } else {
+    fieldsContainer.innerHTML = '<div style="color:var(--muted);font-size:12px">Keine Felder</div>';
+  }
+
+  // Targets
+  const targets = cfg.storageTargets || [];
+  const targetsContainer = document.getElementById('targets-preview');
+  if (targets.length) {
+    targetsContainer.innerHTML = targets.map(t => `
+      <div style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px;font-size:12px">
+        <strong>${esc(t.icon || '')} ${esc(t.label || t.id)}</strong>
+        <span class="badge badge-muted" style="margin-left:8px">${esc(t.type)}</span>
+        ${t.configurable?.basePath ? `<div style="color:var(--muted);margin-top:4px">📂 ${esc(t.configurable.basePath)}</div>` : ''}
+      </div>
+    `).join('');
+  } else {
+    targetsContainer.innerHTML = '<div style="color:var(--muted);font-size:12px">Keine Upload-Ziele</div>';
+  }
+}
+
+function formatJson() {
+  const editor = document.getElementById('config-editor');
+  try {
+    const parsed = JSON.parse(editor.value);
+    editor.value = JSON.stringify(parsed, null, 2);
+    document.getElementById('json-error').style.display = 'none';
+    toast('JSON formatiert', true);
+  } catch (e) {
+    showJsonError('Ungültiges JSON: ' + e.message);
+  }
+}
+
+async function saveConfig() {
+  const editor = document.getElementById('config-editor');
+  let parsed;
+  try {
+    parsed = JSON.parse(editor.value);
+    document.getElementById('json-error').style.display = 'none';
+  } catch (e) {
+    showJsonError('Ungültiges JSON: ' + e.message);
+    return;
+  }
+  parsed.tenantId = 'tempton';
+  try {
+    const r = await api('/tempton/admin/api/config', 'PUT', parsed);
+    toast('Konfiguration gespeichert ✅', true);
+    configRaw = r.config || parsed;
+    renderConfigPreview(configRaw);
+    await loadHealth();
+  } catch (e) { toast('Fehler: ' + e.message, false); }
+}
+
+function showJsonError(msg) {
+  const el = document.getElementById('json-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+// ═══════════════════════════ UTILS ═══════════════════════════
+async function api(path, method, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(path, opts);
+  const json = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(json.error || `HTTP ${r.status}`);
+  return json;
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('de-DE') + ' ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  } catch { return iso; }
+}
+
+function setTbody(id, html) {
+  document.getElementById(id).innerHTML = html;
+}
+
+let toastTimer;
+function toast(msg, ok = true) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + (ok ? 'ok' : 'err');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+</script>
+</body>
+</html>

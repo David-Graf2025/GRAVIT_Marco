@@ -21,13 +21,20 @@ class SharePointService implements ISharePointService {
 
   SharePointService(this._prefsRepo, this._oneDriveService, this._tokenManager);
 
-  Future<({String driveId, String appFolder})> _runtimeConfig() async {
+  Future<({String driveId, String appFolder, String hostname, String siteId})> _runtimeConfig() async {
     final target = await RuntimeStorageTargetResolver.instance.byId(
       UploadConstants.uploadModeSharepoint,
     );
+    // User-stored values take priority, then tenant config, then hardcoded constants.
+    final storedDriveId = _prefsRepo.sharepointDriveId;
+    final storedAppFolder = _prefsRepo.sharepointAppFolder;
+    final storedHostname = _prefsRepo.sharepointHostname;
+    final storedSiteId = _prefsRepo.sharepointSiteId;
     return (
-      driveId: target?.driveId ?? SharePointConstants.driveId,
-      appFolder: target?.appFolder ?? SharePointConstants.appRootFolder,
+      driveId: storedDriveId.isNotEmpty ? storedDriveId : (target?.driveId ?? SharePointConstants.driveId),
+      appFolder: storedAppFolder.isNotEmpty ? storedAppFolder : (target?.appFolder ?? SharePointConstants.appRootFolder),
+      hostname: storedHostname.isNotEmpty ? storedHostname : SharePointConstants.hostname,
+      siteId: storedSiteId.isNotEmpty ? storedSiteId : SharePointConstants.siteId,
     );
   }
 
@@ -156,11 +163,25 @@ class SharePointService implements ISharePointService {
     return '$left/$right';
   }
 
+  String _graphDriveBase(String driveId, String siteId) {
+    if (driveId.isNotEmpty) {
+      return 'https://graph.microsoft.com/v1.0/drives/$driveId';
+    } else if (siteId.isNotEmpty) {
+      return 'https://graph.microsoft.com/v1.0/sites/$siteId/drive';
+    } else {
+      return 'https://graph.microsoft.com/v1.0/me/drive';
+    }
+  }
+
   /// Ensure a SharePoint folder exists, creating it if necessary
   Future<String> ensureSharePointFolder(String folderName) async {
     final cfg = await _runtimeConfig();
     final accessToken = await _tokenManager.getAccessToken();
-    final url = '${SharePointConstants.hostname}/sites/${SharePointConstants.siteId}/drive/${cfg.driveId}/root:/$folderName';
+    if (accessToken == null || accessToken.isEmpty) {
+      throw Exception('Kein Microsoft Graph Access-Token verfügbar. Bitte mit Microsoft 365 anmelden.');
+    }
+    final base = _graphDriveBase(cfg.driveId, cfg.siteId);
+    final url = '$base/root:/$folderName';
 
     try {
       // Check if folder exists
@@ -178,7 +199,7 @@ class SharePointService implements ISharePointService {
         return data['id'];
       } else if (response.statusCode == 404) {
         // Folder doesn't exist, create it
-        final createUrl = '${SharePointConstants.hostname}/sites/${SharePointConstants.siteId}/drive/${cfg.driveId}/root/children';
+        final createUrl = '$base/root/children';
         final createResponse = await http.post(
           Uri.parse(createUrl),
           headers: {
@@ -193,7 +214,7 @@ class SharePointService implements ISharePointService {
           }),
         );
 
-        if (createResponse.statusCode == 201) {
+        if (createResponse.statusCode == 201 || createResponse.statusCode == 200) {
           final data = jsonDecode(createResponse.body);
           return data['id'];
         } else {
@@ -212,7 +233,11 @@ class SharePointService implements ISharePointService {
   Future<String> ensureSharePointSubfolder(String parentFolderId, String subfolderName) async {
     final cfg = await _runtimeConfig();
     final accessToken = await _tokenManager.getAccessToken();
-    final url = '${SharePointConstants.hostname}/sites/${SharePointConstants.siteId}/drive/${cfg.driveId}/items/$parentFolderId:/$subfolderName';
+    if (accessToken == null || accessToken.isEmpty) {
+      throw Exception('Kein Microsoft Graph Access-Token verfügbar. Bitte mit Microsoft 365 anmelden.');
+    }
+    final base = _graphDriveBase(cfg.driveId, cfg.siteId);
+    final url = '$base/items/$parentFolderId:/$subfolderName';
 
     try {
       // Check if subfolder exists
@@ -230,7 +255,7 @@ class SharePointService implements ISharePointService {
         return data['id'];
       } else if (response.statusCode == 404) {
         // Subfolder doesn't exist, create it
-        final createUrl = '${SharePointConstants.hostname}/sites/${SharePointConstants.siteId}/drive/${cfg.driveId}/items/$parentFolderId/children';
+        final createUrl = '$base/items/$parentFolderId/children';
         final createResponse = await http.post(
           Uri.parse(createUrl),
           headers: {
@@ -245,7 +270,7 @@ class SharePointService implements ISharePointService {
           }),
         );
 
-        if (createResponse.statusCode == 201) {
+        if (createResponse.statusCode == 201 || createResponse.statusCode == 200) {
           final data = jsonDecode(createResponse.body);
           return data['id'];
         } else {
@@ -316,7 +341,11 @@ class SharePointService implements ISharePointService {
   Future<void> _uploadToFolder(String folderId, String fileName, Uint8List bytes, String contentType) async {
     final cfg = await _runtimeConfig();
     final accessToken = await _tokenManager.getAccessToken();
-    final url = '${SharePointConstants.hostname}/sites/${SharePointConstants.siteId}/drive/${cfg.driveId}/items/$folderId:/$fileName:/content';
+    if (accessToken == null || accessToken.isEmpty) {
+      throw Exception('Kein Microsoft Graph Access-Token verfügbar. Bitte mit Microsoft 365 anmelden.');
+    }
+    final base = _graphDriveBase(cfg.driveId, cfg.siteId);
+    final url = '$base/items/$folderId:/$fileName:/content';
 
     final response = await http.put(
       Uri.parse(url),
@@ -339,13 +368,12 @@ class SharePointService implements ISharePointService {
   /// Get SharePoint configuration details
   @override
   Map<String, String> getConfig() {
-    // Synchronous method keeps legacy values; runtime uploads resolve
-    // config dynamically from tenant JSON.
+    // Returns user-configured values if set, otherwise falls back to constants.
     return {
-      'hostname': SharePointConstants.hostname,
-      'siteId': SharePointConstants.siteId,
-      'driveId': SharePointConstants.driveId,
-      'appFolder': SharePointConstants.appRootFolder,
+      'hostname': _prefsRepo.sharepointHostname.isNotEmpty ? _prefsRepo.sharepointHostname : SharePointConstants.hostname,
+      'siteId': _prefsRepo.sharepointSiteId.isNotEmpty ? _prefsRepo.sharepointSiteId : SharePointConstants.siteId,
+      'driveId': _prefsRepo.sharepointDriveId.isNotEmpty ? _prefsRepo.sharepointDriveId : SharePointConstants.driveId,
+      'appFolder': _prefsRepo.sharepointAppFolder.isNotEmpty ? _prefsRepo.sharepointAppFolder : SharePointConstants.appRootFolder,
     };
   }
 }

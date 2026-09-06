@@ -79,4 +79,17 @@ abstract class IAppPreferencesService {
 
   bool get activeCapturePhotoPage;
   Future<void> setActiveCapturePhotoPage(bool active);
+
+  // === SharePoint Configuration ===
+  String get sharepointDriveId;
+  Future<void> setSharepointDriveId(String id);
+
+  String get sharepointSiteId;
+  Future<void> setSharepointSiteId(String id);
+
+  String get sharepointHostname;
+  Future<void> setSharepointHostname(String hostname);
+
+  String get sharepointAppFolder;
+  Future<void> setSharepointAppFolder(String folder);
 }

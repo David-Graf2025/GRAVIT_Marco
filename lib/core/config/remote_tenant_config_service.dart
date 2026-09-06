@@ -42,7 +42,10 @@ class RemoteTenantConfigService {
       final url = Uri.parse('$_baseUrl/v1/tenant-config/$tenantId');
       final response = await http.get(
         url,
-        headers: const {'Cache-Control': 'no-cache'},
+        headers: {
+          'Cache-Control': 'no-cache',
+          'x-api-key': AppConfig.apiKey,
+        },
       ).timeout(_timeout);
       if (response.statusCode != 200) return null;
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -70,7 +73,10 @@ class RemoteTenantConfigService {
       final url = Uri.parse('$_baseUrl/v1/tenant-routing');
       final response = await http.get(
         url,
-        headers: const {'Cache-Control': 'no-cache'},
+        headers: {
+          'Cache-Control': 'no-cache',
+          'x-api-key': AppConfig.apiKey,
+        },
       ).timeout(_timeout);
       if (response.statusCode != 200) return null;
       final json = jsonDecode(response.body) as Map<String, dynamic>;

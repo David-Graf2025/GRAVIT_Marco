@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/config/app_config.dart';
-import '../../core/constants/storage_keys.dart';
+import '../../core/config/tempton_config.dart';
 import '../../core/services/device_identity_service.dart';
 import '../../core/utils/logger.dart';
 import '../interfaces/iconfig_api_service.dart';
@@ -46,25 +46,20 @@ class ConfigApiService implements IConfigApiService {
     return installationId;
   }
 
+  // Builds the TEMPTON config URI — no deviceId path segment needed
+  // since all TEMPTON devices share the same config.
   Future<Uri> _buildConfigUri(SharedPreferences prefs, String deviceId) async {
-    final installationId = await _getInstallationId(prefs);
-    final fingerprintHash = await DeviceIdentityService.getFingerprintHash();
-    final userEmail = (prefs.getString(StorageKeys.userEmail) ?? '').trim().toLowerCase();
-
     final params = <String, String>{
       'platform': _platformName(),
-      'installationId': installationId,
     };
 
-    if (fingerprintHash != null && fingerprintHash.isNotEmpty) {
-      params['fingerprintHash'] = fingerprintHash;
+    // Keep installationId as a lightweight diagnostic hint for server logs.
+    final installationId = await _getInstallationId(prefs);
+    if (installationId.isNotEmpty) {
+      params['installationId'] = installationId;
     }
 
-    if (userEmail.isNotEmpty) {
-      params['userEmail'] = userEmail;
-    }
-
-    return Uri.parse('$_baseUrl/v1/config/$deviceId').replace(queryParameters: params);
+    return Uri.parse('$_baseUrl${TemptonConfig.configEndpoint}').replace(queryParameters: params);
   }
 
   String get _baseUrl => AppConfig.apiBaseUrl;
@@ -131,7 +126,10 @@ class ConfigApiService implements IConfigApiService {
           return CompanyConfig.fromJson(jsonDecode(cachedJson));
         }
 
-        return null;
+        // Kein Cache vorhanden — TEMPTON-Offline-Fallback verwenden.
+        // Verhindert, dass die App einen fremden Default lädt oder crashed.
+        logger.w('Kein Cache vorhanden — TEMPTON Offline-Fallback aktiv');
+        return TemptonConfig.offlineFallbackConfig;
       }
     } catch (e) {
       logger.e('Fehler beim Config-Laden: $e');
@@ -144,7 +142,9 @@ class ConfigApiService implements IConfigApiService {
         return CompanyConfig.fromJson(jsonDecode(cachedJson));
       }
 
-      return null;
+      // Kein Cache vorhanden — TEMPTON-Offline-Fallback verwenden.
+      logger.w('Kein Cache vorhanden — TEMPTON Offline-Fallback aktiv');
+      return TemptonConfig.offlineFallbackConfig;
     }
   }
 
@@ -152,35 +152,17 @@ class ConfigApiService implements IConfigApiService {
   Future<bool> hasUpdate() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final deviceId = await _getDeviceId(prefs);
-      final versionUrl = Uri.parse('$_baseUrl/v1/config-version/$deviceId').replace(
-        queryParameters: {
-          'platform': _platformName(),
-        },
-      );
-
-      final versionResponse = await http.get(versionUrl).timeout(
-        const Duration(seconds: 5),
-      );
-
-      if (versionResponse.statusCode == 200) {
-        final payload = jsonDecode(versionResponse.body) as Map<String, dynamic>;
-        final cachedVersion = prefs.getString(_prefConfigVersion) ?? '0.0.0';
-        final serverVersion = (payload['version'] ?? '').toString();
-        if (serverVersion.isNotEmpty) {
-          return serverVersion != cachedVersion;
-        }
-      }
-
-      // Fallback for older backends: use header-based HEAD check on /v1/config.
-      final configUrl = await _buildConfigUri(prefs, deviceId);
+      // Use the TEMPTON config endpoint for version check (HEAD request).
+      final configUrl = await _buildConfigUri(prefs, '');
       final response = await http.head(configUrl).timeout(
         const Duration(seconds: 5),
       );
 
       if (response.statusCode == 200) {
         final cachedVersion = prefs.getString(_prefConfigVersion) ?? '0.0.0';
-        final serverVersion = response.headers['x-config-version'] ?? '1.0.0';
+        final serverVersion = response.headers['x-config-version'] ??
+            response.headers['x-config-state-version'] ??
+            '1.0.0';
         return serverVersion != cachedVersion;
       }
 

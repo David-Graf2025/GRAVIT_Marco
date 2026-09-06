@@ -66,8 +66,6 @@ class _TenantConfigLoadResult {
 class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObserver {
   // ===== UPLOAD TARGET SYSTEM (Clean Architecture) =====
   static const String _modeMyDrive = UploadConstants.uploadModeMyDrive;
-  static const String _modeMobilfunk26 = UploadConstants.uploadModeMobilfunk26;
-  static const String _modeSharepoint = UploadConstants.uploadModeSharepoint;
 
   static const String _unknownLabel = 'Unbekannt';
 
@@ -114,6 +112,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
 
   String? _selectedLocationKey;
   final Map<String, TextEditingController> _dynamicFieldControllers = {};
+  String? _selectedTemplateId;
   String? _lastTemplateSignature;
   bool _restoringPersistedInput = false;
 
@@ -202,6 +201,14 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
     final config = _tenantConfig;
     if (config == null) {
       throw StateError('Tenant config not loaded');
+    }
+
+    if (_selectedTemplateId != null && _selectedTemplateId!.isNotEmpty) {
+      final found = config.templates.firstWhere(
+        (t) => t.templateId == _selectedTemplateId,
+        orElse: () => config.defaultTemplate,
+      );
+      return found;
     }
 
     final popType = _currentPopTypeValue();
@@ -835,6 +842,18 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
     final pathController = TextEditingController(
       text: currentSettings.oneDriveBasePath,
     );
+    final spDriveIdController = TextEditingController(
+      text: _appPreferencesService.sharepointDriveId,
+    );
+    final spSiteIdController = TextEditingController(
+      text: _appPreferencesService.sharepointSiteId,
+    );
+    final spHostnameController = TextEditingController(
+      text: _appPreferencesService.sharepointHostname,
+    );
+    final spAppFolderController = TextEditingController(
+      text: _appPreferencesService.sharepointAppFolder,
+    );
 
     // Storage targets from config (null = config not yet loaded, use fallback).
     final storageTargets = _tenantConfig?.storageTargets;
@@ -848,21 +867,6 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
             setModalState(() => dialogUploadMode = mode);
           }
           
-          Future<void> setTenant(String tenantId) async {
-            await RuntimeStorageTargetResolver.instance.setActiveTenantId(tenantId);
-            await _appPreferencesService.setActiveTenantId(tenantId);
-            setModalState(() {});
-            // Reload tenant config for updated storage targets
-            await _loadTenantConfig(
-              forceRefresh: true,
-              preferredTenantId: tenantId,
-            );
-            if (!context.mounted) return;
-            // Reset upload mode to default for new tenant
-            final newDefault = _tenantConfig?.defaultStorageTargetId ?? _modeMyDrive;
-            await setMode(newDefault);
-          }
-
           // Determine if the currently selected target has a configurable basePath.
           final selectedTarget = storageTargets
               ?.where((t) => t.id == dialogUploadMode)
@@ -870,16 +874,12 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
           final isConfigurable = selectedTarget?.basePath != null
               || (storageTargets == null && dialogUploadMode == _modeMyDrive);
 
-          return FutureBuilder<List<String>>(
-            future: TenantRoutingService.instance.getAvailableTenantIds(),
-            builder: (context, snapshot) {
-              final availableTenants = snapshot.data ?? ['gravit_default'];
-              final selectedTenant = RuntimeStorageTargetResolver.instance.activeTenantId ?? 'gravit_default';
+          final selectedTenant = RuntimeStorageTargetResolver.instance.activeTenantId ?? 'tempton';
 
-              return AlertDialog(
-                title: const Text('Upload-Ziel wählen'),
-                content: SingleChildScrollView(
-                  child: Column(
+          return AlertDialog(
+            title: const Text('Upload-Ziel wählen'),
+            content: SingleChildScrollView(
+              child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -972,32 +972,6 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
                       
                       const SizedBox(height: 20),
                       
-                      // Tenant selector section
-                      const Text(
-                        'Mandant wählen',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          for (final tenant in availableTenants)
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: selectedTenant == tenant
-                                    ? AppTheme.accent
-                                    : AppTheme.panel2,
-                                foregroundColor: selectedTenant == tenant
-                                    ? Colors.white
-                                    : AppTheme.text,
-                              ),
-                              onPressed: () => setTenant(tenant),
-                              child: Text(tenant),
-                            ),
-                        ],
-                      ),
-                      
                       const Divider(height: 32),
                       
                       const Text(
@@ -1022,32 +996,14 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
                           ),
                         ],
                       ] else ...[
-                        // Fallback: hardcoded buttons (config not yet loaded)
+                        // Fallback: TEMPTON OneDrive
                         _buildUploadTargetButton(
                           icon: '📱',
-                          title: 'Eigenes OneDrive',
-                          subtitle: 'Persönlicher Cloud-Speicher',
+                          title: 'Tempton OneDrive',
+                          subtitle: 'Persönlicher Upload für Tempton',
                           mode: _modeMyDrive,
                           currentMode: dialogUploadMode,
                           onTap: () => setMode(_modeMyDrive),
-                        ),
-                        const SizedBox(height: 10),
-                        _buildUploadTargetButton(
-                          icon: '📂',
-                          title: 'Mobilfunk 26',
-                          subtitle: 'Geteilter Projektordner',
-                          mode: _modeMobilfunk26,
-                          currentMode: dialogUploadMode,
-                          onTap: () => setMode(_modeMobilfunk26),
-                        ),
-                        const SizedBox(height: 10),
-                        _buildUploadTargetButton(
-                          icon: '🏢',
-                          title: 'Firmen-SharePoint',
-                          subtitle: 'GRAVIT_UPLOADS auf SharePoint',
-                          mode: _modeSharepoint,
-                          currentMode: dialogUploadMode,
-                          onTap: () => setMode(_modeSharepoint),
                         ),
                       ],
 
@@ -1062,7 +1018,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
                         TextField(
                           controller: pathController,
                           decoration: const InputDecoration(
-                            hintText: '/Dokumentation/Gravit',
+                            hintText: '/Tempton',
                             prefixIcon: Icon(Icons.folder, size: 18),
                           ),
                         ),
@@ -1072,6 +1028,63 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
                           style: TextStyle(fontSize: 11, color: AppTheme.subtext),
                         ),
                       ],
+
+                      // SharePoint configuration section (always visible)
+                      const Divider(height: 32),
+                      const Text(
+                        '🏢 SharePoint-Konfiguration',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Werte aus Azure AD App-Registrierung / Microsoft Graph',
+                        style: TextStyle(fontSize: 11, color: AppTheme.subtext),
+                      ),
+                      const SizedBox(height: 14),
+                      const Text('Drive ID', style: TextStyle(fontSize: 12, color: AppTheme.subtext)),
+                      const SizedBox(height: 4),
+                      TextField(
+                        controller: spDriveIdController,
+                        decoration: const InputDecoration(
+                          hintText: 'b!vau6kwInn0OK...',
+                          prefixIcon: Icon(Icons.storage, size: 18),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text('Site ID', style: TextStyle(fontSize: 12, color: AppTheme.subtext)),
+                      const SizedBox(height: 4),
+                      TextField(
+                        controller: spSiteIdController,
+                        decoration: const InputDecoration(
+                          hintText: 'mycompany.sharepoint.com,xxxxxxxx-...',
+                          prefixIcon: Icon(Icons.language, size: 18),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text('Hostname', style: TextStyle(fontSize: 12, color: AppTheme.subtext)),
+                      const SizedBox(height: 4),
+                      TextField(
+                        controller: spHostnameController,
+                        decoration: const InputDecoration(
+                          hintText: 'https://mycompany.sharepoint.com',
+                          prefixIcon: Icon(Icons.link, size: 18),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      const Text('App-Ordner', style: TextStyle(fontSize: 12, color: AppTheme.subtext)),
+                      const SizedBox(height: 4),
+                      TextField(
+                        controller: spAppFolderController,
+                        decoration: const InputDecoration(
+                          hintText: 'TEMPTON_UPLOADS',
+                          prefixIcon: Icon(Icons.folder_special, size: 18),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Leer lassen = Standardwerte aus Konfiguration werden genutzt.',
+                        style: TextStyle(fontSize: 11, color: AppTheme.subtext),
+                      ),
                     ],
                   ),
                 ),
@@ -1080,24 +1093,28 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
                     onPressed: () => Navigator.pop(context),
                     child: const Text('Schließen'),
                   ),
-                  if (isConfigurable)
+                  if (isConfigurable || true)
                     ElevatedButton(
                       onPressed: () async {
-                        final newPath = pathController.text.trim();
-                        if (newPath.isEmpty || !newPath.startsWith('/')) {
-                          showToast('Pfad muss mit / beginnen');
-                          return;
+                        if (isConfigurable) {
+                          final newPath = pathController.text.trim();
+                          if (newPath.isEmpty || !newPath.startsWith('/')) {
+                            showToast('Pfad muss mit / beginnen');
+                            return;
+                          }
+                          await _saveMyOneDriveBasePath(newPath);
                         }
-                        await _saveMyOneDriveBasePath(newPath);
+                        await _appPreferencesService.setSharepointDriveId(spDriveIdController.text.trim());
+                        await _appPreferencesService.setSharepointSiteId(spSiteIdController.text.trim());
+                        await _appPreferencesService.setSharepointHostname(spHostnameController.text.trim());
+                        await _appPreferencesService.setSharepointAppFolder(spAppFolderController.text.trim());
                         if (!context.mounted) return;
                         Navigator.pop(context);
-                        showToast('✅ Pfad gespeichert');
+                        showToast('✅ Einstellungen gespeichert');
                       },
                       child: const Text('Speichern'),
                     ),
                 ],
-              );
-            },
           );
         },
       ),
@@ -1287,7 +1304,10 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
 
     final response = await http.get(
       uri,
-      headers: const {'Cache-Control': 'no-cache'},
+      headers: {
+        'Cache-Control': 'no-cache',
+        'x-api-key': AppConfig.apiKey,
+      },
     ).timeout(const Duration(seconds: 8));
 
     if (response.statusCode != 200) {
@@ -1343,7 +1363,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
         forceRefresh: forceRefresh,
       );
       final defaultTenantId = routingConfig.defaultTenantId.trim().isEmpty
-          ? 'gravit_default'
+          ? 'tempton'
           : routingConfig.defaultTenantId.trim();
 
       final savedTenantId = _appPreferencesService.activeTenantId?.trim();
@@ -2227,7 +2247,7 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
           },
         )
             : null,
-        title: const Text('GRAVIT'),
+        title: const Text('TEMPTON'),
         actions: [
           if (!_showPhotoPage)
             LanguageSwitcher(
@@ -2246,6 +2266,8 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
                     enqueueMissing: _enqueueMissing,
                     uploadForSite: _uploadForSite,
                     deleteSiteFolder: _deleteSiteFolder,
+                    storageType: _tenantConfig?.effectiveStorageType ?? 'local',
+                    companyName: _tenantConfig?.name,
                   ),
                 ),
               ),
@@ -2339,6 +2361,55 @@ class _HomeWithPluginState extends State<HomeWithPlugin> with WidgetsBindingObse
             ],
           ),
           const SizedBox(height: 14),
+
+          if (_tenantConfig != null && _tenantConfig!.templates.length > 1) ...[
+            Card(
+              color: AppTheme.panel,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: const BorderSide(color: AppTheme.border),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                child: Row(
+                  children: [
+                    const Icon(Icons.assignment_outlined, color: AppTheme.good, size: 22),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedTemplateId ?? _activeTemplate().templateId,
+                          dropdownColor: AppTheme.panel,
+                          isExpanded: true,
+                          style: const TextStyle(
+                            color: AppTheme.text,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          hint: const Text('Vorlage / Bautyp auswählen', style: TextStyle(color: AppTheme.subtext)),
+                          items: _tenantConfig!.templates.map((tpl) {
+                            return DropdownMenuItem<String>(
+                              value: tpl.templateId,
+                              child: Text('${tpl.name} (${tpl.captureSteps.length} Fotos)'),
+                            );
+                          }).toList(),
+                          onChanged: (val) async {
+                            if (val == null) return;
+                            setState(() {
+                              _selectedTemplateId = val;
+                              _lastTemplateSignature = null;
+                            });
+                            await _refreshTemplateDependentState();
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
 
           LocationFormWidget(
             cityController: _cityController,

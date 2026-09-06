@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/config/app_config.dart';
+import '../../../../core/config/tempton_config.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/app_widgets.dart';
 
@@ -23,7 +23,7 @@ class _PhotoChecklistSectionState extends State<PhotoChecklistSection> {
   @override
   Widget build(BuildContext context) {
     final filter = _filterController.text.trim().toLowerCase();
-    final variables = AppConfig.defaultPhotoVariables
+    final variables = TemptonConfig.offlineFallbackConfig.config.photoVariables
         .where((v) => filter.isEmpty || v.toLowerCase().contains(filter))
         .toList(growable: false);
 
@@ -33,7 +33,7 @@ class _PhotoChecklistSectionState extends State<PhotoChecklistSection> {
         children: [
           SectionTitle(
             'Fotoliste',
-            subtitle: '${_done.length}/${AppConfig.defaultPhotoVariables.length} erledigt',
+            subtitle: '${_done.length}/${TemptonConfig.offlineFallbackConfig.config.photoVariables.length} erledigt',
           ),
           TextField(
             controller: _filterController,

@@ -98,6 +98,22 @@ class StorageKeys {
   static const String variablesOrder = 'variablesOrderV1';
 
   // ==========================================
+  // SharePoint Configuration (user-configurable)
+  // ==========================================
+
+  /// SharePoint Drive ID (Graph API library ID)
+  static const String sharepointDriveId = 'sharepoint_drive_id_v1';
+
+  /// SharePoint Site ID (full site resource ID)
+  static const String sharepointSiteId = 'sharepoint_site_id_v1';
+
+  /// SharePoint Hostname (e.g. mycompany.sharepoint.com)
+  static const String sharepointHostname = 'sharepoint_hostname_v1';
+
+  /// SharePoint App-Ordner (root folder name within the library)
+  static const String sharepointAppFolder = 'sharepoint_app_folder_v1';
+
+  // ==========================================
   // Upload Queue & Status
   // ==========================================
   

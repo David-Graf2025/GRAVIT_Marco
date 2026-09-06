@@ -2,6 +2,11 @@
 .env
 .env.local
 .env.*.local
+backend/data/
+flutter_analyze_output.txt
+preview.html
+techniker_plan_*.html
+gartenmauer_*.html
 # Miscellaneous
 *.class
 *.log

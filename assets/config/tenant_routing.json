@@ -1,10 +1,8 @@
 {
-  "defaultTenantId": "gravit_default",
-  "manualTenantId": "",
+  "defaultTenantId": "tempton",
+  "manualTenantId": "tempton",
   "domainTenantMapping": {
-    "gnetzonline.de": "gravit_default",
-    "firma-a.de": "firma_a",
-    "firma-b.de": "firma_b",
-    "firma-c.de": "firma_c"
+    "tempton.de": "tempton",
+    "gnetzonline.de": "tempton"
   }
 }

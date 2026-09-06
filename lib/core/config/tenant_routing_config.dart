@@ -15,7 +15,7 @@ class TenantRoutingConfig {
     final mappingRaw = json['domainTenantMapping'] as Map<String, dynamic>? ?? {};
     final emailRaw = json['emailTenantMapping'] as Map<String, dynamic>? ?? {};
     return TenantRoutingConfig(
-      defaultTenantId: json['defaultTenantId'] as String? ?? 'gravit_default',
+      defaultTenantId: json['defaultTenantId'] as String? ?? 'tempton',
       manualTenantId: (json['manualTenantId'] as String?)?.trim().isEmpty == true
           ? null
           : (json['manualTenantId'] as String?),

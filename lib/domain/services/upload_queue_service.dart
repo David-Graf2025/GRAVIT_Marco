@@ -384,6 +384,7 @@ class UploadQueueService implements IUploadQueueService {
         .toList();
 
     if (filesToUpload.isEmpty) {
+      await dequeue(siteKey);
       onProgress?.call(0, 0, 'Alle Dateien bereits hochgeladen');
       return;
     }
@@ -489,6 +490,7 @@ class UploadQueueService implements IUploadQueueService {
     }
 
     int siteIndex = 0;
+    int failedSites = 0;
     final totalSites = queue.length;
 
     for (final entry in queue.entries.toList()) {
@@ -527,6 +529,7 @@ class UploadQueueService implements IUploadQueueService {
         );
       } catch (e) {
         // Log error but continue with other sites
+        failedSites++;
         onProgress?.call(
           siteIndex,
           totalSites,
@@ -535,7 +538,11 @@ class UploadQueueService implements IUploadQueueService {
       }
     }
 
-    onProgress?.call(totalSites, totalSites, 'Alle Uploads abgeschlossen!');
+    if (failedSites > 0) {
+      onProgress?.call(totalSites, totalSites, 'Fertig mit Fehlern ($failedSites fehlgeschlagen)');
+    } else {
+      onProgress?.call(totalSites, totalSites, 'Alle Uploads abgeschlossen!');
+    }
   }
 
   // ==========================================

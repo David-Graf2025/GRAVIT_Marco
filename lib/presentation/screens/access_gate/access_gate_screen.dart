@@ -9,12 +9,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/config/app_config.dart';
 import '../../../core/config/runtime_storage_target_resolver.dart';
+import '../../../core/config/tempton_config.dart';
 import '../../../core/constants/storage_keys.dart';
+import '../../../core/di/injection.dart';
 import '../../../core/services/device_identity_service.dart';
+import '../../../domain/interfaces/ionedrive_service.dart';
+import '../../../domain/interfaces/itoken_manager_service.dart';
 import '../../../domain/services/config_api_service.dart';
+import '../../theme/app_theme.dart';
 import '../home/home_with_plugin.dart';
-
-String get _apiBase => AppConfig.apiBaseUrl;
 
 // OFFLINE-Fail-open: wie lange darf ein letztes allowed=true offline weiter gelten?
 // (Das ist NICHT die Business-Grace! Business-Grace kommt vom Server via graceActive/graceUntil)
@@ -173,11 +176,16 @@ class _AccessGateState extends State<AccessGate> with WidgetsBindingObserver {
         params['userEmail'] = userEmail;
       }
 
-      final uri = Uri.parse('$_apiBase/v1/access/$_deviceId').replace(
-        queryParameters: params,
-      );
+      final uri = Uri.parse(
+        '${AppConfig.apiBaseUrl}/v1/access/$_deviceId',
+      ).replace(queryParameters: params);
 
-      final res = await http.get(uri).timeout(const Duration(seconds: 6));
+      final res = await http.get(
+        uri,
+        headers: {
+          'x-api-key': AppConfig.apiKey,
+        },
+      ).timeout(const Duration(seconds: 6));
       final data = jsonDecode(res.body);
 
       final canonicalDeviceId = (data['deviceId'] ?? '').toString().trim();
@@ -337,7 +345,7 @@ class _LoadingOverlay extends StatelessWidget {
   }
 }
 
-class _LockedOverlay extends StatelessWidget {
+class _LockedOverlay extends StatefulWidget {
   final String message;
   final String deviceId;
   final bool checking;
@@ -351,38 +359,207 @@ class _LockedOverlay extends StatelessWidget {
   });
 
   @override
+  State<_LockedOverlay> createState() => _LockedOverlayState();
+}
+
+class _LockedOverlayState extends State<_LockedOverlay> {
+  final _emailCtrl = TextEditingController();
+  bool _signingIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedEmail();
+  }
+
+  Future<void> _loadSavedEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(StorageKeys.userEmail) ?? '';
+    if (saved.isNotEmpty && mounted) {
+      _emailCtrl.text = saved;
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loginWithMicrosoft() async {
+    if (_signingIn) return;
+    setState(() => _signingIn = true);
+    try {
+      final oneDrive = getIt<IOneDriveService>();
+      await oneDrive.connect(context, force: true);
+      final token = await getIt<ITokenManagerService>().getAccessToken();
+      if (token != null && token.isNotEmpty) {
+        final response = await http.get(
+          Uri.parse('https://graph.microsoft.com/v1.0/me'),
+          headers: {'Authorization': 'Bearer $token'},
+        );
+        if (response.statusCode == 200) {
+          final profile = jsonDecode(response.body);
+          final email = (profile['mail'] ?? profile['userPrincipalName'] ?? '').toString().trim().toLowerCase();
+          if (email.isNotEmpty) {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString(StorageKeys.userEmail, email);
+            _emailCtrl.text = email;
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Angemeldet als $email ✅')),
+              );
+            }
+          }
+        }
+      }
+      widget.onRetry();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Microsoft Login fehlgeschlagen: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _signingIn = false);
+    }
+  }
+
+  Future<void> _submitManualEmail() async {
+    final email = _emailCtrl.text.trim().toLowerCase();
+    if (email.isEmpty || !email.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Bitte eine gültige Firmen-E-Mail eingeben.')),
+      );
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(StorageKeys.userEmail, email);
+    widget.onRetry();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isBusy = widget.checking || _signingIn;
+
     return ColoredBox(
-      color: Colors.white,
+      color: AppTheme.bg,
       child: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.lock, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              const Text(
-                'App gesperrt',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: Card(
+              color: AppTheme.panel,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: const BorderSide(color: AppTheme.border),
               ),
-              const SizedBox(height: 12),
-              Text(
-                message.isNotEmpty ? message : 'Zugriff deaktiviert.',
-                textAlign: TextAlign.center,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.verified_user_outlined, size: 56, color: AppTheme.good),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'BilderApp Autorisierung',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.text),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.message.isNotEmpty
+                          ? widget.message
+                          : 'Bitte melde dich mit deinem Firmen-Konto an oder gib deine Firmen-E-Mail ein.',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 13, color: AppTheme.subtext),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // 1. CLOUD / MICROSOFT 365 LOGIN
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0078D4),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        onPressed: isBusy ? null : _loginWithMicrosoft,
+                        icon: const Icon(Icons.cloud_done, size: 20),
+                        label: const Text('Mit Microsoft 365 anmelden', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    Row(
+                      children: const [
+                        Expanded(child: Divider(color: AppTheme.border)),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Text('ODER', style: TextStyle(fontSize: 11, color: AppTheme.subtext, fontWeight: FontWeight.w600)),
+                        ),
+                        Expanded(child: Divider(color: AppTheme.border)),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 2. MANUAL EMAIL LOGIN (FOR LOCAL-ONLY COMPANIES)
+                    TextField(
+                      controller: _emailCtrl,
+                      keyboardType: TextInputType.emailAddress,
+                      style: const TextStyle(color: AppTheme.text, fontSize: 14),
+                      decoration: InputDecoration(
+                        labelText: 'Firmen-E-Mail eingeben',
+                        labelStyle: const TextStyle(color: AppTheme.subtext),
+                        hintText: 'techniker@firma.de',
+                        hintStyle: TextStyle(color: AppTheme.subtext.withValues(alpha: 0.5)),
+                        prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.subtext, size: 20),
+                        filled: true,
+                        fillColor: AppTheme.panel2,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppTheme.border)),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppTheme.border)),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.text,
+                          side: const BorderSide(color: AppTheme.border),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        onPressed: isBusy ? null : _submitManualEmail,
+                        child: const Text('Mit Firmen-E-Mail freischalten'),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+                    const Divider(color: AppTheme.border),
+                    const SizedBox(height: 12),
+
+                    SelectableText(
+                      'Geräte-ID: ${widget.deviceId}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 10, color: AppTheme.subtext, fontFamily: 'monospace'),
+                    ),
+                    const SizedBox(height: 10),
+                    TextButton.icon(
+                      onPressed: isBusy ? null : widget.onRetry,
+                      icon: isBusy
+                          ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.refresh, size: 16),
+                      label: Text(isBusy ? 'Prüfe Status…' : 'Status erneut prüfen'),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 24),
-              SelectableText(
-                'Device-ID:\n$deviceId',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: checking ? null : onRetry,
-                child: Text(checking ? 'Prüfe…' : 'Erneut prüfen'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

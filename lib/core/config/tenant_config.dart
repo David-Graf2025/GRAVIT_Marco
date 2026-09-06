@@ -300,6 +300,8 @@ class TenantConfig {
   final String defaultStorageTargetId;
   final List<TenantTemplate> templates;
   final String defaultTemplateId;
+  final String storageType;
+  final bool burnWatermark;
 
   const TenantConfig({
     required this.tenantId,
@@ -309,13 +311,28 @@ class TenantConfig {
     required this.defaultStorageTargetId,
     required this.templates,
     required this.defaultTemplateId,
+    this.storageType = 'local',
+    this.burnWatermark = false,
   });
+
+  String get effectiveStorageType {
+    final st = storageType.toLowerCase();
+    if (st == 'sharepoint') return 'sharepoint';
+    if (st.contains('onedrive')) return 'onedrive';
+    if (st == 'local') return 'local';
+    for (final t in storageTargets) {
+      final tt = t.type.toLowerCase();
+      if (tt.contains('sharepoint')) return 'sharepoint';
+      if (tt.contains('onedrive')) return 'onedrive';
+    }
+    return 'local';
+  }
 
   factory TenantConfig.fromJson(Map<String, dynamic> json) {
     final templates = (json['templates'] as List<dynamic>)
         .map((e) => TenantTemplate.fromJson(e as Map<String, dynamic>))
         .toList();
-    final defaultTemplateId = json['defaultTemplateId'] as String;
+    final defaultTemplateId = (json['defaultTemplateId'] as String?) ?? (templates.isNotEmpty ? templates.first.templateId : 'standard');
     final defaultTemplate = templates.firstWhere(
       (template) => template.templateId == defaultTemplateId,
       orElse: () => templates.first,
@@ -326,18 +343,23 @@ class TenantConfig {
         .where((field) => field.key.isNotEmpty)
         .toList();
 
+    final rawStorageType = (json['storageType'] as String?)?.toLowerCase().trim() ?? '';
+    final burnWatermark = json['burnWatermark'] as bool? ?? false;
+
     return TenantConfig(
       tenantId: json['tenantId'] as String,
       name: json['name'] as String,
       fields: configuredFields.isNotEmpty
           ? configuredFields
           : _inferFieldsFromFolderPattern(defaultTemplate.folderPattern),
-      storageTargets: (json['storageTargets'] as List<dynamic>)
+      storageTargets: (json['storageTargets'] as List<dynamic>? ?? const [])
           .map((e) => StorageTargetConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
-      defaultStorageTargetId: json['defaultStorageTargetId'] as String,
+      defaultStorageTargetId: json['defaultStorageTargetId'] as String? ?? 'mydrive',
       templates: templates,
       defaultTemplateId: defaultTemplateId,
+      storageType: rawStorageType.isNotEmpty ? rawStorageType : 'local',
+      burnWatermark: burnWatermark,
     );
   }
 

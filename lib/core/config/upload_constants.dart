@@ -24,36 +24,47 @@ class UploadConstants {
   static const String uploadModeSharepoint = 'sharepoint';
 
   // ==========================================
-  // MOBILFUNK 26 (Shared Folder)
+  // MOBILFUNK 26 (Legacy — nicht mehr aktiv genutzt)
+  //
+  // Diese Konstanten werden ausschließlich noch benötigt, damit bestehende
+  // Upload-Queue-Einträge mit mode='mobilfunk26' sauber interpretiert werden
+  // können. Neue Uploads laufen nur noch über TEMPTON OneDrive.
   // ==========================================
-  
-  /// Drive ID für Mobilfunk 26 Shared Folder
+
+  @Deprecated('Mobilfunk26 is not used in the TEMPTON product. '
+      'Retained only for backward-compatible queue-entry parsing.')
   static const String mobilfunk26DriveId = '1d7bf7cb82b53d77';
-  
-  /// Item ID für Mobilfunk 26 Root-Ordner
+
+  @Deprecated('Mobilfunk26 is not used in the TEMPTON product. '
+      'Retained only for backward-compatible queue-entry parsing.')
   static const String mobilfunk26ItemId = '1D7BF7CB82B53D77!s28512ac59890412cb993a5fe758db97b';
-  
-  /// Sub-Path innerhalb Mobilfunk 26 (leer = direkt im Root)
+
+  @Deprecated('Mobilfunk26 is not used in the TEMPTON product. '
+      'Retained only for backward-compatible queue-entry parsing.')
   static const String mobilfunk26SubPath = '';
-  
+
   // ==========================================
-  // FIRMEN-SHAREPOINT
+  // FIRMEN-SHAREPOINT (Legacy — nicht mehr aktiv genutzt)
+  //
+  // Gleiche Begründung wie Mobilfunk26: nur für Queue-Kompatibilität.
   // ==========================================
-  
-  /// SharePoint Drive ID (aus sharepoint_constants.dart übernommen)
-  static const String sharepointDriveId = 
+
+  @Deprecated('SharePoint is not used in the TEMPTON product. '
+      'Retained only for backward-compatible queue-entry parsing.')
+  static const String sharepointDriveId =
       'b!vau6kwInn0OKZbalezAc9S0zVCMn7yxAnRarefPitqIO1m_cK6i_TLpSvSNGguTF';
-  
-  /// SharePoint App-Ordner
+
+  @Deprecated('SharePoint is not used in the TEMPTON product. '
+      'Retained only for backward-compatible queue-entry parsing.')
   static const String sharepointAppFolder = 'GRAVIT_UPLOADS';
   
   // ==========================================
-  // DEFAULT WERTE
+  // DEFAULT WERTE (TEMPTON)
   // ==========================================
-  
-  /// Default Pfad für eigenes OneDrive
-  static const String defaultOneDriveBasePath = '/test';
-  
-  /// Default Upload-Modus beim ersten Start
+
+  /// Default-Pfad für TEMPTON OneDrive-Uploads
+  static const String defaultOneDriveBasePath = '/Tempton';
+
+  /// Default Upload-Modus: immer persönliches OneDrive für TEMPTON
   static const String defaultUploadMode = uploadModeMyDrive;
 }

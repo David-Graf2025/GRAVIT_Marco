@@ -102,6 +102,34 @@ class PreferencesRepository {
       _prefs.setString(StorageKeys.remoteSubPath, path);
 
   // ==========================================
+  // SharePoint Configuration (user-configurable)
+  // ==========================================
+
+  String get sharepointDriveId =>
+      _prefs.getString(StorageKeys.sharepointDriveId) ?? '';
+
+  Future<bool> setSharepointDriveId(String id) =>
+      _prefs.setString(StorageKeys.sharepointDriveId, id);
+
+  String get sharepointSiteId =>
+      _prefs.getString(StorageKeys.sharepointSiteId) ?? '';
+
+  Future<bool> setSharepointSiteId(String id) =>
+      _prefs.setString(StorageKeys.sharepointSiteId, id);
+
+  String get sharepointHostname =>
+      _prefs.getString(StorageKeys.sharepointHostname) ?? '';
+
+  Future<bool> setSharepointHostname(String hostname) =>
+      _prefs.setString(StorageKeys.sharepointHostname, hostname);
+
+  String get sharepointAppFolder =>
+      _prefs.getString(StorageKeys.sharepointAppFolder) ?? '';
+
+  Future<bool> setSharepointAppFolder(String folder) =>
+      _prefs.setString(StorageKeys.sharepointAppFolder, folder);
+
+  // ==========================================
   // User Input
   // ==========================================
 

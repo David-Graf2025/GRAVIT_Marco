@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'GRAVIT DOKU HELPER',
+      title: 'TEMPTON Doku Helper',
       theme: AppTheme.dark(),
       home: const AccessGate(),
     );

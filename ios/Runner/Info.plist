@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Die BilderApp benötigt Zugriff auf die Kamera, um Dokumentationsfotos vor Ort aufzunehmen.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Die BilderApp benötigt Zugriff auf Ihre Fotobibliothek, um Dokumentationsfotos anzuzeigen und zu verwalten.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Die BilderApp benötigt Zugriff, um aufgenommene Dokumentationsfotos in Ihrer Galerie zu speichern.</string>
 </dict>
 </plist>
