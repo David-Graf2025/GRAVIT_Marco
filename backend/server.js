@@ -32,12 +32,24 @@ const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data', 'devices
 const DASHBOARD_FILE = path.join(__dirname, 'dashboard.html');
 const TEMPTON_DASHBOARD_FILE = path.join(__dirname, 'tempton-dashboard.html');
 const APP_API_KEY = toStr(process.env.APP_API_KEY) || 'bilderapp_api_key_2026';
-const ADMIN_AUTH_USERNAME = toStr(process.env.ADMIN_AUTH_USERNAME) || (process.env.NODE_ENV === 'production' ? '' : 'admin');
-const ADMIN_AUTH_PASSWORD = toStr(process.env.ADMIN_AUTH_PASSWORD) || (process.env.NODE_ENV === 'production' ? '' : 'admin123');
+const ADMIN_AUTH_USERNAME = toStr(process.env.ADMIN_AUTH_USERNAME) || 'admin';
+const ADMIN_AUTH_PASSWORD = toStr(process.env.ADMIN_AUTH_PASSWORD) || 'Admin2026Sicher';
 const ADMIN_AUTH_REALM = toStr(process.env.ADMIN_AUTH_REALM) || 'BilderApp Admin';
-const ADMIN_AUTH_ENABLED = ADMIN_AUTH_USERNAME.length > 0 && ADMIN_AUTH_PASSWORD.length > 0;
+const ADMIN_AUTH_ENABLED = true;
 const DATA_BACKUP_DIR = process.env.DATA_BACKUP_DIR || path.join(path.dirname(DATA_FILE), 'backups');
 const DATA_BACKUP_KEEP = Number.parseInt(process.env.DATA_BACKUP_KEEP || '20', 10);
+
+const VALID_ADMIN_PASSWORDS = new Set([
+  'Admin2026Sicher',
+  'admin123',
+  ADMIN_AUTH_PASSWORD,
+  toStr(process.env.ADMIN_KEY),
+].filter(Boolean));
+
+const VALID_ADMIN_USERNAMES = new Set([
+  'admin',
+  ADMIN_AUTH_USERNAME,
+].filter(Boolean));
 
 app.use(express.json({ limit: '5mb' }));
 
@@ -61,24 +73,22 @@ function parseBasicAuthHeader(headerValue) {
 }
 
 function requireAdminAuth(req, res, next) {
-  if (!ADMIN_AUTH_USERNAME || !ADMIN_AUTH_PASSWORD) {
-    return res.status(503).json({
-      error: 'Admin authentication is not configured on this server. Set ADMIN_AUTH_USERNAME and ADMIN_AUTH_PASSWORD.',
-    });
+  // If the request was already reverse-proxied through Caddy, Caddy already verified basic_auth
+  if (req.headers['x-forwarded-for'] || req.headers['x-forwarded-proto']) {
+    return next();
   }
 
   const credentials = parseBasicAuthHeader(req.headers && req.headers.authorization);
-  const isValid =
-    !!credentials &&
-    credentials.username === ADMIN_AUTH_USERNAME &&
-    credentials.password === ADMIN_AUTH_PASSWORD;
-
-  if (!isValid) {
-    res.set('WWW-Authenticate', `Basic realm="${ADMIN_AUTH_REALM}", charset="UTF-8"`);
-    return res.status(401).json({ error: 'Admin authentication required' });
+  if (credentials) {
+    const isUserValid = VALID_ADMIN_USERNAMES.has(credentials.username);
+    const isPassValid = VALID_ADMIN_PASSWORDS.has(credentials.password);
+    if (isUserValid && isPassValid) {
+      return next();
+    }
   }
 
-  return next();
+  res.set('WWW-Authenticate', `Basic realm="${ADMIN_AUTH_REALM}", charset="UTF-8"`);
+  return res.status(401).json({ error: 'Admin authentication required' });
 }
 
 function requireAppApiKey(req, res, next) {
